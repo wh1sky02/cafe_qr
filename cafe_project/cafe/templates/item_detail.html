@@ -1,0 +1,27 @@
+
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="bg-white rounded-xl shadow-lg p-6 max-w-2xl mx-auto">
+        <div class="flex flex-col md:flex-row items-center">
+            <img src="{% static item.image %}" alt="{{ item.name }}" class="w-64 h-64 rounded-lg object-cover">
+            <div class="md:ml-8 mt-4 md:mt-0">
+                <h1 class="text-4xl font-bold">{{ item.name }}</h1>
+                <p class="text-gray-600 mt-2">{{ item.description }}</p>
+                <p class="text-3xl font-semibold text-gray-700 mt-4">${{ item.price }}</p>
+                <div class="mt-6 flex items-center">
+                    <button class="bg-[#5E9EA0] text-white px-6 py-2 rounded-lg text-xl">Add to Cart</button>
+                </div>
+                {% if item.is_bestseller %}
+                    <span class="mt-4 inline-block bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full">Bestseller</span>
+                {% endif %}
+                {% if item.is_new %}
+                    <span class="mt-4 ml-2 inline-block bg-green-100 text-green-800 px-3 py-1 rounded-full">New</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

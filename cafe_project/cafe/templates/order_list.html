@@ -1,0 +1,100 @@
+{% load static tailwind_tags %}
+
+<html>
+
+<head>
+    <title>Order List</title>
+    {% tailwind_css %}
+</head>
+
+<body class="bg-white">
+
+    <div class="relative w-full mx-auto bg-white overflow-hidden">
+        <!-- Header -->
+        <div class="bg-[#5E9EA0] flex items-center px-5 py-5 w-full fixed top-0 left-0 h-40 z-50">
+            <img class="h-10 w-10" src="{% static 'images/Back.png' %}" alt="Back">
+            <div class="flex-grow text-center text-5xl text-white font-bold">Order List</div>
+        </div>
+
+        <div class="mt-40 p-6">
+            <!-- Navigation Tabs -->
+            <div class="flex space-x-4 mb-6 z-40">
+                <div class="bg-[#5E9EA0] text-white px-6 py-2 rounded-lg">Menu</div>
+                <div class="bg-[#5E9EA0] text-white px-6 py-2 rounded-lg">Cart</div>
+                <div class="bg-gray-300 text-gray-600 px-6 py-2 rounded-lg">Checkout</div>
+            </div>
+
+            <!-- Estimated Time -->
+            <div class="bg-gray-100 p-4 rounded-lg">
+                <p class="text-lg text-gray-500">Estimated time</p>
+                <p class="text-2xl font-bold">Standard (<span>20-35</span> mins)</p>
+            </div>
+
+            <div class="w-[224px] h-3 bg-[#5E9EA0] absolute top-48 left-0 z-0"></div>
+
+            <!-- Order Details -->
+            <h3 class="font-bold text-2xl mt-6 mb-4">Order Details</h3>
+            
+            <div class="space-y-4 bg-gray-100 ">
+
+                <div class="flex justify-between items-center p-4 rounded-lg">
+                    <div class="flex items-center">
+                        <img src="{% static 'images/Latte.png' %}" alt="Cafe Latte" class="w-24 h-24 rounded-lg">
+                        <div class="ml-4 flex-1">
+                            <p class="font-bold text-xl">Cafe Latte</p>
+                            <p class="text-lg text-gray-500">More sugar</p>
+                            <div class="mt-4 flex items-center text-lg p-1 border-2 border-[#5E9EA0] rounded-md">
+                                <button class="text-red-500 font-bold  px-2 py-1 rounded">-</button>
+                                <span class="px-3">1</span>
+                                <button class=" text-[#5E9EA0] font-bold px-2 py-1 rounded">+</button>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="ml-4 font-bold">S$7.50</p>
+                </div>
+
+                <hr class="border-[#5E9EA0]">
+                
+                <div class="flex justify-between items-center p-4 rounded-lg">
+                    <div class="flex items-center">
+                        <img src="{% static 'images/Latte.png' %}" alt="Cafe Latte" class="w-24 h-24 rounded-lg">
+                        <div class="ml-4 flex-1">
+                            <p class="font-bold text-xl">Cafe Latte</p>
+                            <p class="text-lg text-gray-500">More sugar</p>
+                            <div class="mt-4 flex items-center text-lg p-1 border-2 border-[#5E9EA0] rounded-md">
+                                <button class="text-red-500 font-bold  px-2 py-1 rounded">-</button>
+                                <span class="px-3">1</span>
+                                <button class=" text-[#5E9EA0] font-bold px-2 py-1 rounded">+</button>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="ml-4 font-bold">S$7.50</p>
+                </div>
+
+                <hr class="border-[#5E9EA0]">
+
+
+                <p class="p-4 text-blue-500 cursor-pointer underline">Add more items</p>
+            </div>
+
+            
+
+            <!-- Summary -->
+            <div class="mt-6">
+                <div class="flex justify-between text-gray-600">
+                    <p>Subtotal</p>
+                    <p>S$22.30</p>
+                </div>
+                <div class="flex justify-between font-bold text-lg mt-2">
+                    <p>Total</p>
+                    <p>S$24.29</p>
+                </div>
+            </div>
+
+            <!-- Checkout Button -->
+            <button class="bg-teal-500 text-white w-full py-3 rounded-lg mt-6">Checkout</button>
+        </div>
+    </div>
+
+</body>
+</html>

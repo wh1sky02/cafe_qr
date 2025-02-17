@@ -1,0 +1,218 @@
+{% load static tailwind_tags %}
+<html>
+    <head>
+        <title>Menu List</title>
+        {% tailwind_css %}
+    </head>
+    <style>
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+
+    <body class="bg-white no-scrollbar">
+        <!-- Header -->
+        <div class="bg-[#5E9EA0] flex items-center px-5 py-5 w-full fixed top-0 left-0 h-40 z-50">
+            <img class="h-10 w-10" src="{% static 'images/Back.png' %}" alt="Back">
+            <div class="flex-grow text-center text-5xl text-white font-bold">Menu</div>
+        </div>
+
+        <!-- Categories Section -->
+        <div class="mt-40 px-5 py-3 mb-10">
+            <div class="text-lg font-semibold">Categories</div>
+            <div class="flex space-x-4 overflow-x-auto no-scrollbar py-2">
+                <div class="category-btn flex items-center px-4 py-2 bg-[#5E9EA0] rounded-full text-white cursor-pointer shadow-lg whitespace-nowrap active-category" data-category="all">
+                    <div class="bg-white flex justify-center items-center w-10 h-10 rounded-full mr-3">
+                        <img class="w-6 h-6" src="{% static 'images/Cat_1.png' %}" alt="">
+                    </div>
+                    All Items
+                </div>
+                <div class="category-btn flex items-center px-4 py-2 bg-white border border-gray-300 cursor-pointer rounded-full shadow-lg whitespace-nowrap" data-category="new">
+                    <div class="bg-white flex justify-center items-center w-10 h-10 rounded-full mr-3">
+                        <img class="w-6 h-6" src="{% static 'images/Cat_2.png' %}" alt="">
+                    </div>
+                    New Arrival
+                </div>
+                <div class="category-btn flex items-center px-4 py-2 bg-white border border-gray-300 cursor-pointer rounded-full shadow-lg whitespace-nowrap" data-category="bestseller">
+                    <div class="bg-white flex justify-center items-center w-10 h-10 rounded-full mr-3">
+                        <img class="w-6 h-6" src="{% static 'images/Cat_3.png' %}" alt="">
+                    </div>
+                    Best Seller
+                </div>
+
+                <div class="category-btn flex items-center px-4 py-2 bg-white border border-gray-300 cursor-pointer rounded-full shadow-lg whitespace-nowrap" data-category="bestseller">
+                    <div class="bg-white flex justify-center items-center w-10 h-10 rounded-full mr-3">
+                        <img class="w-6 h-6" src="{% static 'images/Cat_3.png' %}" alt="">
+                    </div>
+                    Set Menu
+                </div>
+            </div>
+        </div>
+
+        <!-- Menu Items -->
+        <div id="menu-items" class="grid grid-cols-2 gap-4 px-5 py-3 mb-20">
+            <div class="menu-item bg-white rounded-xl shadow-lg shadow-gray-800 h-[300px] px-3 py-7 flex flex-col text-3xl items-center" data-category="new">
+                <img class="h-36 w-36 rounded-lg" src="{% static 'images/Cappucino.png' %}" alt="">
+                <div class="text-4xl font-semibold">Caramel Macchiato</div>
+                <div class="flex items-center justify-between w-full mt-5 px-4">
+                    <div class="text-gray-700 text-3xl">$5.00</div>
+                    <div class="flex items-center space-x-2">
+                        <button class="minus-btn bg-[#5E9EA0] text-white text-xl px-3 py-1 rounded-lg hidden">-</button>
+                        <span class="quantity-display hidden text-xl">1</span>
+                        <button class="add-btn bg-[#5E9EA0] text-white text-xl px-3 py-1 rounded-lg">+</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="menu-item bg-white rounded-xl shadow-lg shadow-gray-800 h-[300px] px-3 py-7 flex flex-col text-3xl items-center" data-category="bestseller">
+                <img class="h-36 w-36 rounded-lg" src="{% static 'images/Latte.png' %}" alt="">
+                <div class="text-4xl font-semibold">Vanilla Latte</div>
+                <div class="flex items-center justify-between w-full mt-5 px-4">
+                    <div class="text-gray-700 text-3xl">$5.00</div>
+                    <div class="flex items-center space-x-2">
+                        <button class="minus-btn bg-[#5E9EA0] text-white text-xl px-3 py-1 rounded-lg hidden">-</button>
+                        <span class="quantity-display hidden text-xl">1</span>
+                        <button class="add-btn bg-[#5E9EA0] text-white text-xl px-3 py-1 rounded-lg">+</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="menu-item bg-white rounded-xl shadow-lg shadow-gray-800 h-[300px] px-3 py-7 flex flex-col text-3xl items-center" data-category="new">
+                <img class="h-36 w-36 rounded-lg" src="{% static 'images/Cappucino.png' %}" alt="">
+                <div class="text-4xl font-semibold">Caramel Macchiato</div>
+                <div class="flex items-center justify-between w-full mt-5 px-4">
+                    <div class="text-gray-700 text-3xl">$5.00</div>
+                    <div class="flex items-center space-x-2">
+                        <button class="minus-btn bg-[#5E9EA0] text-white text-xl px-3 py-1 rounded-lg hidden">-</button>
+                        <span class="quantity-display hidden text-xl">1</span>
+                        <button class="add-btn bg-[#5E9EA0] text-white text-xl px-3 py-1 rounded-lg">+</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="menu-item bg-white rounded-xl shadow-lg shadow-gray-800 h-[300px] px-3 py-7 flex flex-col text-3xl items-center" data-category="bestseller">
+                <img class="h-36 w-36 rounded-lg" src="{% static 'images/Latte.png' %}" alt="">
+                <div class="text-4xl font-semibold">Vanilla Latte</div>
+                <div class="flex items-center justify-between w-full mt-5 px-4">
+                    <div class="text-gray-700 text-3xl">$5.00</div>
+                    <div class="flex items-center space-x-2">
+                        <button class="minus-btn bg-[#5E9EA0] text-white text-xl px-3 py-1 rounded-lg hidden">-</button>
+                        <span class="quantity-display hidden text-xl">1</span>
+                        <button class="add-btn bg-[#5E9EA0] text-white text-xl px-3 py-1 rounded-lg">+</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="menu-item bg-white rounded-xl shadow-lg shadow-gray-800 h-[300px] px-3 py-7 flex flex-col text-3xl items-center" data-category="new">
+                <img class="h-36 w-36 rounded-lg" src="{% static 'images/Cappucino.png' %}" alt="">
+                <div class="text-4xl font-semibold">Caramel Macchiato</div>
+                <div class="flex items-center justify-between w-full mt-5 px-4">
+                    <div class="text-gray-700 text-3xl">$5.00</div>
+                    <div class="flex items-center space-x-2">
+                        <button class="minus-btn bg-[#5E9EA0] text-white text-xl px-3 py-1 rounded-lg hidden">-</button>
+                        <span class="quantity-display hidden text-xl">1</span>
+                        <button class="add-btn bg-[#5E9EA0] text-white text-xl px-3 py-1 rounded-lg">+</button>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+
+        <!-- Bottom Navigation -->
+        <div class=" fixed bottom-0 left-0 w-full bg-white shadow-md flex">
+            <div class="flex-1 flex justify-center items-center border-t border-gray-300 py-3 cursor-pointer">
+                <img class="h-8 w-8" src="{% static 'images/Home.png' %}" alt="Home">
+            </div>
+            <div class="flex-1 flex justify-center items-center border-t border-gray-300 bg-gray-200 py-3">
+                <img class="h-8 w-8" src="{% static 'images/Menu_selected.png' %}" alt="Menu">
+            </div>
+            <a href="{% url 'cart' %}" class="flex-1 flex justify-center items-center border-t border-gray-300 py-3 cursor-pointer">
+                <img class="h-8 w-8" src="{% static 'images/Cart.png' %}" alt="Cart">
+            </a>
+        </div>
+
+        <script>
+            document.addEventListener("DOMContentLoaded", () => {
+                const categoryButtons = document.querySelectorAll(".category-btn");
+                const menuItems = document.querySelectorAll(".menu-item");
+                const addButtons = document.querySelectorAll(".add-btn");
+                const minusButtons = document.querySelectorAll(".minus-btn");
+                const quantityDisplays = document.querySelectorAll(".quantity-display");
+
+
+                // Category Filtering
+                categoryButtons.forEach(button => {
+                    button.addEventListener("click", () => {
+                        const category = button.getAttribute("data-category");
+
+                        // Remove active class from all buttons
+                        categoryButtons.forEach(btn => btn.classList.remove("bg-[#5E9EA0]", "text-white"));
+                        button.classList.remove("bg-white");
+                        button.classList.add("bg-[#5E9EA0]", "text-white");
+
+                        // Show/Hide menu items
+                        menuItems.forEach(item => {
+                            if (category === "all" || item.getAttribute("data-category") === category) {
+                                item.style.display = "flex";
+                            } else {
+                                item.style.display = "none";
+                            }
+                        });
+                    });
+                });
+
+                // Add Button Click Event
+                addButtons.forEach(button => {
+                    button.addEventListener("click", () => {
+                        const item = button.parentElement.parentElement.parentElement;
+                        const minusBtn = item.querySelector('.minus-btn');
+                        const quantityDisplay = item.querySelector('.quantity-display');
+                        const itemName = item.querySelector('.text-4xl').innerText;
+                        const itemPrice = item.querySelector('.text-gray-700').innerText;
+                        const itemImage = item.querySelector('img').src;
+                        
+                        let counter = button.dataset.count ? parseInt(button.dataset.count) : 0;
+                        counter++;
+                        button.dataset.count = counter;
+                        quantityDisplay.innerText = counter;
+                        quantityDisplay.classList.remove('hidden');
+                        minusBtn.classList.remove('hidden');
+
+                        // Save to localStorage
+                        let cart = JSON.parse(localStorage.getItem('cart') || '{}');
+                        cart[itemName] = {
+                            quantity: counter,
+                            price: itemPrice,
+                            image: itemImage
+                        };
+                        localStorage.setItem('cart', JSON.stringify(cart));
+                    });
+                });
+
+
+                minusButtons.forEach(button => {
+                    button.addEventListener("click", () => {
+                        const item = button.parentElement.parentElement.parentElement;
+                        const addBtn = item.querySelector('.add-btn');
+                        const quantityDisplay = item.querySelector('.quantity-display');
+                        let counter = addBtn.dataset.count ? parseInt(addBtn.dataset.count) : 1;
+                        if (counter > 0) {
+                            counter--;
+                            addBtn.dataset.count = counter;
+                            quantityDisplay.innerText = counter;
+                            if (counter === 0) {
+                                quantityDisplay.classList.add('hidden');
+                                button.classList.add('hidden');
+                            }
+                        }
+                    });
+                });
+            });
+        </script>
+    </body>
+</html>
