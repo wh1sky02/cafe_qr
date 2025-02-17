@@ -1,0 +1,94 @@
+{% load static tailwind_tags %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>QR Code Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <div class="bg-teal-600 p-4 flex items-center gap-4">
+        <img src="{% static 'images/Latte.jpg' %}" alt="Profile" class="w-12 h-12 rounded-full">
+        <span class="text-white text-xl">Daniel</span>
+    </div>
+
+    <div class="flex">
+        <!-- Sidebar -->
+        <nav class="w-64 bg-white h-screen p-6 space-y-6">
+            <a href="#" class="flex items-center gap-2 text-gray-700">
+                <img src="{% static 'images/Cappucino.png' %}" class="w-6 h-6">
+                Dashboard
+            </a>
+            <a href="#" class="flex items-center gap-2 text-gray-700">
+                <img src="{% static 'images/Cappucino.png' %}" class="w-6 h-6">
+                Orders
+            </a>
+            <a href="#" class="flex items-center gap-2 text-gray-700">
+                <img src="{% static 'images/Cappucino.png' %}" class="w-6 h-6">
+                Transactions
+            </a>
+            <a href="#" class="flex items-center gap-2 text-gray-700">
+                <img src="{% static 'images/Cappucino.png' %}" class="w-6 h-6">
+                Tables
+            </a>
+            <a href="#" class="flex items-center gap-2 text-gray-700">
+                <img src="{% static 'images/Cappucino.png' %}" class="w-6 h-6">
+                QR Code
+            </a>
+            <a href="#" class="flex items-center gap-2 text-gray-700">
+                <img src="{% static 'images/Cappucino.png' %}" class="w-6 h-6">
+                Setting
+            </a>
+            <button class="mt-auto text-gray-700">Logout</button>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="flex-1 p-8">
+            <div class="flex gap-4 mb-8">
+                <input type="text" placeholder="Table No." class="px-4 py-2 rounded-md border">
+                <button class="bg-teal-600 text-white px-6 py-2 rounded-md">Search</button>
+            </div>
+
+            <!-- Table Grid -->
+            <div class="grid grid-cols-3 gap-6">
+                {% for table in tables %}
+                <div class="bg-white rounded-lg shadow-md p-6 space-y-3">
+                    <div class="text-lg">Table Number - {{ table.number }}</div>
+                    <div>Customer Name - {{ table.customer_name }}</div>
+                    <div class="flex items-center gap-2">
+                        Status - 
+                        <span class="px-2 py-1 rounded-full text-sm {% if table.status == 'Occupied' %}bg-orange-400{% else %}bg-green-400{% endif %} text-white">
+                            {{ table.status }}
+                        </span>
+                    </div>
+                    <div>Order ID - {{ table.order_id }}</div>
+                    <button class="bg-red-400 text-white px-4 py-1 rounded-md">Move</button>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Pagination -->
+            <div class="flex justify-center gap-2 mt-8">
+                <button class="px-3 py-1 border rounded">←</button>
+                <button class="px-3 py-1 border rounded bg-teal-600 text-white">1</button>
+                <button class="px-3 py-1 border rounded">2</button>
+                <button class="px-3 py-1 border rounded">3</button>
+                <button class="px-3 py-1 border rounded">4</button>
+                <button class="px-3 py-1 border rounded">...</button>
+                <button class="px-3 py-1 border rounded">→</button>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Add table filtering functionality
+        document.querySelector('input[type="text"]').addEventListener('keyup', function(e) {
+            const search = e.target.value.toLowerCase();
+            document.querySelectorAll('.grid > div').forEach(card => {
+                const tableNumber = card.querySelector('.text-lg').textContent.toLowerCase();
+                card.style.display = tableNumber.includes(search) ? 'block' : 'none';
+            });
+        });
+    </script>
+</body>
+</html>
