@@ -4,6 +4,9 @@ from .models import MenuItem
 # Create your views here.
 from django.http import HttpResponse
 
+def home(request):
+    return render(request, 'home.html')
+
 
 def menu(request):
     menu_items = MenuItem.objects.all()

@@ -7,8 +7,7 @@ WORKDIR /app
 
 COPY . /app/
 
-RUN apt-get update && apt-get install -y \
-    libpq-dev \
+RUN libpq-dev \
     gcc \
     python3-dev \
     nodejs \

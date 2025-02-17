@@ -1,0 +1,202 @@
+{% load static tailwind_tags %}
+<html>
+    <head>
+        <title>Coffee Cafe</title>
+        {% tailwind_css %}
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body class="bg-white">
+        <!-- Header -->
+        <div class="px-5 py-4 text-2xl">Home</div>
+
+        <!-- Hero Image Carousel -->
+        <div class="relative px-5">
+            <div class="rounded-3xl overflow-hidden">
+                <div class="slider">
+                    <img src="https://picsum.photos/800/400?random=1" alt="Coffee 1" class="w-full h-48 object-cover slide">
+                    <img src="https://picsum.photos/800/400?random=2" alt="Coffee 2" class="w-full h-48 object-cover slide">
+                    <img src="https://picsum.photos/800/400?random=3" alt="Coffee 3" class="w-full h-48 object-cover slide">
+                    <img src="https://picsum.photos/800/400?random=4" alt="Coffee 4" class="w-full h-48 object-cover slide">
+                </div>
+            </div>
+            <div class="flex justify-center space-x-2 mt-3">
+                <div class="w-2 h-2 rounded-full bg-[#5E9EA0] dot"></div>
+                <div class="w-2 h-2 rounded-full bg-gray-300 dot"></div>
+                <div class="w-2 h-2 rounded-full bg-gray-300 dot"></div>
+                <div class="w-2 h-2 rounded-full bg-gray-300 dot"></div>
+            </div>
+            </div>
+
+        <style>
+            .slider {
+                position: relative;
+                width: 100%;
+                height: 192px;
+                touch-action: pan-x;
+            }
+            .slide {
+                position: absolute;
+                width: 100%;
+                height: 100%;
+                opacity: 0;
+                transition: opacity 0.5s ease-in-out;
+                pointer-events: none;
+            }
+            .slide.active {
+                opacity: 1;
+                pointer-events: auto;
+            }
+        </style>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const slides = document.querySelectorAll('.slide');
+                const dots = document.querySelectorAll('.dot');
+                let currentSlide = 0;
+                let isDragging = false;
+                let startX = 0;
+                let currentX = 0;
+
+                const slider = document.querySelector('.slider');
+                
+                slider.addEventListener('touchstart', e => {
+                    isDragging = true;
+                    startX = e.touches[0].clientX;
+                    currentX = startX;
+                }, { passive: true });
+
+                slider.addEventListener('touchmove', e => {
+                    if (!isDragging) return;
+                    currentX = e.touches[0].clientX;
+                }, { passive: true });
+
+                slider.addEventListener('touchend', () => {
+                    if (!isDragging) return;
+                    const diff = startX - currentX;
+                    if (Math.abs(diff) > 50) {
+                        if (diff > 0) {
+                            nextSlide();
+                        } else {
+                            prevSlide();
+                        }
+                    }
+                    isDragging = false;
+                });
+
+                function showSlide(index) {
+                    currentSlide = index;
+                    slides.forEach(slide => slide.classList.remove('active'));
+                    dots.forEach(dot => dot.classList.remove('bg-[#5E9EA0]'));
+                    dots.forEach(dot => dot.classList.add('bg-gray-300'));
+
+                    slides[index].classList.add('active');
+                    dots[index].classList.remove('bg-gray-300');
+                    dots[index].classList.add('bg-[#5E9EA0]');
+                }
+
+                // Add click event listeners to dots
+                dots.forEach((dot, index) => {
+                    dot.style.cursor = 'pointer';
+                    dot.addEventListener('click', () => showSlide(index));
+                });
+
+                function nextSlide() {
+                    currentSlide = (currentSlide + 1) % slides.length;
+                    showSlide(currentSlide);
+                }
+
+                function prevSlide() {
+                    currentSlide = (currentSlide - 1 + slides.length) % slides.length;
+                    showSlide(currentSlide);
+                }
+
+                // Show first slide
+                showSlide(0);
+
+                //removed auto advance
+            });
+        </script>
+
+        <!-- Tagline -->
+        <div class="px-5 mt-6 text-2xl font-bold">Coffee is in the air</div>
+
+        <!-- Order Now Button -->
+        <div class="px-5 mt-4">
+            <a href="{% url 'menu' %}" class="inline-flex items-center bg-[#5E9EA0] text-white px-6 py-2 rounded-full">
+                <span>Order Now</span>
+                <img src="{% static 'images/Menu_selected.png' %}" alt="Menu" class="w-5 h-5 ml-2">
+            </a>
+        </div>
+
+        <!-- Recommended Section -->
+        <div class="px-5 mt-8">
+            <h2 class="text-xl font-bold mb-4">Recommended for You</h2>
+            <div class="flex space-x-4 overflow-x-auto no-scrollbar">
+                {% for i in '123'|make_list %}
+                <div class="flex-shrink-0 w-24 text-center">
+                    <img src="{% static 'images/Cappucino.png' %}" alt="Coffee" class="w-24 h-24 rounded-xl shadow-md">
+                    <div class="mt-2 text-sm font-semibold">Caramel Macchiato</div>
+                    <div class="text-sm">$ 5.00</div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Promotions Section -->
+        <div class="px-5 mt-8 mb-20">
+            <h2 class="text-xl font-bold mb-4">Promotions</h2>
+            <div class="space-y-4">
+                {% for i in '12'|make_list %}
+                <div class="bg-white rounded-xl shadow-md p-4 flex justify-between items-center">
+                    <div>
+                        <div class="text-sm text-gray-600">WhatsApp Users Exclusive</div>
+                        <div class="font-bold text-lg">Get 50% OFF NOW!</div>
+                        <button class="bg-[#25D366] text-white text-sm px-4 py-1 rounded-full mt-2 flex items-center">
+                            <span class="mr-2">Click Here WhatsApp</span>
+                        </button>
+                    </div>
+                    <div class="w-16 h-16 bg-[#4CAF50] rounded-full flex items-center justify-center text-white">
+                        <div class="text-center">
+                            <div class="text-sm">50%</div>
+                            <div class="text-xs">off</div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Bottom Navigation -->
+        <div class="fixed bottom-0 left-0 w-full bg-white shadow-md flex border-t">
+            <div class="flex-1 flex justify-center items-center py-4">
+                <img class="h-6 w-6" style="filter: invert(70%) sepia(11%) saturate(2066%) hue-rotate(130deg) brightness(90%) contrast(87%);" src="{% static 'images/Home.png' %}" alt="Home">
+            </div>
+            <a href="{% url 'menu' %}" class="flex-1 flex justify-center items-center py-4">
+                <img class="h-6 w-6 opacity-50" src="{% static 'images/Menu_selected.png' %}" alt="Menu">
+            </a>
+            <a href="{% url 'cart' %}" class="flex-1 flex justify-center items-center py-4">
+                <div class="relative">
+                    <img class="h-6 w-6" src="{% static 'images/Cart.png' %}" alt="Cart">
+                    <span id="cart-count" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full min-w-[16px] h-4 flex items-center justify-center px-1 hidden">0</span>
+                </div>
+            </a>
+        </div>
+
+        <script>
+            document.addEventListener("DOMContentLoaded", () => {
+                function updateCartCount() {
+                    const cart = JSON.parse(localStorage.getItem('cart') || '{}');
+                    const count = Object.values(cart).reduce((total, item) => total + item.quantity, 0);
+                    const cartCount = document.getElementById('cart-count');
+                    if (count > 0) {
+                        cartCount.textContent = count;
+                        cartCount.classList.remove('hidden');
+                    } else {
+                        cartCount.classList.add('hidden');
+                    }
+                }
+                updateCartCount();
+            });
+        </script>
+    </body>
+</html>

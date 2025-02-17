@@ -1,8 +1,7 @@
-
 {% load static tailwind_tags %}
 <html>
     <head>
-        <title>Cart</title>
+        <title>Order Lists</title>
         {% tailwind_css %}
     </head>
     <body class="bg-white">
@@ -11,119 +10,120 @@
             <a href="{% url 'menu' %}" class="cursor-pointer">
                 <img class="h-10 w-10" src="{% static 'images/Back.png' %}" alt="Back">
             </a>
-            <div class="flex-grow text-center text-5xl text-white font-bold">Cart</div>
+            <div class="flex-grow text-center text-5xl text-white font-bold">Order Lists</div>
         </div>
 
-        
-
         <div class="mt-40 px-5">
-            <!-- Cart Items -->
-            <div id="cart-items" class="space-y-4">
-                <!-- Items will be loaded dynamically -->
-                <div class="text-red-500 text-4xl font-bold">
-                    Testing 
+
+            <!-- Estimated Time -->
+            <div class="bg-gray-100 p-4 rounded-lg mb-6">
+                <p class="text-gray-600">Estimated time</p>
+                <p class="text-xl font-bold" id="estimated-time">Loading...</p>
+            </div>
+
+            <!-- Order Details -->
+            <div class="mb-6">
+                <h3 class="font-bold text-2xl mb-4">Order Details</h3>
+                <div id="cart-items" class="space-y-4 bg-gray-100 rounded-lg p-4">
+                    <!-- Empty cart message -->
+                    <div id="empty-cart" class="hidden text-center py-10">
+                        <img src="{% static 'images/Cart.png' %}" alt="Empty Cart" class="w-32 h-32 mx-auto mb-4 opacity-50">
+                        <p class="text-2xl text-gray-500 font-semibold">Your cart is empty</p>
+                        <a href="{% url 'menu' %}" class="mt-4 inline-block text-[#5E9EA0] font-medium">Browse Menu</a>
+                    </div>
                 </div>
             </div>
 
-            <script>
-                document.addEventListener('DOMContentLoaded', function() {
-                    const cartItemsContainer = document.getElementById('cart-items');
-                    const cart = JSON.parse(localStorage.getItem('cart') || '{}');
+            <!-- Add more items button -->
+            <a href="{% url 'menu' %}" class="block text-[#5E9EA0] font-medium mb-6">Add more items</a>
+
+            <!-- Total Section -->
+            <div class="mb-24">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-gray-500">Subtotal</span>
+                    <span class="font-medium">$0.00</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-xl font-bold">Total</span>
+                    <span class="text-xl font-bold" id="total-amount">$0.00</span>
+                </div>
+            </div>
+
+            <!-- Checkout Button -->
+            <div class="fixed bottom-0 left-0 w-full p-4 bg-white">
+                <button class="w-full bg-[#5E9EA0] text-white py-3 rounded-lg text-lg">
+                    Checkout
+                </button>
+            </div>
+        </div>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const cartItemsContainer = document.getElementById('cart-items');
+                const cart = JSON.parse(localStorage.getItem('cart') || '{}');
+                const emptyCart = document.getElementById('empty-cart');
+                let total = 0;
+
+                if (Object.keys(cart).length === 0) {
+                    emptyCart.classList.remove('hidden');
+                } else {
+                    emptyCart.classList.add('hidden');
 
                     for (const [itemName, itemData] of Object.entries(cart)) {
+                        const price = parseFloat(itemData.price.replace('$', ''));
+                        total += price * itemData.quantity;
+
                         const itemElement = document.createElement('div');
-                        itemElement.className = 'bg-white rounded-xl shadow p-4 flex justify-between items-center';
+                        itemElement.className = 'flex items-center justify-between border-b border-gray-200 py-2';
                         itemElement.innerHTML = `
                             <div class="flex items-center space-x-4">
-                                <img src="${itemData.image}" alt="${itemName}" class="w-20 h-20 rounded-lg">
+                                <img src="${itemData.image}" alt="${itemName}" class="w-16 h-16 rounded-lg">
                                 <div>
-                                    <h3 class="text-xl font-semibold">${itemName}</h3>
-                                    <p class="text-gray-600">${itemData.price}</p>
-                                    <div class="flex items-center space-x-2 mt-2">
-                                        <button class="bg-[#5E9EA0] text-white w-8 h-8 rounded-full decrease-btn">-</button>
+                                    <h4 class="font-medium">${itemName}</h4>
+                                    <div class="flex items-center space-x-2 mt-1">
+                                        <button onclick="updateQuantity('${itemName}', ${itemData.quantity - 1})" class="decrease-btn text-[#5E9EA0] w-6 h-6 rounded-full border border-[#5E9EA0]">-</button>
                                         <span class="quantity">${itemData.quantity}</span>
-                                        <button class="bg-[#5E9EA0] text-white w-8 h-8 rounded-full increase-btn">+</button>
+                                        <button onclick="updateQuantity('${itemName}', ${itemData.quantity + 1})" class="increase-btn text-[#5E9EA0] w-6 h-6 rounded-full border border-[#5E9EA0]">+</button>
                                     </div>
                                 </div>
                             </div>
-                            <button class="text-red-500 remove-btn">
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                                </svg>
-                            </button>
+                            <div class="text-right">
+                                <div class="font-medium">${itemData.price}</div>
+                            </div>
                         `;
                         cartItemsContainer.appendChild(itemElement);
                     }
 
-                    function updateTotal() {
-                        let total = 0;
-                        const cart = JSON.parse(localStorage.getItem('cart') || '{}');
-                        for (const item of Object.values(cart)) {
-                            const price = parseFloat(item.price.replace('$', ''));
-                            total += price * item.quantity;
-                        }
-                        document.querySelector('.text-xl.font-bold').textContent = '$' + total.toFixed(2);
+                    document.querySelector('[id="total-amount"]').textContent = '$' + total.toFixed(2);
+                    
+                    // Calculate estimated time based on total items
+                    const totalItems = Object.values(cart).reduce((sum, item) => sum + item.quantity, 0);
+                    if (totalItems === 0) {
+                        document.getElementById('estimated-time').textContent = 'Add items to see estimated time';
+                    } else {
+                        const baseTime = 5;
+                        const additionalTimePerItem = 5;
+                        const estimatedTime = baseTime + ((totalItems - 1) * additionalTimePerItem);
+                        const timeRange = `${estimatedTime}-${estimatedTime + 5}`;
+                        document.getElementById('estimated-time').textContent = `${timeRange} mins`;
                     }
-                    updateTotal();
-                });
-            </script>
+                }
+            });
 
-            <!-- Total -->
-            <script>
-                document.addEventListener('DOMContentLoaded', function() {
-                    const decreaseButtons = document.querySelectorAll('.decrease-btn');
-                    const increaseButtons = document.querySelectorAll('.increase-btn');
-                    const removeButtons = document.querySelectorAll('.remove-btn');
 
-                    decreaseButtons.forEach(btn => {
-                        btn.addEventListener('click', function() {
-                            const quantitySpan = this.parentElement.querySelector('.quantity');
-                            let quantity = parseInt(quantitySpan.textContent);
-                            if (quantity > 1) {
-                                quantitySpan.textContent = quantity - 1;
-                                updateTotal();
-                            }
-                        });
-                    });
+            function updateQuantity(itemName, newQuantity) {
+                const cart = JSON.parse(localStorage.getItem('cart') || '{}');
+                if (newQuantity > 0) {
+                    cart[itemName].quantity = newQuantity;
+                    localStorage.setItem('cart', JSON.stringify(cart));
+                    location.reload();
+                } else {
+                    delete cart[itemName];
+                    localStorage.setItem('cart', JSON.stringify(cart));
+                    location.reload();
 
-                    increaseButtons.forEach(btn => {
-                        btn.addEventListener('click', function() {
-                            const quantitySpan = this.parentElement.querySelector('.quantity');
-                            let quantity = parseInt(quantitySpan.textContent);
-                            quantitySpan.textContent = quantity + 1;
-                            updateTotal();
-                        });
-                    });
-
-                    removeButtons.forEach(btn => {
-                        btn.addEventListener('click', function() {
-                            this.closest('.bg-white').remove();
-                            updateTotal();
-                        });
-                    });
-
-                    function updateTotal() {
-                        const items = document.querySelectorAll('.bg-white.rounded-xl');
-                        let total = 0;
-                        items.forEach(item => {
-                            const price = parseFloat(item.querySelector('.text-gray-600').textContent.replace('$', ''));
-                            const quantity = parseInt(item.querySelector('.quantity').textContent);
-                            total += price * quantity;
-                        });
-                        document.querySelector('.text-xl.font-bold').textContent = '$' + total.toFixed(2);
-                        updateTotal(); // Initial calculation
-                    }
-                });
-            </script>
-            <div class="fixed bottom-0 left-0 w-full bg-white shadow-lg p-4">
-                <div class="flex justify-between items-center mb-4">
-                    <span class="text-xl">Total:</span>
-                    <span class="text-xl font-bold">$5.00</span>
-                </div>
-                <button class="w-full bg-[#5E9EA0] text-white py-3 rounded-lg text-lg">
-                    Proceed to Checkout
-                </button>
-            </div>
-        </div>
+                }
+            }
+        </script>
     </body>
 </html>
