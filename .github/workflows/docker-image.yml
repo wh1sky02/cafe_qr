@@ -26,5 +26,5 @@ jobs:
         context: ./cafe_project
         push: true
         tags: |
-          ghcr.io/${{ github.repository }}:latest
-          ghcr.io/${{ github.repository }}:${{ github.sha }}
+          ghcr.io/${{ github.actor }}/${{ github.event.repository.name }}:latest
+          ghcr.io/${{ github.actor }}/${{ github.event.repository.name }}:${{ github.sha }}
