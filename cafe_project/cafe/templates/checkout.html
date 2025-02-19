@@ -1,0 +1,196 @@
+
+{% load static tailwind_tags %}
+<html>
+    <head>
+        <title>Checkout</title>
+        {% tailwind_css %}
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    </head>
+    <body class="bg-white">
+        <!-- Header -->
+        <div class="bg-[#5E9EA0] flex items-center px-5 py-5 w-full fixed top-0 left-0 h-40 z-50">
+            <a href="{% url 'cart' %}" class="cursor-pointer">
+                <img class="h-10 w-10" src="{% static 'images/Back.png' %}" alt="Back">
+            </a>
+            <div class="flex-grow text-center text-5xl text-white font-bold">Checkout</div>
+        </div>
+
+        <div class="mt-40 px-5">
+            <!-- Order Details -->
+            <div class="mb-6">
+                <h3 class="font-bold text-2xl mb-4">Order Details</h3>
+                <div id="checkout-items" class="space-y-4 bg-gray-100 rounded-lg p-4"></div>
+            </div>
+
+            <!-- Add Tip -->
+            <div class="mb-6">
+                <h3 class="font-bold text-2xl mb-4">Add Tip</h3>
+                <div class="flex gap-4">
+                    <button onclick="setTip(0.02)" id="tip-2" class="flex-1 py-2 rounded-full border border-[#5E9EA0] text-[#5E9EA0]">2%</button>
+                    <button onclick="setTip(0.10)" id="tip-10" class="flex-1 py-2 rounded-full border border-[#5E9EA0] text-[#5E9EA0]">10%</button>
+                    <button onclick="setTip(0.15)" id="tip-15" class="flex-1 py-2 rounded-full border border-[#5E9EA0] text-[#5E9EA0]">15%</button>
+                    <input type="number" id="custom-tip" placeholder="$0.00" onchange="setCustomTip(this.value)" class="flex-1 py-2 px-4 rounded-full border border-[#5E9EA0] text-center">
+                </div>
+            </div>
+
+            <!-- Note -->
+            <div class="mb-6">
+                <h3 class="font-bold text-2xl mb-4">Note</h3>
+                <textarea id="order-note" class="w-full p-4 bg-gray-100 rounded-lg" rows="3" placeholder="Add any special instructions..."></textarea>
+            </div>
+
+            <!-- Payment Method -->
+            <div class="mb-6">
+                <h3 class="font-bold text-2xl mb-4">Payment</h3>
+                <div class="space-y-3">
+                    <div onclick="selectPayment('card')" id="card-payment" class="bg-gray-100 rounded-lg p-4">
+                        <div class="flex items-center mb-4">
+                            <img src="{% static 'images/card.png' %}" alt="Card" class="w-8 h-8 mr-3">
+                            <span>Credit Card</span>
+                        </div>
+                        <div class="space-y-4 hidden" id="card-form">
+                            <input type="text" placeholder="Name on Card" class="w-full p-2 rounded-lg border">
+                            <input type="text" placeholder="Card Number" class="w-full p-2 rounded-lg border" maxlength="16">
+                            <div class="grid grid-cols-2 gap-4">
+                                <input type="text" placeholder="MM/YY" class="w-full p-2 rounded-lg border" maxlength="5">
+                                <input type="text" placeholder="CVC" class="w-full p-2 rounded-lg border" maxlength="3">
+                            </div>
+                        </div>
+                    </div>
+                    <div onclick="selectPayment('cash')" id="cash-payment" class="bg-gray-100 rounded-lg p-4 flex items-center justify-between cursor-pointer">
+                        <div class="flex items-center">
+                            <img src="{% static 'images/cash.svg' %}" alt="Cash" class="w-8 h-8 mr-3">
+                            <span>Cash</span>
+                        </div>
+                        <div class="text-gray-500">Pay at Counter</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Total Section -->
+            <div class="mb-24">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-gray-500">Subtotal</span>
+                    <span id="subtotal" class="font-medium">$0.00</span>
+                </div>
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-gray-500">Tip</span>
+                    <span id="tip-amount" class="font-medium">$0.00</span>
+                </div>
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-gray-500">GST (9%)</span>
+                    <span id="gst-amount" class="font-medium">$0.00</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-xl font-bold">Total</span>
+                    <span id="total-amount" class="text-xl font-bold">$0.00</span>
+                </div>
+            </div>
+
+            <!-- Place Order Button -->
+            <div class="fixed bottom-0 left-0 w-full p-4 bg-white">
+                <button onclick="placeOrder()" class="w-full bg-[#5E9EA0] text-white py-3 rounded-lg text-lg">
+                    Place Order
+                </button>
+            </div>
+        </div>
+
+        <script>
+            let cart = {};
+            let tipPercentage = 0.10;
+            let subtotalAmount = 0;
+
+            document.addEventListener('DOMContentLoaded', function() {
+                loadCartItems();
+                updateTotals();
+            });
+
+            function loadCartItems() {
+                cart = JSON.parse(localStorage.getItem('cart') || '{}');
+                const container = document.getElementById('checkout-items');
+                subtotalAmount = 0;
+
+                for (const [itemName, itemData] of Object.entries(cart)) {
+                    const price = parseFloat(itemData.price.replace('$', ''));
+                    const itemTotal = price * itemData.quantity;
+                    subtotalAmount += itemTotal;
+
+                    const itemElement = document.createElement('div');
+                    itemElement.className = 'flex justify-between items-center border-b border-gray-200 py-2';
+                    itemElement.innerHTML = `
+                        <div class="flex items-center">
+                            <span class="font-medium">${itemName} x${itemData.quantity}</span>
+                        </div>
+                        <div class="font-medium">$${itemTotal.toFixed(2)}</div>
+                    `;
+                    container.appendChild(itemElement);
+                }
+            }
+
+            function setTip(percentage) {
+                tipPercentage = percentage;
+                document.getElementById('custom-tip').value = '';
+                // Reset all tip buttons
+                ['tip-2', 'tip-10', 'tip-15'].forEach(id => {
+                    const btn = document.getElementById(id);
+                    btn.classList.remove('bg-[#5E9EA0]', 'text-white');
+                    btn.classList.add('text-[#5E9EA0]');
+                });
+                // Highlight selected button
+                const selectedBtn = document.getElementById(`tip-${percentage * 100}`);
+                selectedBtn.classList.remove('text-[#5E9EA0]');
+                selectedBtn.classList.add('bg-[#5E9EA0]', 'text-white');
+                updateTotals();
+            }
+
+            function setCustomTip(value) {
+                const customTip = parseFloat(value);
+                if (!isNaN(customTip)) {
+                    tipPercentage = customTip / subtotalAmount;
+                    // Reset all tip buttons styling when custom tip is entered
+                    ['tip-2', 'tip-10', 'tip-15'].forEach(id => {
+                        const btn = document.getElementById(id);
+                        btn.classList.remove('bg-[#5E9EA0]', 'text-white');
+                        btn.classList.add('text-[#5E9EA0]');
+                    });
+                    updateTotals();
+                }
+            }
+
+            function updateTotals() {
+                const tipAmount = subtotalAmount * tipPercentage;
+                const gstAmount = subtotalAmount * 0.09;
+                const total = subtotalAmount + tipAmount + gstAmount;
+
+                document.getElementById('subtotal').textContent = `$${subtotalAmount.toFixed(2)}`;
+                document.getElementById('tip-amount').textContent = `$${tipAmount.toFixed(2)}`;
+                document.getElementById('gst-amount').textContent = `$${gstAmount.toFixed(2)}`;
+                document.getElementById('total-amount').textContent = `$${total.toFixed(2)}`;
+            }
+
+            let selectedPayment = 'card';
+
+            function selectPayment(method) {
+                selectedPayment = method;
+                document.getElementById('card-payment').style.border = method === 'card' ? '2px solid #5E9EA0' : 'none';
+                document.getElementById('cash-payment').style.border = method === 'cash' ? '2px solid #5E9EA0' : 'none';
+                document.getElementById('card-form').classList.toggle('hidden', method !== 'card');
+            }
+
+            function placeOrder() {
+                const note = document.getElementById('order-note').value;
+                const orderData = {
+                    items: cart,
+                    note: note,
+                    paymentMethod: selectedPayment,
+                    tipAmount: (subtotalAmount * tipPercentage).toFixed(2),
+                    total: (subtotalAmount + (subtotalAmount * tipPercentage)).toFixed(2)
+                };
+                // Here you would typically send the order to your backend
+                console.log('Order placed:', orderData);
+                localStorage.removeItem('cart');
+                window.location.href = '{% url 'menu' %}';
+            }
+        </script>
+    </body>
+</html>

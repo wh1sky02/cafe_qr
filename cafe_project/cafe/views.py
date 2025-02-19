@@ -22,3 +22,6 @@ def item_detail(request, item_id):
 def cart(request):
     menu_items = MenuItem.objects.all()
     return render(request, 'cart.html', {'menu_items': menu_items})
+
+def checkout(request):
+    return render(request, 'checkout.html')

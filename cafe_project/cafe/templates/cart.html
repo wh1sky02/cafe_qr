@@ -3,6 +3,7 @@
     <head>
         <title>Order Lists</title>
         {% tailwind_css %}
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     </head>
     <body class="bg-white">
         <!-- Header -->
@@ -51,9 +52,17 @@
 
             <!-- Checkout Button -->
             <div class="fixed bottom-0 left-0 w-full p-4 bg-white">
-                <button class="w-full bg-[#5E9EA0] text-white py-3 rounded-lg text-lg">
+                <button onclick="handleCheckout()" class="w-full bg-[#5E9EA0] text-white py-3 rounded-lg text-lg">
                     Checkout
                 </button>
+            </div>
+
+            <!-- Alert Modal -->
+            <div id="alert-modal" class="hidden fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center z-50">
+                <div class="bg-white p-6 rounded-lg shadow-lg max-w-sm mx-4">
+                    <p class="text-lg text-center mb-4">Please add items to your cart before checking out</p>
+                    <button onclick="closeAlert()" class="w-full bg-[#5E9EA0] text-white py-2 rounded-lg">OK</button>
+                </div>
             </div>
         </div>
 
@@ -123,6 +132,19 @@
                     location.reload();
 
                 }
+            }
+
+            function handleCheckout() {
+                const cart = JSON.parse(localStorage.getItem('cart') || '{}');
+                if (Object.keys(cart).length === 0) {
+                    document.getElementById('alert-modal').classList.remove('hidden');
+                } else {
+                    window.location.href = "{% url 'checkout' %}";
+                }
+            }
+
+            function closeAlert() {
+                document.getElementById('alert-modal').classList.add('hidden');
             }
         </script>
     </body>
