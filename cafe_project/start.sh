@@ -5,7 +5,7 @@
 pip install -r requirements.txt
 
 # Install NPM packages for tailwind
-cd theme/static_src && npm install && cd ../..
+# cd theme/static_src && npm install && cd ../..
 
 # Build Tailwind CSS
 python manage.py tailwind install
