@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel</title>
+    <style>
+        /* General Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            display: flex;
+            height: 100vh;
+            background-color: #f4f4f4;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 250px;
+            background-color: #008080;
+            color: white;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .sidebar h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .sidebar img {
+            display: block;
+            margin: 0 auto;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin-bottom: 10px;
+        }
+
+        .sidebar nav ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .sidebar nav ul li {
+            padding: 10px;
+            margin: 5px 0;
+            text-align: left;
+        }
+
+        .sidebar nav ul li a {
+            text-decoration: none;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sidebar nav ul li:hover {
+            background-color: #006666;
+            border-radius: 5px;
+        }
+
+        /* Logout Button */
+        .logout-btn {
+            width: 100%;
+            padding: 10px;
+            background-color: #f4f4f4;
+            color: #008080;
+            text-align: center;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .logout-btn:hover {
+            background-color: #ddd;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 20px;
+        }
+
+        .header {
+            background-color: white;
+            padding: 10px;
+            box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 22px;
+            color: #333;
+        }
+
+        .notification {
+            cursor: pointer;
+            font-size: 20px;
+        }
+
+        .container {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div>
+            <img src="https://picsum.photos/800/400?random=1" alt="Coffee 1">
+            <h2>Admin Panel</h2>
+            <nav>
+                <ul>
+                    <li><a href="{% url 'dashboard' %}">🏠 Dashboard</a></li>
+                    <li><a href="#">🪑 Tables</a></li>
+                    <li><a href="{% url 'qr_code_management' %}">🧾 QR Code</a></li>
+                    <li><a href="#">🍽️ Menu</a></li>
+                    <li><a href="#">📦 Orders</a></li>
+                    <li><a href="#">💰 Transactions</a></li>
+                    <li><a href="#">⚙️ Settings</a></li>
+                </ul>
+            </nav>
+        </div>
+        
+        <!-- Logout Button -->
+        <form method="POST" action="{% url 'logout' %}">
+            {% csrf_token %}
+            <button type="submit" class="logout-btn">Logout</button>
+        </form>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="header">
+            <h1>Good Morning</h1>
+            <span class="notification">🔔</span>
+        </div>
+
+        <div class="container">
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+</body>
+</html>

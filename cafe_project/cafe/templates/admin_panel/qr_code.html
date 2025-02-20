@@ -1,0 +1,326 @@
+{% extends "admin_panel/base_admin.html" %}
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code Management</title>
+    <style>
+        /* General Styles */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: auto;
+            padding: 20px;
+        }
+
+        h1 {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        /* Buttons */
+        .btn {
+            background-color: #008080;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            margin: 10px 0;
+        }
+
+        .btn:hover {
+            background-color: #006666;
+        }
+
+        /* Remove Button */
+        .btn-remove {
+            background-color: red;
+            color: white;
+            padding: 4px 6px;
+            font-size: 10px;
+            border-radius: 50%;
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            cursor: pointer;
+            border: none;
+        }        
+
+        .btn-remove:hover {
+            background-color: darkred;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5); /* ✅ Semi-transparent overlay */
+            justify-content: center;
+            align-items: center;
+            z-index: 9999; /* ✅ Ensures it's always on top */
+            pointer-events: auto; /* ✅ Allows modal interactions only */
+        }        
+
+        .modal-content {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            width: 300px;
+            z-index: 10000; /* ✅ Higher than the modal background */
+        } 
+        
+        body.modal-open {
+            overflow: hidden; /* ✅ Prevents scrolling when modal is open */
+            pointer-events: none; /* ✅ Blocks interactions with elements behind modal */
+        }
+
+        .close {
+            float: right;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        /* Grid for Tables */
+        .grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: flex-start; /* ✅ Align boxes to the left */
+            margin-top: 40px; /* ✅ Moves the entire section down */
+        }               
+
+        .table-card {
+            background: white;
+            width: 300px;  /* ✅ Set fixed width */
+            height: 300px; /* ✅ Set fixed height (same as width for a square) */
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: center; /* ✅ Centers content inside the box */
+            align-items: center;
+        }        
+
+        .table-card img {
+            width: 120px;
+            height: 120px;
+            object-fit: cover; /* ✅ Ensures QR image doesn't stretch */
+        }        
+        
+        .table-status {
+            font-weight: bold;
+        }
+
+        .active {
+            color: green;
+        }
+
+        .inactive {
+            color: red;
+        }
+
+        .download-btn {
+            display: inline-block;
+            background-color: #ddd;
+            padding: 5px 10px;
+            margin-top: 10px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-size: 14px;
+            color: #333;
+        }
+
+        .download-btn:hover {
+            background-color: #bbb;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>QR Code Management</h1>
+
+    <!-- Generate QR Code Button -->
+    <button id="openModal" class="btn">+ Generate QR Code</button>
+
+    <!-- Modal for QR Code Generation -->
+    <div id="qrModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Generate QR Code</h2>
+            <form id="qrForm">
+                {% csrf_token %}
+                <input type="number" id="tableNumber" placeholder="Enter Table Number" required>
+                <br><br>
+                <button type="submit" class="btn">Generate</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Tables Grid -->
+    <div class="grid">
+        {% for table in tables %}
+            <div class="table-card" id="table-{{ table.number }}">
+                <button class="btn-remove" onclick="removeQRCode({{ table.number }})">X</button>
+                <h3>Table {{ table.number }}</h3>
+                <p class="table-status {% if table.is_active %} active {% else %} inactive {% endif %}">
+                    Status: {% if table.is_active %} ✅ Active {% else %} ❌ Inactive {% endif %}
+                </p>
+                {% if table.qr_code %}
+                    <img src="{{ table.qr_code.url }}" alt="QR Code">
+                    <br>
+                    <a href="{{ table.qr_code.url }}" download="table_{{ table.number }}.png" class="download-btn">⬇ Download</a>
+                {% endif %}
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+    // Handle form submission for generating QR Code
+    document.addEventListener("DOMContentLoaded", function () {
+        const modal = document.getElementById("qrModal");
+        const openBtn = document.getElementById("openModal");
+        const closeBtn = document.querySelector(".close");
+        const form = document.getElementById("qrForm");
+        const grid = document.querySelector(".grid");
+    
+        // Open modal and disable background interactions
+        openBtn.onclick = function () {
+            modal.style.display = "flex";
+            document.body.classList.add("modal-open"); // ✅ Disable background scrolling
+        };
+    
+        // Close modal and re-enable background interactions
+        function closeModal() {
+            modal.style.display = "none";
+            document.body.classList.remove("modal-open"); // ✅ Enable background scrolling
+        }
+    
+        closeBtn.onclick = closeModal;
+    
+        // Close modal when clicking outside of modal content
+        window.onclick = function (event) {
+            if (event.target == modal) {
+                closeModal();
+            }
+        };
+    
+        // Handle form submission for generating QR Code
+        form.onsubmit = async function (e) {
+            e.preventDefault();
+    
+            const tableNumberInput = document.getElementById("tableNumber");
+            const tableNumber = tableNumberInput.value.trim();
+    
+            if (!tableNumber) {
+                alert("Error: Table number is required.");
+                return;
+            }
+    
+            try {
+                const response = await fetch("/admin-panel/generate-qr-code/", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": document.querySelector("[name=csrfmiddlewaretoken]").value
+                    },
+                    body: JSON.stringify({ table_number: tableNumber })
+                });
+    
+                const data = await response.json();
+    
+                if (data.success) {
+                    alert(`QR Code for Table ${data.table_number} generated successfully!`);
+    
+                    // ✅ Close modal after successful QR generation
+                    closeModal();
+    
+                    // ✅ Check if the table already exists, and update it instead of duplicating
+                    let existingTable = document.getElementById(`table-${data.table_number}`);
+                    if (existingTable) {
+                        existingTable.innerHTML = `
+                            <button class="btn-remove" onclick="removeQRCode(${data.table_number})">❌</button>
+                            <h3>Table ${data.table_number}</h3>
+                            <p class="table-status active">Status: ✅ Active</p>
+                            <img src="${data.qr_code_url}" alt="QR Code">
+                            <br>
+                            <a href="${data.qr_code_url}" download="table_${data.table_number}.png" class="download-btn">⬇ Download</a>
+                        `;
+                    } else {
+                        // ✅ Create new table entry dynamically
+                        const newTable = document.createElement("div");
+                        newTable.classList.add("table-card");
+                        newTable.id = `table-${data.table_number}`;
+                        newTable.innerHTML = `
+                            <button class="btn-remove" onclick="removeQRCode(${data.table_number})">❌</button>
+                            <h3>Table ${data.table_number}</h3>
+                            <p class="table-status active">Status: ✅ Active</p>
+                            <img src="${data.qr_code_url}" alt="QR Code">
+                            <br>
+                            <a href="${data.qr_code_url}" download="table_${data.table_number}.png" class="download-btn">⬇ Download</a>
+                        `;
+                        grid.appendChild(newTable); // ✅ Append new table dynamically
+                    }
+    
+                } else {
+                    alert("Error: " + data.error);
+                }
+            } catch (error) {
+                alert("Request failed. Please try again.");
+                console.error(error);
+            }
+        };
+    });       
+
+    // Remove QR Code and delete table
+    async function removeQRCode(tableNumber) {
+        if (!confirm(`Are you sure you want to remove Table ${tableNumber}?`)) return;
+
+        try {
+            const response = await fetch("/admin-panel/remove-qr-code/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": document.querySelector("[name=csrfmiddlewaretoken]").value
+                },
+                body: JSON.stringify({ table_number: tableNumber })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                alert(`Table ${tableNumber} removed successfully!`);
+                document.getElementById(`table-${tableNumber}`).remove();
+            } else {
+                alert("Error: " + data.error);
+            }
+        } catch (error) {
+            alert("Request failed. Please try again.");
+            console.error(error);
+        }
+    }
+</script>
+
+</body>
+</html>
+{% endblock %}
