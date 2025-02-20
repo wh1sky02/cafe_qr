@@ -120,7 +120,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const formData = new FormData(form);
         
         try {
-            const response = await fetch('/admin/generate-qr-code/', {
+            const response = await fetch('/generate-qr-code/', {
                 method: 'POST',
                 body: formData,
                 headers: {
