@@ -1,4 +1,6 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
+from django.http import JsonResponse
 from .models import MenuItem
 
 # Create your views here.
@@ -26,13 +28,23 @@ def cart(request):
 def checkout(request):
     return render(request, 'checkout.html')
 
-def admin_qr_code(request):
-    tables = [
-        {'number': '1', 'status': 'Available', 'qr_code': True},
-        {'number': '2', 'status': 'Unavailable', 'qr_code': False},
-        {'number': '3', 'status': 'Available', 'qr_code': True},
-        {'number': '4', 'status': 'Unavailable', 'qr_code': False},
-        {'number': '5', 'status': 'Available', 'qr_code': True},
-        {'number': '6', 'status': 'Available', 'qr_code': True}
-    ]
-    return render(request, 'admin_qr_code.html', {'tables': tables})
+def generate_qr_code(request):
+    if request.method == 'POST':
+        table_number = request.POST.get('table_number')
+        try:
+            # Create or get table
+            table, created = Table.objects.get_or_create(number=table_number)
+            
+            # Generate QR code
+            table.generate_qr_code()
+            table.save()
+            
+            return JsonResponse({
+                'success': True,
+                'qr_code_url': table.qr_code.url,
+                'table_number': table.number
+            })
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+    
+    return JsonResponse({'success': False, 'error': 'Invalid request method'})

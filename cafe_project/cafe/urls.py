@@ -8,5 +8,5 @@ urlpatterns = [
     path('item/<int:item_id>/', views.item_detail, name='item_detail'),
     path('cart/', views.cart, name='cart'),
     path('checkout/', views.checkout, name='checkout'),
-    path('admin_qr_code/', views.admin_qr_code, name='admin_qr_code')
+    path('admin/generate-qr-code/', views.generate_qr_code, name='generate_qr_code'),
 ]
