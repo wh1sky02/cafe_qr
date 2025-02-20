@@ -32,86 +32,32 @@
                     </div>
                     All Items
                 </div>
-                <div class="category-btn flex items-center px-4 py-2 bg-white border border-gray-300 cursor-pointer rounded-full shadow-lg whitespace-nowrap" data-category="new">
+                {% for category in categories %}
+                <div class="category-btn flex items-center px-4 py-2 bg-white border border-gray-300 cursor-pointer rounded-full shadow-lg whitespace-nowrap" data-category="{{ category.id }}">
                     <div class="bg-white flex justify-center items-center w-10 h-10 rounded-full mr-3">
                         <img class="w-6 h-6" src="{% static 'images/Cat_2.png' %}" alt="">
                     </div>
-                    New Arrival
+                    {{ category.name }}
                 </div>
-                <div class="category-btn flex items-center px-4 py-2 bg-white border border-gray-300 cursor-pointer rounded-full shadow-lg whitespace-nowrap" data-category="bestseller">
-                    <div class="bg-white flex justify-center items-center w-10 h-10 rounded-full mr-3">
-                        <img class="w-6 h-6" src="{% static 'images/Cat_3.png' %}" alt="">
-                    </div>
-                    Best Seller
-                </div>
-
-                <div class="category-btn flex items-center px-4 py-2 bg-white border border-gray-300 cursor-pointer rounded-full shadow-lg whitespace-nowrap" data-category="bestseller">
-                    <div class="bg-white flex justify-center items-center w-10 h-10 rounded-full mr-3">
-                        <img class="w-6 h-6" src="{% static 'images/Cat_3.png' %}" alt="">
-                    </div>
-                    Set Menu
-                </div>
+                {% endfor %}
             </div>
         </div>
 
         <!-- Menu Items -->
+        <!-- <img class="h-24 w-24 rounded-lg" src="{{ item.image.url }}" alt="{{ item.name }}"> -->
         <div id="menu-items" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 px-3 sm:px-5 py-3 mb-20">
-            <div class="menu-item bg-white rounded-xl shadow-lg shadow-gray-800 h-[240px] px-3 py-4 flex flex-col text-xl items-center" data-category="new">
-                <img class="h-24 w-24 rounded-lg" src="{% static 'images/Cappucino.png' %}" alt="">
-                <div class="text-2xl font-semibold mt-2">Caramel Macchiato</div>
+            {% for item in menu_items %}
+            <div class="menu-item bg-white rounded-xl shadow-lg h-[240px] px-3 py-4 flex flex-col text-xl items-center" data-category="{{ item.category.id }}">
+                <img class="h-24 w-24 rounded-lg" src="{% static 'images/Latte.png' %}" alt="{{ item.name }}">
+                <div class="text-2xl font-semibold mt-2">{{ item.name }}</div>
                 <div class="flex items-center justify-between w-full mt-3 px-4">
-                    <div class="text-gray-700 text-xl">$5.00</div>
+                    <div class="text-gray-700 text-xl">${{ item.price }}</div>
                     <div class="flex items-center space-x-2">
                         <button class="add-btn bg-[#5E9EA0] text-white text-lg px-3 py-1 rounded-lg">+</button>
                     </div>
                 </div>
             </div>
-
-            <div class="menu-item bg-white rounded-xl shadow-lg shadow-gray-800 h-[240px] px-3 py-4 flex flex-col text-xl items-center" data-category="bestseller">
-                <img class="h-24 w-24 rounded-lg" src="{% static 'images/Latte.png' %}" alt="">
-                <div class="text-2xl font-semibold mt-2">Vanilla Latte</div>
-                <div class="flex items-center justify-between w-full mt-3 px-4">
-                    <div class="text-gray-700 text-xl">$5.00</div>
-                    <div class="flex items-center space-x-2">
-                        <button class="add-btn bg-[#5E9EA0] text-white text-lg px-3 py-1 rounded-lg">+</button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="menu-item bg-white rounded-xl shadow-lg shadow-gray-800 h-[240px] px-3 py-4 flex flex-col text-xl items-center" data-category="new">
-                <img class="h-24 w-24 rounded-lg" src="{% static 'images/Cappucino.png' %}" alt="">
-                <div class="text-2xl font-semibold mt-2">Caramel Macchiato</div>
-                <div class="flex items-center justify-between w-full mt-3 px-4">
-                    <div class="text-gray-700 text-xl">$5.00</div>
-                    <div class="flex items-center space-x-2">
-                        <button class="add-btn bg-[#5E9EA0] text-white text-lg px-3 py-1 rounded-lg">+</button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="menu-item bg-white rounded-xl shadow-lg shadow-gray-800 h-[240px] px-3 py-4 flex flex-col text-xl items-center" data-category="bestseller">
-                <img class="h-24 w-24 rounded-lg" src="{% static 'images/Latte.png' %}" alt="">
-                <div class="text-2xl font-semibold mt-2">Vanilla Latte</div>
-                <div class="flex items-center justify-between w-full mt-3 px-4">
-                    <div class="text-gray-700 text-xl">$5.00</div>
-                    <div class="flex items-center space-x-2">
-                        <button class="add-btn bg-[#5E9EA0] text-white text-lg px-3 py-1 rounded-lg">+</button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="menu-item bg-white rounded-xl shadow-lg shadow-gray-800 h-[240px] px-3 py-4 flex flex-col text-xl items-center" data-category="new">
-                <img class="h-24 w-24 rounded-lg" src="{% static 'images/Cappucino.png' %}" alt="">
-                <div class="text-2xl font-semibold mt-2">Caramel Macchiato</div>
-                <div class="flex items-center justify-between w-full mt-3 px-4">
-                    <div class="text-gray-700 text-xl">$5.00</div>
-                    <div class="flex items-center space-x-2">
-                        <button class="add-btn bg-[#5E9EA0] text-white text-lg px-3 py-1 rounded-lg">+</button>
-                    </div>
-                </div>
-            </div>
-
-
+            {% endfor %}
         </div>
 
         <!-- Bottom Navigation -->
@@ -133,110 +79,86 @@
         <script>
             document.addEventListener("DOMContentLoaded", () => {
                 const categoryButtons = document.querySelectorAll(".category-btn");
-                const menuItems = document.querySelectorAll(".menu-item");
-                const addButtons = document.querySelectorAll(".add-btn");
-                const minusButtons = document.querySelectorAll(".minus-btn");
-                const quantityDisplays = document.querySelectorAll(".quantity-display");
-
-
+                const menuContainer = document.getElementById("menu-items");
+                const cartCount = document.getElementById("cart-count");
+        
+                // Load cart from localStorage
+                function getCart() {
+                    return JSON.parse(localStorage.getItem("cart") || "{}");
+                }
+        
+                function saveCart(cart) {
+                    localStorage.setItem("cart", JSON.stringify(cart));
+                }
+        
+                function updateCartCount() {
+                    const cart = getCart();
+                    const totalCount = Object.values(cart).reduce((total, item) => total + item.quantity, 0);
+                    if (totalCount > 0) {
+                        cartCount.textContent = totalCount;
+                        cartCount.classList.remove("hidden");
+                    } else {
+                        cartCount.classList.add("hidden");
+                    }
+                }
+        
                 // Category Filtering
                 categoryButtons.forEach(button => {
                     button.addEventListener("click", () => {
-                        const category = button.getAttribute("data-category");
-
-                        // Remove active class from all buttons
+                        const selectedCategory = button.getAttribute("data-category");
+        
+                        // Highlight the selected category
                         categoryButtons.forEach(btn => btn.classList.remove("bg-[#5E9EA0]", "text-white"));
                         button.classList.remove("bg-white");
                         button.classList.add("bg-[#5E9EA0]", "text-white");
-
-                        // Show/Hide menu items
-                        menuItems.forEach(item => {
-                            if (category === "all" || item.getAttribute("data-category") === category) {
-                                item.style.display = "flex";
-                            } else {
-                                item.style.display = "none";
-                            }
+        
+                        // Filter menu items
+                        document.querySelectorAll(".menu-item").forEach(item => {
+                            item.style.display = (selectedCategory === "all" || item.getAttribute("data-category") === selectedCategory) 
+                                ? "flex" 
+                                : "none";
                         });
                     });
                 });
+        
 
-                // Add Button Click Event
-                addButtons.forEach(button => {
-                    button.addEventListener("click", () => {
-                        const item = button.parentElement.parentElement.parentElement;
-                        const itemName = item.querySelector('.text-2xl').innerText;
-                        const itemPrice = item.querySelector('.text-gray-700').innerText;
-                        const itemImage = item.querySelector('img').src;
-
-                        // Get current cart
-                        let cart = JSON.parse(localStorage.getItem('cart') || '{}');
+                // Handle Add & Remove buttons using event delegation
+                menuContainer.addEventListener("click", (event) => {
+                    const target = event.target;
+                    if (target.classList.contains("add-btn")) {
+                        const item = target.closest(".menu-item");
+                        const itemName = item.querySelector(".text-2xl").innerText;
+                        const itemPrice = item.querySelector(".text-gray-700").innerText;
+                        const itemImage = item.querySelector("img").src;
+        
+                        let cart = getCart();
+                        cart[itemName] = cart[itemName] || { quantity: 0, price: itemPrice, image: itemImage };
+                        cart[itemName].quantity += 1;
                         
-                        // Update item quantity
-                        if (cart[itemName]) {
-                            cart[itemName].quantity += 1;
-                        } else {
-                            cart[itemName] = {
-                                quantity: 1,
-                                price: itemPrice,
-                                image: itemImage
-                            };
-                        }
-
-                        // Save to localStorage
-                        localStorage.setItem('cart', JSON.stringify(cart));
-
-                        // Update cart count immediately
-                        const cartCount = document.getElementById('cart-count');
-                        const totalCount = Object.values(cart).reduce((total, item) => total + item.quantity, 0);
-                        cartCount.textContent = totalCount;
-                        cartCount.classList.remove('hidden');
-                    });
-                });
-
-                function updateCartCount() {
-                    const cart = JSON.parse(localStorage.getItem('cart') || '{}');
-                    const count = Object.values(cart).reduce((total, item) => total + item.quantity, 0);
-                    const cartCount = document.getElementById('cart-count');
-                    if (count > 0) {
-                        cartCount.textContent = count;
-                        cartCount.classList.remove('hidden');
-                    } else {
-                        cartCount.classList.add('hidden');
+                        saveCart(cart);
+                        updateCartCount();
                     }
-                }
-
-                // Initial cart count update
-                updateCartCount();
-
-                minusButtons.forEach(button => {
-                    button.addEventListener("click", () => {
-                        const item = button.parentElement.parentElement.parentElement;
-                        const addBtn = item.querySelector('.add-btn');
-                        const quantityDisplay = item.querySelector('.quantity-display');
-                        const itemName = item.querySelector('.text-4xl').innerText;
-                        let counter = addBtn.dataset.count ? parseInt(addBtn.dataset.count) : 1;
-
-                        if (counter > 0) {
-                            counter--;
-                            addBtn.dataset.count = counter;
-                            quantityDisplay.innerText = counter;
-
-                            // Update localStorage
-                            let cart = JSON.parse(localStorage.getItem('cart') || '{}');
-                            if (counter === 0) {
-                                delete cart[itemName];
-                                quantityDisplay.classList.add('hidden');
-                                button.classList.add('hidden');
-                            } else {
-                                cart[itemName].quantity = counter;
+        
+                    if (target.classList.contains("minus-btn")) {
+                        const item = target.closest(".menu-item");
+                        const itemName = item.querySelector(".text-2xl").innerText;
+                        let cart = getCart();
+        
+                        if (cart[itemName] && cart[itemName].quantity > 0) {
+                            cart[itemName].quantity -= 1;
+                            if (cart[itemName].quantity === 0) {
+                                delete cart[itemName]; // Remove item if quantity reaches 0
                             }
-                            localStorage.setItem('cart', JSON.stringify(cart));
+                            saveCart(cart);
                             updateCartCount();
                         }
-                        updateCartCount();
-                    });
+                    }
                 });
+        
+                // Initialize cart count
+                updateCartCount();
             });
         </script>
+        
     </body>
 </html>

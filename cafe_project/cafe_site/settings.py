@@ -91,17 +91,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'cafe_site.wsgi.application'
 
-
-# Database
-# https://docs.djangoproject.com/en/5.1/ref/settings/#databases
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
-
 # local postgresql
 # DATABASES = {
 #     'default': {
@@ -117,10 +106,15 @@ DATABASES = {
 # docker postgresql
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.getenv('SQL_NAME', 'postgres'),
+        'USER': os.getenv('SQL_USER', 'postgres'),
+        'PASSWORD': os.getenv('SQL_PASSWORD', 'postgres'),
+        'HOST': os.getenv('SQL_HOST', 'postgres_db'), 
+        'PORT': os.getenv('SQL_PORT', '5432'),
     }
 }
+
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators

@@ -4,15 +4,24 @@ from io import BytesIO
 from django.core.files import File
 from PIL import Image
 
-# Create your models here.
+class Category(models.Model):
+    name = models.CharField(max_length=50, unique=True)
+
+    def __str__(self):
+        return self.name
+
 class MenuItem(models.Model):
+    class Status(models.TextChoices):
+        REGULAR = 'regular', 'Regular'
+        BESTSELLER = 'bestseller', 'Bestseller'
+        NEW = 'new', 'New'
+
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True)
     price = models.DecimalField(max_digits=6, decimal_places=2)
-    image = models.CharField(max_length=200)
-    category = models.CharField(max_length=50)
-    is_bestseller = models.BooleanField(default=False)
-    is_new = models.BooleanField(default=False)
+    image = models.ImageField(upload_to='menu_images/', blank=True, null=True)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='menu_items')
+    status = models.CharField(max_length=10, choices=Status.choices, default=Status.REGULAR)
 
     def __str__(self):
         return self.name
@@ -41,9 +50,3 @@ class Table(models.Model):
         buffer = BytesIO()
         img.save(buffer, 'PNG')
         self.qr_code.save(f'table_{self.number}_qr.png', File(buffer), save=False)
-
-
-# class Choice(models.Model):
-#     question = models.ForeignKey(Question, on_delete=models.CASCADE)
-#     choice_text = models.CharField(max_length=200)
-#     votes = models.IntegerField(default=0)

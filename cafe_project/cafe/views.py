@@ -5,7 +5,7 @@ from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 from django.core.files import File
-from .models import MenuItem, Table
+from .models import MenuItem, Table, Category
 import qrcode
 import json
 from io import BytesIO
@@ -16,8 +16,9 @@ def home(request):
     return render(request, 'home.html')
 
 def menu(request):
+    categories = Category.objects.all()
     menu_items = MenuItem.objects.all()
-    return render(request, 'menu.html', {'menu_items': menu_items})
+    return render(request, 'menu.html', {'categories': categories, 'menu_items': menu_items})
 
 def order_list(request):
     return render(request, 'order_list.html')
