@@ -2,27 +2,26 @@ version: '3.8'
 
 services:
   web:
-    build: .
-    container_name: django_qr_app
+    build:
+      context: .
     ports:
       - "8000:8000"
+    command: ["sh", "./start.sh"]
     volumes:
       - .:/app
-    environment:
-      - DEBUG=True
+    env_file:
+      - .env
     depends_on:
-      - db
+      - postgres_db
 
-  db:
-    image: postgres:14
-    container_name: postgres_db
-    restart: always
-    environment:
-      POSTGRES_DB: cafe_db
-      POSTGRES_USER: cafe_user
-      POSTGRES_PASSWORD: password123
+  postgres_db:
+    image: postgres
     volumes:
-      - pg_data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/postgres_data
+    environment:
+      - POSTGRES_DB=${SQL_NAME}
+      - POSTGRES_USER=${SQL_USER}
+      - POSTGRES_PASSWORD=${SQL_PASSWORD}
 
 volumes:
-  pg_data:
+  postgres_data:
