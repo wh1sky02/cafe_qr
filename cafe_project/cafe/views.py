@@ -25,3 +25,14 @@ def cart(request):
 
 def checkout(request):
     return render(request, 'checkout.html')
+
+def admin_qr_code(request):
+    tables = [
+        {'number': '1', 'status': 'Available', 'qr_code': True},
+        {'number': '2', 'status': 'Unavailable', 'qr_code': False},
+        {'number': '3', 'status': 'Available', 'qr_code': True},
+        {'number': '4', 'status': 'Unavailable', 'qr_code': False},
+        {'number': '5', 'status': 'Available', 'qr_code': True},
+        {'number': '6', 'status': 'Available', 'qr_code': True}
+    ]
+    return render(request, 'admin_qr_code.html', {'tables': tables})
