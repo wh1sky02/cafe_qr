@@ -103,18 +103,20 @@ WSGI_APPLICATION = 'cafe_site.wsgi.application'
 #     }
 # }
 
-# docker postgresql
+# Hosted postgresql
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('SQL_NAME', 'postgres'),
-        'USER': os.getenv('SQL_USER', 'postgres'),
-        'PASSWORD': os.getenv('SQL_PASSWORD', 'postgres'),
-        'HOST': os.getenv('SQL_HOST', 'postgres_db'), 
-        'PORT': os.getenv('SQL_PORT', '5432'),
+        'NAME': os.getenv('DB_NAME'),  # The database name
+        'USER': os.getenv('DB_USER'),  # The username
+        'PASSWORD': os.getenv('DB_PASSWORD'),  # The password
+        'HOST': os.getenv('DB_HOST'),  # The host
+        'PORT': os.getenv('DB_PORT'),  # The port
+        'OPTIONS': {
+            'sslmode': os.getenv('DB_SSLMODE', 'require'),  # SSL mode requirement
+        },
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
