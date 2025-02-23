@@ -62,10 +62,14 @@ cafe_project/
 
 ## Admin Access
 
-Access the admin panel at `/admin` to manage:
+Access the admin panel at `/login` to manage:
+
+- Admin Dashboard
+- Generate QR
 - Menu items
 - Tables
 - Orders
+- Settings
 
 ## License
 
