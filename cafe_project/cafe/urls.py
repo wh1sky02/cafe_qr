@@ -20,4 +20,13 @@ urlpatterns = [
     # Authentication Routes
     path('login/', views.custom_login, name='login'),
     path('logout/', views.custom_logout, name='logout'),
+    path('admin-panel/settings/', views.settings, name='settings'),
+    path('admin-panel/change-password/', views.change_password, name='change_password'),
+    path('admin-panel/menu-settings/', views.menu_settings, name='menu_settings'),
+    path('admin-panel/menu/', views.admin_menu, name='admin_menu'),
+    path('admin-panel/add-menu-item/', views.add_menu_item, name='add_menu_item'),
+    path('admin-panel/add-category/', views.add_category, name='add_category'),
+    path('admin-panel/delete-category/<int:category_id>/', views.delete_category, name='delete_category'),
+    path('admin-panel/edit-menu-item/<int:item_id>/', views.edit_menu_item, name='edit_menu_item'),
+    path('admin-panel/delete-menu-item/<int:item_id>/', views.delete_menu_item, name='delete_menu_item'),
 ]

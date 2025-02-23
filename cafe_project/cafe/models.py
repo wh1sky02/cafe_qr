@@ -25,7 +25,19 @@ class MenuItem(models.Model):
 
     def __str__(self):
         return self.name
-    
+
+    def save(self, *args, **kwargs):
+        if self.image:
+            img = Image.open(self.image)
+            output_size = (96, 96)
+            img.thumbnail(output_size, Image.LANCZOS)
+            # Save the resized image
+            thumb_io = BytesIO()
+            img.save(thumb_io, img.format, quality=85)
+            self.image.file = thumb_io
+            self.image.name = self.image.name
+        super().save(*args, **kwargs)
+
 class Table(models.Model):
     number = models.IntegerField(unique=True)
     qr_code = models.ImageField(upload_to='qr_codes/', blank=True)
@@ -45,7 +57,7 @@ class Table(models.Model):
 
         # Create QR code image
         img = qr.make_image(fill_color="black", back_color="white")
-        
+
         # Save QR code image
         buffer = BytesIO()
         img.save(buffer, 'PNG')

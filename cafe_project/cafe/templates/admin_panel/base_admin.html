@@ -126,10 +126,10 @@
                     <li><a href="{% url 'dashboard' %}">🏠 Dashboard</a></li>
                     <li><a href="#">🪑 Tables</a></li>
                     <li><a href="{% url 'qr_code_management' %}">🧾 QR Code</a></li>
-                    <li><a href="#">🍽️ Menu</a></li>
+                    <li><a href="#"><a href="{% url 'admin_menu' %}">🍽️ Menu</a></a></li>
                     <li><a href="#">📦 Orders</a></li>
                     <li><a href="#">💰 Transactions</a></li>
-                    <li><a href="#">⚙️ Settings</a></li>
+                    <li><a href="{% url 'settings' %}">⚙️ Settings</a></li>
                 </ul>
             </nav>
         </div>

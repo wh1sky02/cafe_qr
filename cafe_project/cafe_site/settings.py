@@ -91,15 +91,15 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'cafe_site.wsgi.application'
 
-# local postgresql
+
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'cafe_db',
-#         'USER': 'cafe_db',
-#         'PASSWORD': '12345',
-#         'HOST': '127.0.0.1',
-#         'PORT': '5432',
+#         'NAME': os.environ['PGDATABASE'],
+#         'USER': os.environ['PGUSER'],
+#         'PASSWORD': os.environ['PGPASSWORD'],
+#         'HOST': os.environ['PGHOST'],
+#         'PORT': os.environ['PGPORT'],
 #     }
 # }
 
@@ -117,6 +117,7 @@ DATABASES = {
         },
     }
 }
+
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators

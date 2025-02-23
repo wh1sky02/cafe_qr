@@ -9,6 +9,7 @@ from .models import MenuItem, Table, Category
 import qrcode
 import json
 from io import BytesIO
+from django.contrib.auth import update_session_auth_hash
 
 # --------------------- Public Views ---------------------
 
@@ -33,6 +34,18 @@ def cart(request):
 
 def checkout(request):
     return render(request, 'checkout.html')
+
+
+# --------------------- Admin Panel Views ---------------------
+@login_required
+def admin_menu(request):
+    """Displays the admin menu management page"""
+    menu_items = MenuItem.objects.all().order_by('category', 'name')
+    categories = Category.objects.all()
+    return render(request, 'admin_panel/menu_settings.html', {
+        'menu_items': menu_items,
+        'categories': categories
+    })
 
 
 # --------------------- Authentication Views ---------------------
@@ -140,3 +153,107 @@ def remove_qr_code(request):
             return JsonResponse({'success': False, 'error': 'Table not found'})
 
     return JsonResponse({'success': False, 'error': 'Invalid request method'})
+
+@login_required
+def settings(request):
+    """Displays the settings page"""
+    return render(request, "admin_panel/settings.html")
+
+@login_required
+def menu_settings(request):
+    """Displays the menu settings page"""
+    menu_items = MenuItem.objects.all().order_by('-status', 'name')
+    categories = Category.objects.all()
+    return render(request, "admin_panel/menu_settings.html", {'menu_items': menu_items, 'categories': categories})
+
+@login_required
+def add_category(request):
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        try:
+            Category.objects.create(name=name)
+            messages.success(request, 'Category added successfully!')
+        except Exception as e:
+            messages.error(request, f'Error adding category: {str(e)}')
+    return redirect('menu_settings')
+
+@login_required
+def delete_category(request, category_id):
+    try:
+        category = Category.objects.get(id=category_id)
+        category.delete()
+        messages.success(request, 'Category deleted successfully!')
+    except Category.DoesNotExist:
+        messages.error(request, 'Category not found')
+    except Exception as e:
+        messages.error(request, f'Error deleting category: {str(e)}')
+    return redirect('menu_settings')
+
+@login_required
+def edit_menu_item(request, item_id):
+    if request.method == 'POST':
+        item = get_object_or_404(MenuItem, id=item_id)
+        item.name = request.POST.get('name')
+        item.description = request.POST.get('description')
+        item.price = request.POST.get('price')
+        item.category_id = request.POST.get('category')
+        item.status = request.POST.get('status')
+        
+        if 'image' in request.FILES:
+            item.image = request.FILES['image']
+        
+        item.save()
+        messages.success(request, 'Menu item updated successfully!')
+        return redirect('menu_settings')
+
+@login_required
+def delete_menu_item(request, item_id):
+    item = get_object_or_404(MenuItem, id=item_id)
+    item.delete()
+    messages.success(request, 'Menu item deleted successfully!')
+    return redirect('menu_settings')
+
+@login_required
+def add_menu_item(request):
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        description = request.POST.get('description')
+        price = request.POST.get('price')
+        category_id = request.POST.get('category')
+        status = request.POST.get('status')
+        image = request.FILES.get('image')
+
+        category = Category.objects.get(id=category_id)
+        menu_item = MenuItem.objects.create(
+            name=name,
+            description=description,
+            price=price,
+            category=category,
+            status=status,
+            image=image
+        )
+        messages.success(request, 'Menu item added successfully!')
+        return redirect('menu_settings')
+
+@login_required
+def change_password(request):
+    """Handles password change"""
+    if request.method == "POST":
+        current_password = request.POST.get("current_password")
+        new_password = request.POST.get("new_password")
+        confirm_password = request.POST.get("confirm_password")
+
+        user = request.user
+
+        if not user.check_password(current_password):
+            messages.error(request, "Current password is incorrect.")
+        elif new_password != confirm_password:
+            messages.error(request, "New passwords don't match.")
+        else:
+            user.set_password(new_password)
+            user.save()
+            messages.success(request, "Password changed successfully.")
+            update_session_auth_hash(request, user)  # Keep user logged in
+            return redirect('settings')
+
+    return redirect('settings')
