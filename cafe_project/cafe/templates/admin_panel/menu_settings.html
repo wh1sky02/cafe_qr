@@ -38,6 +38,7 @@
         padding: 10px 15px;
         border-radius: 5px;
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        margin-bottom: 27px;
     }
 
     .category-name {
@@ -138,7 +139,7 @@
 
 <div class="settings-container">
     <div class="flex justify-between items-center mb-6">
-        <h2 style="font-size: 24px; font-weight: bold; color: #333;">Menu Management</h2>
+        <h2 style="font-size: 24px; font-weight: bold; color: #333;">Menu Management</h2><br>
         <div style="display: flex; gap: 10px;">
             <button onclick="openCategoryModal()" class="btn">+ Add Category</button>
             <button onclick="openItemModal()" class="btn">+ Add Menu Item</button>
@@ -146,7 +147,7 @@
     </div>
 
     <div class="categories-section mb-6">
-        <h3 style="font-size: 18px; font-weight: bold; color: #333; margin-bottom: 10px;">Categories</h3>
+        <br><h3 style="font-size: 18px; font-weight: bold; color: #333; margin-bottom: 10px;">Categories</h3>
         <div class="categories-grid">
             {% for category in categories %}
             <div class="category-card">
