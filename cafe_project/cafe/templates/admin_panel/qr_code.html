@@ -196,104 +196,98 @@
 </div>
 
 <script>
-    // Handle form submission for generating QR Code
     document.addEventListener("DOMContentLoaded", function () {
-        const modal = document.getElementById("qrModal");
-        const openBtn = document.getElementById("openModal");
-        const closeBtn = document.querySelector(".close");
-        const form = document.getElementById("qrForm");
-        const grid = document.querySelector(".grid");
-    
-        // Open modal and disable background interactions
-        openBtn.onclick = function () {
-            modal.style.display = "flex";
-            document.body.classList.add("modal-open"); // ✅ Disable background scrolling
-        };
-    
-        // Close modal and re-enable background interactions
-        function closeModal() {
-            modal.style.display = "none";
-            document.body.classList.remove("modal-open"); // ✅ Enable background scrolling
-        }
-    
-        closeBtn.onclick = closeModal;
-    
-        // Close modal when clicking outside of modal content
-        window.onclick = function (event) {
-            if (event.target == modal) {
-                closeModal();
-            }
-        };
-    
-        // Handle form submission for generating QR Code
-        form.onsubmit = async function (e) {
-            e.preventDefault();
-    
-            const tableNumberInput = document.getElementById("tableNumber");
-            const tableNumber = tableNumberInput.value.trim();
-    
-            if (!tableNumber) {
-                alert("Error: Table number is required.");
-                return;
-            }
-    
-            try {
-                const response = await fetch("/admin-panel/generate-qr-code/", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "X-CSRFToken": document.querySelector("[name=csrfmiddlewaretoken]").value
-                    },
-                    body: JSON.stringify({ table_number: tableNumber })
-                });
-    
-                const data = await response.json();
-    
-                if (data.success) {
-                    alert(`QR Code for Table ${data.table_number} generated successfully!`);
-    
-                    // ✅ Close modal after successful QR generation
-                    closeModal();
-    
-                    // ✅ Check if the table already exists, and update it instead of duplicating
-                    let existingTable = document.getElementById(`table-${data.table_number}`);
-                    if (existingTable) {
-                        existingTable.innerHTML = `
-                            <button class="btn-remove" onclick="removeQRCode(${data.table_number})">❌</button>
-                            <h3>Table ${data.table_number}</h3>
-                            <p class="table-status active">Status: ✅ Active</p>
-                            <img src="${data.qr_code_url}" alt="QR Code">
-                            <br>
-                            <a href="${data.qr_code_url}" download="table_${data.table_number}.png" class="download-btn">⬇ Download</a>
-                        `;
-                    } else {
-                        // ✅ Create new table entry dynamically
-                        const newTable = document.createElement("div");
-                        newTable.classList.add("table-card");
-                        newTable.id = `table-${data.table_number}`;
-                        newTable.innerHTML = `
-                            <button class="btn-remove" onclick="removeQRCode(${data.table_number})">❌</button>
-                            <h3>Table ${data.table_number}</h3>
-                            <p class="table-status active">Status: ✅ Active</p>
-                            <img src="${data.qr_code_url}" alt="QR Code">
-                            <br>
-                            <a href="${data.qr_code_url}" download="table_${data.table_number}.png" class="download-btn">⬇ Download</a>
-                        `;
-                        grid.appendChild(newTable); // ✅ Append new table dynamically
-                    }
-    
-                } else {
-                    alert("Error: " + data.error);
-                }
-            } catch (error) {
-                alert("Request failed. Please try again.");
-                console.error(error);
-            }
-        };
-    });       
+    const modal = document.getElementById("qrModal");
+    const openBtn = document.getElementById("openModal");
+    const closeBtn = document.querySelector(".close");
+    const form = document.getElementById("qrForm");
+    const grid = document.querySelector(".grid");
 
-    // Remove QR Code and delete table
-    async function removeQRCode(tableNumber) {
+    // Open modal to generate QR code
+    openBtn.onclick = function () {
+        modal.style.display = "flex";
+        document.body.classList.add("modal-open");
+    };
+
+    // Close modal when user clicks the close button or outside of the modal
+    function closeModal() {
+        modal.style.display = "none";
+        document.body.classList.remove("modal-open");
+    }
+
+    closeBtn.onclick = closeModal;
+
+    window.onclick = function (event) {
+        if (event.target == modal) {
+            closeModal();
+        }
+    };
+
+    // Handle QR code generation form submission
+    form.onsubmit = async function (e) {
+        e.preventDefault();
+
+        const tableNumberInput = document.getElementById("tableNumber");
+        const tableNumber = tableNumberInput.value.trim();
+
+        if (!tableNumber) {
+            alert("Error: Table number is required.");
+            return;
+        }
+
+        try {
+            const response = await fetch("/admin-panel/generate-qr-code/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": document.querySelector("[name=csrfmiddlewaretoken]").value
+                },
+                body: JSON.stringify({ table_number: tableNumber })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                alert(`QR Code for Table ${data.table_number} generated successfully!`);
+                closeModal();
+
+                let existingTable = document.getElementById(`table-${data.table_number}`);
+                if (existingTable) {
+                    // Update existing table entry with new QR code
+                    existingTable.innerHTML = `
+                        <button class="btn-remove" onclick="removeQRCode(${data.table_number})">❌</button>
+                        <h3>Table ${data.table_number}</h3>
+                        <p class="table-status active">Status: ✅ Active</p>
+                        <img src="${data.qr_code_url}" alt="QR Code">
+                        <br>
+                        <a href="${data.qr_code_url}" download="table_${data.table_number}.png" class="download-btn">⬇ Download</a>
+                    `;
+                } else {
+                    // Create a new table entry in the grid
+                    const newTable = document.createElement("div");
+                    newTable.classList.add("table-card");
+                    newTable.id = `table-${data.table_number}`;
+                    newTable.innerHTML = `
+                        <button class="btn-remove" onclick="removeQRCode(${data.table_number})">❌</button>
+                        <h3>Table ${data.table_number}</h3>
+                        <p class="table-status active">Status: ✅ Active</p>
+                        <img src="${data.qr_code_url}" alt="QR Code">
+                        <br>
+                        <a href="${data.qr_code_url}" download="table_${data.table_number}.png" class="download-btn">⬇ Download</a>
+                    `;
+                    grid.appendChild(newTable);
+                }
+            } else {
+                alert("Error: " + data.error);
+            }
+        } catch (error) {
+            alert("Request failed. Please try again.");
+            console.error(error);
+        }
+    };
+
+    // Handle removing QR code
+    window.removeQRCode = async function (tableNumber) {
         if (!confirm(`Are you sure you want to remove Table ${tableNumber}?`)) return;
 
         try {
@@ -319,6 +313,8 @@
             console.error(error);
         }
     }
+});
+
 </script>
 
 </body>

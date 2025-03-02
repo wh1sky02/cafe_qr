@@ -5,8 +5,12 @@ from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 from django.core.files import File
-from .models import MenuItem, Table, Category
+from django.utils.timezone import now
+from django.db.models import Sum
+from datetime import timedelta
+from .models import MenuItem, Table, Category, Order, Banner
 import qrcode
+import random
 import json
 from io import BytesIO
 from django.contrib.auth import update_session_auth_hash
@@ -14,12 +18,37 @@ from django.contrib.auth import update_session_auth_hash
 # --------------------- Public Views ---------------------
 
 def home(request):
-    return render(request, 'home.html')
+    # Fetch "new" items added in the last 30 days
+    thirty_days_ago = now() - timedelta(days=30)
+    new_items = MenuItem.objects.filter(created_at__gte=thirty_days_ago)[:3]
 
-def menu(request):
+    # Fetch bestsellers based on total orders
+    bestsellers = (
+        MenuItem.objects.annotate(total_orders= Sum('orders__quantity'))
+        .order_by('-total_orders')[:3]
+    )
+
+    # If not enough bestsellers, fill with random items
+    all_items = list(MenuItem.objects.all())
+    recommended_items = random.sample(all_items, min(3, len(all_items)))
+    
+    # Fetch active banners ordered by position
+    banners = Banner.objects.filter(is_active=True).order_by('position')
+
+    return render(request, 'home.html', {
+        'recommended_items': recommended_items,
+        'bestsellers': bestsellers,
+        'new_items': new_items,
+        'banners': banners
+    })
+
+def menu(request, token):
+    # Lookup table by token
+    table = get_object_or_404(Table, token=token)
+
     categories = Category.objects.all()
     menu_items = MenuItem.objects.all()
-    return render(request, 'menu.html', {'categories': categories, 'menu_items': menu_items})
+    return render(request, 'menu.html', {'table': table, 'categories': categories, 'menu_items': menu_items})
 
 def order_list(request):
     return render(request, 'order_list.html')
@@ -109,21 +138,11 @@ def generate_qr_code(request):
             if not table_number:
                 return JsonResponse({'success': False, 'error': 'Table number is required'})
 
-            # ✅ If table was removed before, re-create it
+            # Retrieve or create a table object for the given number
             table, created = Table.objects.get_or_create(number=table_number)
 
-            # ✅ Always generate a new QR code
-            qr = qrcode.QRCode(version=1, box_size=10, border=5)
-            qr.add_data(f'http://yourcafe.com/menu/{table.number}/')
-            qr.make(fit=True)
-
-            img = qr.make_image(fill_color="black", back_color="white")
-            buffer = BytesIO()
-            img.save(buffer, format="PNG")  # Ensure format is PNG
-
-            filename = f'table_{table.number}_qr.png'  # Ensure filename has .png extension
-            table.qr_code.save(filename, File(buffer), save=False)
-            table.save()
+            # Generate the QR code using the model's method
+            table.generate_qr_code()
 
             return JsonResponse({
                 'success': True,
