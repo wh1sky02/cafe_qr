@@ -1,115 +1,104 @@
 {% extends "admin_panel/base_admin.html" %}
 {% block content %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard</title>
-    <style>
-        /* General Styles */
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            margin: 0;
-            padding: 0;
-        }
+<style>
+    /* General Styles */
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        margin: 0;
+        padding: 0;
+    }
 
-        .container {
-            max-width: 1200px;
-            margin: auto;
-            padding: 20px;
-        }
+    /* Header at the top of the dashboard */
+    .dashboard-header {
+        text-align: center;
+        font-size: 24px;
+        font-weight: bold;
+        margin-top: 20px;
+    }
 
-        .header {
-            {% comment %} background-color: #008080; {% endcomment %}
-            {% comment %} color: white; {% endcomment %}
-            padding: 15px;
-            text-align: center;
-            font-size: 24px;
-            font-weight: bold;
-        }
+    /* Container for the 3 cards (Total, Active, Inactive) */
+    .dashboard-content {
+        display: flex;
+        gap: 20px;
+        margin-top: 20px;
+        justify-content: center; /* center the cards horizontally */
+    }
 
-        .dashboard-content {
-            display: flex;
-            gap: 20px;
-            margin-top: 20px;
-        }
+    /* Each card box */
+    .card {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+        flex: 1;
+        max-width: 300px;
+        text-align: center;
+    }
 
-        .card {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
-            flex: 1;
-            text-align: center;
-        }
+    .card h3 {
+        margin-bottom: 10px;
+    }
 
-        .card h3 {
-            margin-bottom: 10px;
-        }
+    .card p {
+        font-size: 18px;
+        font-weight: bold;
+        color: #008080;
+        margin: 0;
+    }
 
-        .card p {
-            font-size: 18px;
-            font-weight: bold;
-            color: #008080;
-        }
+    /* Refresh button centered under the cards */
+    .refresh-btn {
+        display: block;
+        margin: 20px auto;
+        background-color: #008080;
+        color: white;
+        padding: 10px 15px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: bold;
+    }
+    .refresh-btn:hover {
+        background-color: #006666;
+    }
+</style>
 
-        .refresh-btn {
-            background-color: #008080;
-            color: white;
-            padding: 10px 15px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            display: block;
-            margin: 20px auto;
-        }
+<!-- Dashboard Header -->
+<div class="dashboard-header">Admin Dashboard</div>
 
-        .refresh-btn:hover {
-            background-color: #006666;
-        }
-    </style>
-</head>
-<body>
-
-    <div class="container">
-        <div class="header">Admin Dashboard</div>
-
-        <div class="dashboard-content">
-            <div class="card">
-                <h3>Total Tables</h3>
-                <p id="total-tables">Loading...</p>
-            </div>
-            <div class="card">
-                <h3>Active Tables</h3>
-                <p id="active-tables">Loading...</p>
-            </div>
-            <div class="card">
-                <h3>Inactive Tables</h3>
-                <p id="inactive-tables">Loading...</p>
-            </div>
-        </div>
-
-        <button class="refresh-btn" onclick="fetchDashboardData()">Refresh Data</button>
+<!-- Cards Row -->
+<div class="dashboard-content">
+    <div class="card">
+        <h3>Total Tables</h3>
+        <p id="total-tables">Loading...</p>
     </div>
+    <div class="card">
+        <h3>Active Tables</h3>
+        <p id="active-tables">Loading...</p>
+    </div>
+    <div class="card">
+        <h3>Inactive Tables</h3>
+        <p id="inactive-tables">Loading...</p>
+    </div>
+</div>
 
-    <script>
-        function fetchDashboardData() {
-            fetch('/admin-panel/dashboard-data/')
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById("total-tables").textContent = data.total_tables;
-                document.getElementById("active-tables").textContent = data.active_tables;
-                document.getElementById("inactive-tables").textContent = data.inactive_tables;
-            })
-            .catch(error => console.error('Error fetching dashboard data:', error));
-        }
+<!-- Refresh Data Button -->
+<button class="refresh-btn" onclick="fetchDashboardData()">Refresh Data</button>
 
-        // Fetch data when page loads
-        window.onload = fetchDashboardData;
-    </script>
+<script>
+    function fetchDashboardData() {
+        fetch('/admin-panel/dashboard-data/')
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById("total-tables").textContent = data.total_tables;
+            document.getElementById("active-tables").textContent = data.active_tables;
+            document.getElementById("inactive-tables").textContent = data.inactive_tables;
+        })
+        .catch(error => console.error('Error fetching dashboard data:', error));
+    }
 
-</body>
-</html>
+    // Fetch data when page loads
+    window.onload = fetchDashboardData;
+</script>
 {% endblock %}

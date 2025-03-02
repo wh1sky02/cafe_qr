@@ -1,322 +1,312 @@
 {% extends "admin_panel/base_admin.html" %}
 {% block content %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QR Code Management</title>
-    <style>
-        /* General Styles */
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            margin: 0;
-            padding: 0;
-        }
+<style>
+  /* --- Scoped Styles for QR Code Page (avoid global overrides) --- */
 
-        .container {
-            max-width: 1200px;
-            margin: auto;
-            padding: 20px;
-        }
+  /* Generate QR Code Button */
+  .qr-btn {
+    background-color: #008080;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+  }
+  .qr-btn:hover {
+    background-color: #006666;
+  }
 
-        h1 {
-            font-size: 24px;
-            font-weight: bold;
-            color: #333;
-        }
+  /* Modal Styles */
+  .qr-modal {
+    display: none;
+    position: fixed;
+    top: 0; 
+    left: 0;
+    width: 100%; 
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+  }
+  .qr-modal-content {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    width: 300px;
+    position: relative;
+  }
+  .qr-close {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 24px;
+    cursor: pointer;
+  }
+  /* Prevent scrolling when modal is open */
+  body.modal-open {
+    overflow: hidden;
+  }
 
-        /* Buttons */
-        .btn {
-            background-color: #008080;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 14px;
-            margin: 10px 0;
-        }
+  /* Grid for QR Code Cards */
+  .qr-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: flex-start;
+    margin-top: 20px;
+  }
 
-        .btn:hover {
-            background-color: #006666;
-        }
+  /* QR Code Card */
+  .qr-card {
+    background: white;
+    width: 368px;
+    height: 300px;
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
 
-        /* Remove Button */
-        .btn-remove {
-            background-color: red;
-            color: white;
-            padding: 4px 6px;
-            font-size: 10px;
-            border-radius: 50%;
-            position: absolute;
-            top: 5px;
-            right: 5px;
-            cursor: pointer;
-            border: none;
-        }        
+  /* Remove Button on Card */
+  .qr-remove {
+    background-color: red;
+    color: white;
+    padding: 4px 6px;
+    font-size: 10px;
+    border-radius: 50%;
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    cursor: pointer;
+    border: none;
+  }
+  .qr-remove:hover {
+    background-color: darkred;
+  }
 
-        .btn-remove:hover {
-            background-color: darkred;
-        }
+  /* Left side: Table Info */
+  .qr-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 5px;
+    max-width: 50%;
+  }
+  .qr-info h3 {
+    margin: 0;
+    font-size: 16px;
+  }
+  .qr-status {
+    font-weight: bold;
+    margin: 0;
+  }
+  .active {
+    color: green;
+  }
+  .inactive {
+    color: red;
+  }
 
-        /* Modal Styles */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5); /* ✅ Semi-transparent overlay */
-            justify-content: center;
-            align-items: center;
-            z-index: 9999; /* ✅ Ensures it's always on top */
-            pointer-events: auto; /* ✅ Allows modal interactions only */
-        }        
+  /* Right side: QR Code & Download */
+  .qr-img-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  .qr-img-container img {
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+  }
+  .qr-download {
+    display: inline-block;
+    background-color: #008080;
+    padding: 5px 10px;
+    margin-top: 10px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-size: 14px;
+    color: white;
+  }
+  .qr-download:hover {
+    background-color: #006666;
+  }
+</style>
 
-        .modal-content {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            text-align: center;
-            width: 300px;
-            z-index: 10000; /* ✅ Higher than the modal background */
-        } 
-        
-        body.modal-open {
-            overflow: hidden; /* ✅ Prevents scrolling when modal is open */
-            pointer-events: none; /* ✅ Blocks interactions with elements behind modal */
-        }
+<div class="qr-page-container">
+  <!-- Generate QR Code Button -->
+  <button id="openModal" class="qr-btn">+ Generate QR Code</button>
 
-        .close {
-            float: right;
-            font-size: 24px;
-            cursor: pointer;
-        }
+  <!-- Modal for QR Code Generation -->
+  <div id="qrModal" class="qr-modal">
+    <div class="qr-modal-content">
+      <span class="qr-close">&times;</span>
+      <h2>Generate QR Code</h2>
+      <form id="qrForm">
+        {% csrf_token %}
+        <input type="number" id="tableNumber" placeholder="Enter Table Number" required>
+        <br><br>
+        <button type="submit" class="qr-btn">Generate</button>
+      </form>
+    </div>
+  </div>
 
-        /* Grid for Tables */
-        .grid {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-            justify-content: flex-start; /* ✅ Align boxes to the left */
-            margin-top: 40px; /* ✅ Moves the entire section down */
-        }               
-
-        .table-card {
-            background: white;
-            width: 300px;  /* ✅ Set fixed width */
-            height: 300px; /* ✅ Set fixed height (same as width for a square) */
-            padding: 15px;
-            border-radius: 10px;
-            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
-            text-align: center;
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            justify-content: center; /* ✅ Centers content inside the box */
-            align-items: center;
-        }        
-
-        .table-card img {
-            width: 120px;
-            height: 120px;
-            object-fit: cover; /* ✅ Ensures QR image doesn't stretch */
-        }        
-        
-        .table-status {
-            font-weight: bold;
-        }
-
-        .active {
-            color: green;
-        }
-
-        .inactive {
-            color: red;
-        }
-
-        .download-btn {
-            display: inline-block;
-            background-color: #ddd;
-            padding: 5px 10px;
-            margin-top: 10px;
-            border-radius: 5px;
-            text-decoration: none;
-            font-size: 14px;
-            color: #333;
-        }
-
-        .download-btn:hover {
-            background-color: #bbb;
-        }
-    </style>
-</head>
-<body>
-
-<div class="container">
-    <h1>QR Code Management</h1>
-
-    <!-- Generate QR Code Button -->
-    <button id="openModal" class="btn">+ Generate QR Code</button>
-
-    <!-- Modal for QR Code Generation -->
-    <div id="qrModal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <h2>Generate QR Code</h2>
-            <form id="qrForm">
-                {% csrf_token %}
-                <input type="number" id="tableNumber" placeholder="Enter Table Number" required>
-                <br><br>
-                <button type="submit" class="btn">Generate</button>
-            </form>
+  <!-- Grid of QR Code Cards -->
+  <div class="qr-grid" id="gridContainer">
+    {% for table in tables %}
+      <div class="qr-card" id="table-{{ table.number }}">
+        <button class="qr-remove" onclick="removeQRCode({{ table.number }})">X</button>
+        <!-- Left side: Table Info -->
+        <div class="qr-info">
+          <h3>Table {{ table.number }}</h3>
+          <p class="qr-status {% if table.is_active %}active{% else %}inactive{% endif %}">
+            Status: {% if table.is_active %} ✅ Active {% else %} ❌ Inactive {% endif %}
+          </p>
         </div>
-    </div>
-
-    <!-- Tables Grid -->
-    <div class="grid">
-        {% for table in tables %}
-            <div class="table-card" id="table-{{ table.number }}">
-                <button class="btn-remove" onclick="removeQRCode({{ table.number }})">X</button>
-                <h3>Table {{ table.number }}</h3>
-                <p class="table-status {% if table.is_active %} active {% else %} inactive {% endif %}">
-                    Status: {% if table.is_active %} ✅ Active {% else %} ❌ Inactive {% endif %}
-                </p>
-                {% if table.qr_code %}
-                    <img src="{{ table.qr_code.url }}" alt="QR Code">
-                    <br>
-                    <a href="{{ table.qr_code.url }}" download="table_{{ table.number }}.png" class="download-btn">⬇ Download</a>
-                {% endif %}
-            </div>
-        {% endfor %}
-    </div>
+        <!-- Right side: QR Code & Download -->
+        {% if table.qr_code %}
+          <div class="qr-img-container">
+            <img src="{{ table.qr_code.url }}" alt="QR Code">
+            <a href="{{ table.qr_code.url }}" download="table_{{ table.number }}.png" class="qr-download">
+              ⬇ Download
+            </a>
+          </div>
+        {% endif %}
+      </div>
+    {% endfor %}
+  </div>
 </div>
 
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
-    const modal = document.getElementById("qrModal");
-    const openBtn = document.getElementById("openModal");
-    const closeBtn = document.querySelector(".close");
-    const form = document.getElementById("qrForm");
-    const grid = document.querySelector(".grid");
+document.addEventListener("DOMContentLoaded", function() {
+  const modal = document.getElementById("qrModal");
+  const openBtn = document.getElementById("openModal");
+  const closeBtn = document.querySelector(".qr-close");
+  const form = document.getElementById("qrForm");
 
-    // Open modal to generate QR code
-    openBtn.onclick = function () {
-        modal.style.display = "flex";
-        document.body.classList.add("modal-open");
-    };
+  // Open modal
+  openBtn.addEventListener("click", function() {
+    modal.style.display = "flex";
+    document.body.classList.add("modal-open");
+  });
 
-    // Close modal when user clicks the close button or outside of the modal
-    function closeModal() {
-        modal.style.display = "none";
-        document.body.classList.remove("modal-open");
+  // Close modal
+  function closeModal() {
+    modal.style.display = "none";
+    document.body.classList.remove("modal-open");
+  }
+  closeBtn.addEventListener("click", closeModal);
+  window.addEventListener("click", function(event) {
+    if (event.target === modal) {
+      closeModal();
+    }
+  });
+
+  // Handle form submission for generating QR code
+  form.addEventListener("submit", async function(e) {
+    e.preventDefault();
+    const tableNumberInput = document.getElementById("tableNumber");
+    const tableNumber = tableNumberInput.value.trim();
+    if (!tableNumber) {
+      alert("Error: Table number is required.");
+      return;
     }
 
-    closeBtn.onclick = closeModal;
-
-    window.onclick = function (event) {
-        if (event.target == modal) {
-            closeModal();
-        }
-    };
-
-    // Handle QR code generation form submission
-    form.onsubmit = async function (e) {
-        e.preventDefault();
-
-        const tableNumberInput = document.getElementById("tableNumber");
-        const tableNumber = tableNumberInput.value.trim();
-
-        if (!tableNumber) {
-            alert("Error: Table number is required.");
-            return;
-        }
-
-        try {
-            const response = await fetch("/admin-panel/generate-qr-code/", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-CSRFToken": document.querySelector("[name=csrfmiddlewaretoken]").value
-                },
-                body: JSON.stringify({ table_number: tableNumber })
-            });
-
-            const data = await response.json();
-
-            if (data.success) {
-                alert(`QR Code for Table ${data.table_number} generated successfully!`);
-                closeModal();
-
-                let existingTable = document.getElementById(`table-${data.table_number}`);
-                if (existingTable) {
-                    // Update existing table entry with new QR code
-                    existingTable.innerHTML = `
-                        <button class="btn-remove" onclick="removeQRCode(${data.table_number})">❌</button>
-                        <h3>Table ${data.table_number}</h3>
-                        <p class="table-status active">Status: ✅ Active</p>
-                        <img src="${data.qr_code_url}" alt="QR Code">
-                        <br>
-                        <a href="${data.qr_code_url}" download="table_${data.table_number}.png" class="download-btn">⬇ Download</a>
-                    `;
-                } else {
-                    // Create a new table entry in the grid
-                    const newTable = document.createElement("div");
-                    newTable.classList.add("table-card");
-                    newTable.id = `table-${data.table_number}`;
-                    newTable.innerHTML = `
-                        <button class="btn-remove" onclick="removeQRCode(${data.table_number})">❌</button>
-                        <h3>Table ${data.table_number}</h3>
-                        <p class="table-status active">Status: ✅ Active</p>
-                        <img src="${data.qr_code_url}" alt="QR Code">
-                        <br>
-                        <a href="${data.qr_code_url}" download="table_${data.table_number}.png" class="download-btn">⬇ Download</a>
-                    `;
-                    grid.appendChild(newTable);
-                }
-            } else {
-                alert("Error: " + data.error);
-            }
-        } catch (error) {
-            alert("Request failed. Please try again.");
-            console.error(error);
-        }
-    };
-
-    // Handle removing QR code
-    window.removeQRCode = async function (tableNumber) {
-        if (!confirm(`Are you sure you want to remove Table ${tableNumber}?`)) return;
-
-        try {
-            const response = await fetch("/admin-panel/remove-qr-code/", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-CSRFToken": document.querySelector("[name=csrfmiddlewaretoken]").value
-                },
-                body: JSON.stringify({ table_number: tableNumber })
-            });
-
-            const data = await response.json();
-
-            if (data.success) {
-                alert(`Table ${tableNumber} removed successfully!`);
-                document.getElementById(`table-${tableNumber}`).remove();
-            } else {
-                alert("Error: " + data.error);
-            }
-        } catch (error) {
-            alert("Request failed. Please try again.");
-            console.error(error);
-        }
+    // Check if a QR code already exists for this table
+    const existingTable = document.getElementById(`table-${tableNumber}`);
+    if (existingTable) {
+      if (!confirm(`A QR code for Table ${tableNumber} already exists. Do you want to regenerate it?`)) {
+        return; // Abort generating a new QR code
+      }
     }
+
+    try {
+      const response = await fetch("/admin-panel/generate-qr-code/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": document.querySelector("[name=csrfmiddlewaretoken]").value
+        },
+        body: JSON.stringify({ table_number: tableNumber })
+      });
+      const data = await response.json();
+      if (data.success) {
+        alert(`QR Code for Table ${data.table_number} generated successfully!`);
+        closeModal();
+        if (existingTable) {
+          // Update the existing table entry with new QR code
+          existingTable.innerHTML = `
+            <button class="qr-remove" onclick="removeQRCode(${data.table_number})">X</button>
+            <div class="qr-info">
+              <h3>Table ${data.table_number}</h3>
+              <p class="qr-status active">Status: ✅ Active</p>
+            </div>
+            <div class="qr-img-container">
+              <img src="${data.qr_code_url}" alt="QR Code">
+              <a href="${data.qr_code_url}" download="table_${data.table_number}.png" class="qr-download">⬇ Download</a>
+            </div>
+          `;
+        } else {
+          // Create a new table card in the grid
+          const newCard = document.createElement("div");
+          newCard.classList.add("qr-card");
+          newCard.id = `table-${data.table_number}`;
+          newCard.innerHTML = `
+            <button class="qr-remove" onclick="removeQRCode(${data.table_number})">X</button>
+            <div class="qr-info">
+              <h3>Table ${data.table_number}</h3>
+              <p class="qr-status active">Status: ✅ Active</p>
+            </div>
+            <div class="qr-img-container">
+              <img src="${data.qr_code_url}" alt="QR Code">
+              <a href="${data.qr_code_url}" download="table_${data.table_number}.png" class="qr-download">⬇ Download</a>
+            </div>
+          `;
+          document.getElementById("gridContainer").appendChild(newCard);
+        }
+      } else {
+        alert("Error: " + data.error);
+      }
+    } catch (error) {
+      alert("Request failed. Please try again.");
+      console.error(error);
+    }
+  });
+
+  // Remove QR Code
+  window.removeQRCode = async function(tableNumber) {
+    if (!confirm(`Are you sure you want to remove Table ${tableNumber}?`)) return;
+    try {
+      const response = await fetch("/admin-panel/remove-qr-code/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": document.querySelector("[name=csrfmiddlewaretoken]").value
+        },
+        body: JSON.stringify({ table_number: tableNumber })
+      });
+      const data = await response.json();
+      if (data.success) {
+        alert(`Table ${tableNumber} removed successfully!`);
+        document.getElementById(`table-${tableNumber}`).remove();
+      } else {
+        alert("Error: " + data.error);
+      }
+    } catch (error) {
+      alert("Request failed. Please try again.");
+      console.error(error);
+    }
+  };
 });
-
 </script>
-
-</body>
-</html>
 {% endblock %}

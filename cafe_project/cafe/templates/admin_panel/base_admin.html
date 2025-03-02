@@ -1,157 +1,218 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Panel</title>
-    <style>
-        /* General Styles */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: Arial, sans-serif;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel</title>
+  <style>
+    /* Basic Reset + Font */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
 
-        body {
-            display: flex;
-            height: 100vh;
-            background-color: #f4f4f4;
-        }
+    /* Full Screen Layout */
+    body {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      background-color: #f4f4f4;
+    }
 
-        /* Sidebar Styles */
-        .sidebar {
-            width: 250px;
-            background-color: #008080;
-            color: white;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
+    /* Top Teal Bar */
+    .top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background-color: #008080;
+      height: 80px;
+      padding: 0 20px;
+      color: #fff;
+    }
 
-        .sidebar h2 {
-            text-align: center;
-            margin-bottom: 20px;
-        }
+    /* Left side: Profile Section */
+    .profile-section {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
 
-        .sidebar img {
-            display: block;
-            margin: 0 auto;
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            margin-bottom: 10px;
-        }
+    .profile-section img {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
 
-        .sidebar nav ul {
-            list-style: none;
-            padding: 0;
-        }
+    .profile-name {
+      font-weight: bold;
+      font-size: 16px;
+    }
 
-        .sidebar nav ul li {
-            padding: 10px;
-            margin: 5px 0;
-            text-align: left;
-        }
+    /* Right side: Notification Icon */
+    .notification {
+      cursor: pointer;
+      font-size: 20px;
+    }
 
-        .sidebar nav ul li a {
-            text-decoration: none;
-            color: white;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+    /* Layout: Sidebar + Main Content */
+    .layout {
+      display: flex;
+      flex: 1; /* Fill remaining vertical space below top bar */
+    }
 
-        .sidebar nav ul li:hover {
-            background-color: #006666;
-            border-radius: 5px;
-        }
+    /* White Sidebar */
+    .sidebar {
+      width: 250px;
+      background-color: #fff; /* White sidebar */
+      color: #333;
+      padding: 20px;
+      border-right: 1px solid #ddd;
+      position: relative; /* For absolutely positioning logout button */
+    }
 
-        /* Logout Button */
-        .logout-btn {
-            width: 100%;
-            padding: 10px;
-            background-color: #f4f4f4;
-            color: #008080;
-            text-align: center;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: bold;
-        }
+    /* Sidebar Header (logo, title, etc.) */
+    .sidebar-header {
+      text-align: center;
+      padding-bottom: 20px;
+    }
 
-        .logout-btn:hover {
-            background-color: #ddd;
-        }
+    .sidebar-header img {
+      display: block;
+      margin: 0 auto;
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      margin-bottom: 10px;
+    }
 
-        /* Main Content */
-        .main-content {
-            flex: 1;
-            padding: 20px;
-        }
+    .sidebar-header h2 {
+      font-size: 18px;
+      color: #008080;
+    }
 
-        .header {
-            background-color: white;
-            padding: 10px;
-            box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+    /* Sidebar Menu */
+    .sidebar nav ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
 
-        .header h1 {
-            font-size: 22px;
-            color: #333;
-        }
+    .sidebar nav ul li {
+      padding: 10px;
+      margin: 5px 0;
+      text-align: left;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+    }
 
-        .notification {
-            cursor: pointer;
-            font-size: 20px;
-        }
+    .sidebar nav ul li:hover {
+      background-color: #f2f2f2;
+    }
 
-        .container {
-            margin-top: 20px;
-        }
-    </style>
+    .sidebar nav ul li a {
+      text-decoration: none;
+      color: #333;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* Logout Button Container */
+    .logout-container {
+      position: absolute;
+      bottom: 30px;  /* Adjust this value to move it a bit higher or lower */
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80%;
+      text-align: center;
+    }
+
+    /* Logout Button */
+    .logout-btn {
+      width: 70%;
+      padding: 10px;
+      background-color: #008080;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .logout-btn:hover {
+      background-color: #006666;
+    }
+
+    /* Main Content Panel */
+    .main-content {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto; /* Scroll if content is tall */
+    }
+
+    .container {
+      margin-top: 2px;
+      background-color: #fff;
+      height: 850px;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+    }
+  </style>
 </head>
 <body>
 
+  <!-- Top Teal Bar -->
+  <div class="top-bar">
+    <!-- Left: Profile -->
+    <div class="profile-section">
+      <img src="https://picsum.photos/40/40" alt="Profile">
+      <span class="profile-name">Daniel</span>
+    </div>
+    <!-- Right: Notification -->
+    <span class="notification">🔔</span>
+  </div>
+
+  <!-- Layout: Sidebar + Main Content -->
+  <div class="layout">
     <!-- Sidebar -->
     <aside class="sidebar">
-        <div>
-            <img src="https://picsum.photos/800/400?random=1" alt="Coffee 1">
-            <h2>Admin Panel</h2>
-            <nav>
-                <ul>
-                    <li><a href="{% url 'dashboard' %}">🏠 Dashboard</a></li>
-                    <li><a href="#">🪑 Tables</a></li>
-                    <li><a href="{% url 'qr_code_management' %}">🧾 QR Code</a></li>
-                    <li><a href="#"><a href="{% url 'admin_menu' %}">🍽️ Menu</a></a></li>
-                    <li><a href="#">📦 Orders</a></li>
-                    <li><a href="#">💰 Transactions</a></li>
-                    <li><a href="{% url 'settings' %}">⚙️ Settings</a></li>
-                </ul>
-            </nav>
-        </div>
-        
-        <!-- Logout Button -->
+      <div>
+        <nav>
+          <ul>
+            <li><a href="{% url 'dashboard' %}">🏠 Dashboard</a></li>
+            <li><a href="#">🪑 Tables</a></li>
+            <li><a href="{% url 'qr_code_management' %}">🧾 QR Code</a></li>
+            <li><a href="{% url 'admin_menu' %}">🍽️ Menu</a></li>
+            <li><a href="#">📦 Orders</a></li>
+            <li><a href="#">💰 Transactions</a></li>
+            <li><a href="{% url 'settings' %}">⚙️ Settings</a></li>
+          </ul>
+        </nav>
+      </div>
+
+      <!-- Logout Button Centered and Above the Bottom -->
+      <div class="logout-container">
         <form method="POST" action="{% url 'logout' %}">
-            {% csrf_token %}
-            <button type="submit" class="logout-btn">Logout</button>
+          {% csrf_token %}
+          <button type="submit" class="logout-btn">Logout</button>
         </form>
+      </div>
     </aside>
 
     <!-- Main Content -->
     <main class="main-content">
-        <div class="header">
-            <h1>Good Morning</h1>
-            <span class="notification">🔔</span>
-        </div>
-
-        <div class="container">
-            {% block content %}{% endblock %}
-        </div>
+      <div class="container">
+        {% block content %}
+        {% endblock %}
+      </div>
     </main>
+  </div>
 
 </body>
 </html>
