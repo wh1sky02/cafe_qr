@@ -18,6 +18,9 @@ from django.contrib.auth import update_session_auth_hash
 # --------------------- Public Views ---------------------
 
 def home(request):
+    # Retrieve the token from session
+    table_token = request.session.get('table_token')
+
     # Fetch "new" items added in the last 30 days
     thirty_days_ago = now() - timedelta(days=30)
     new_items = MenuItem.objects.filter(created_at__gte=thirty_days_ago)[:3]
@@ -39,16 +42,20 @@ def home(request):
         'recommended_items': recommended_items,
         'bestsellers': bestsellers,
         'new_items': new_items,
-        'banners': banners
+        'banners': banners,
+        'token': table_token 
     })
 
 def menu(request, token):
     # Lookup table by token
     table = get_object_or_404(Table, token=token)
 
+    # Store the token in session
+    request.session['table_token'] = str(token)
+
     categories = Category.objects.all()
     menu_items = MenuItem.objects.all()
-    return render(request, 'menu.html', {'table': table, 'token': token , 'categories': categories, 'menu_items': menu_items})
+    return render(request, 'menu.html', {'table': table, 'categories': categories, 'menu_items': menu_items})
 
 def order_list(request):
     return render(request, 'order_list.html')
@@ -58,8 +65,11 @@ def item_detail(request, item_id):
     return render(request, 'item_detail.html', {'item': item})
 
 def cart(request):
+    # Retrieve the token from session
+    table_token = request.session.get('table_token')
+
     menu_items = MenuItem.objects.all()
-    return render(request, 'cart.html', {'menu_items': menu_items})
+    return render(request, 'cart.html', {'menu_items': menu_items, 'token': table_token})
 
 def checkout(request):
     return render(request, 'checkout.html')
