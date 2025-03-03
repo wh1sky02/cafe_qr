@@ -33,7 +33,7 @@ def home(request):
     recommended_items = random.sample(all_items, min(3, len(all_items)))
     
     # Fetch active banners ordered by position
-    banners = Banner.objects.filter(is_active=True).order_by('position')
+    banners = Banner.objects.order_by('position')
 
     return render(request, 'home.html', {
         'recommended_items': recommended_items,
