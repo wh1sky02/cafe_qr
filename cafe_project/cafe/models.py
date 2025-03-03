@@ -95,4 +95,4 @@ class Banner(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"Banner {self.id} - {'Active' if self.is_active else 'Inactive'}"  
+        return f"Banner {self.id} "  
