@@ -1,151 +1,262 @@
 {% load static tailwind_tags %}
 <html>
-    <head>
-        <title>Order Lists</title>
-        {% tailwind_css %}
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    </head>
-    <body class="bg-white">
-        <!-- Header -->
-        <div class="bg-[#5E9EA0] flex items-center px-5 py-5 w-full fixed top-0 left-0 h-40 z-50">
-            <a href="{% url 'menu' %}" class="cursor-pointer">
-                <img class="h-10 w-10" src="{% static 'images/Back.png' %}" alt="Back">
+
+<head>
+    <title>Shopping Cart</title>
+    {% tailwind_css %}
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+</head>
+
+<body class="bg-gray-50">
+    <!-- Header -->
+    <div id="main-header" class="bg-[#5E9EA0] mb-6 top-0 left-0 w-full z-[999] fixed">
+        <div class="container mx-auto px-4 py-8 flex items-center">
+            <a href="{% url 'menu' %}" class="text-white">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                </svg>
             </a>
-            <div class="flex-grow text-center text-5xl text-white font-bold">Order Lists</div>
+            <h1 class="text-2xl font-bold text-white text-center flex-1">
+                Shopping Cart
+            </h1>
+        </div>
+    </div>
+    
+
+    <!-- Main Content -->
+    <div id="main-content" class="container mb-20 mx-auto px-4 mt-4 pb-32 max-w-2xl flex flex-col pt-20">
+
+      <!-- Progress Bar -->
+<div class="flex items-center w-full max-w-md mx-auto mb-4">
+    <!-- Menu Step -->
+    <span class="bg-[#5E9EA0] text-white px-4 py-2 rounded-full font-medium">
+      Menu
+    </span>
+
+    <!-- Green Line Between Menu and Cart -->
+    <div class="bg-[#5E9EA0] h-2 w-16 md:w-24 flex-shrink-0"></div>
+
+    <!-- Cart Step -->
+    <span class="bg-[#5E9EA0] text-white px-4 py-2 rounded-full font-medium">
+      Cart
+    </span>
+
+    <!-- Gray Line Between Cart and Checkout -->
+    <div class="bg-gray-300 h-2 w-16 md:w-24 flex-shrink-0"></div>
+
+    <!-- Checkout Step -->
+    <span class="bg-gray-300 text-gray-500 px-4 py-2 rounded-full font-medium">
+      Checkout
+    </span>
+</div>
+
+  
+
+
+        <!-- Estimated Time -->
+        <div id="estimated-time-container" class="bg-white rounded-lg shadow-md mb-4 p-6 w-full hidden">
+            <div class="flex flex-col space-y-4">
+                <h4 class="text-lg font-semibold text-gray-800">
+                    Estimated Time
+                </h4>
+                <div class="text-xl font-bold text-[#5E9EA0] bg-[#5E9EA0]/10 px-8 rounded-lg" style="margin-top: 4px;">
+                    <span>Standard</span>
+                    <span>(</span>
+                    <span id="estimated-time">0</span>
+                    <span>minutes</span>
+                    <span>)</span>
+                </div>
+            </div>
         </div>
 
-        <div class="mt-40 px-5">
 
-            <!-- Estimated Time -->
-            <div class="bg-gray-100 p-4 rounded-lg mb-6">
-                <p class="text-gray-600">Estimated time</p>
-                <p class="text-xl font-bold" id="estimated-time">Loading...</p>
+        <!-- Order Summary -->
+        <div class="bg-white rounded-lg shadow-md mb-4 p-6 w-full">
+            <h2 class="text-2xl font-semibold mb-6">Order Details</h2>
+            <div id="cart-items" class="space-y-6">
+                <!-- Cart items will be dynamically added here -->
             </div>
 
-            <!-- Order Details -->
-            <div class="mb-6">
-                <h3 class="font-bold text-2xl mb-4">Order Details</h3>
-                <div id="cart-items" class="space-y-4 bg-gray-100 rounded-lg p-4">
-                    <!-- Empty cart message -->
-                    <div id="empty-cart" class="hidden text-center py-10">
-                        <img src="{% static 'images/Cart.png' %}" alt="Empty Cart" class="w-32 h-32 mx-auto mb-4 opacity-50">
-                        <p class="text-2xl text-gray-500 font-semibold">Your cart is empty</p>
-                        <a href="{% url 'menu' %}" class="mt-4 inline-block text-[#5E9EA0] font-medium">Browse Menu</a>
-                    </div>
+            <!-- Empty Cart Message -->
+            <div id="empty-cart" class="text-center py-8 hidden">
+                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                </svg>
+                <h3 class="mt-2 text-sm font-medium text-gray-900">
+                    Cart is empty
+                </h3>
+                <p class="mt-1 text-sm text-gray-500">
+                    Add some items to your cart
+                </p>
+                <div class="mt-6">
+                    <a href="{% url 'menu' %}"
+                        class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-[#5E9EA0] hover:bg-[#4d8c8e]">
+                        Browse Menu
+                    </a>
                 </div>
             </div>
+        </div>
+        <div class="flex justify-between p-4">
+            <span class="text-gray-600">Subtotal</span>
+            <span id="subtotal" class="font-medium">$0.00</span>
+        </div>
 
-            <!-- Add more items button -->
-            <a href="{% url 'menu' %}" class="block text-[#5E9EA0] font-medium mb-6">Add more items</a>
 
-            <!-- Total Section -->
-            <div class="mb-24">
-                <div class="flex justify-between items-center mb-2">
-                    <span class="text-gray-500">Subtotal</span>
-                    <span class="font-medium">$0.00</span>
+        <!-- Fixed Bottom Bar -->
+        <div id="checkout-container" class="fixed bottom-0 left-0 w-full bg-white border-t shadow-lg p-4 hidden">
+            <div class="flex justify-between items-center pt-4">
+                <div class="flex flex-col">
+                    <span class="text-lg font-semibold">Total</span>
+                    <span id="total" class="text-lg font-semibold">$0.00</span>
                 </div>
-                <div class="flex justify-between items-center">
-                    <span class="text-xl font-bold">Total</span>
-                    <span class="text-xl font-bold" id="total-amount">$0.00</span>
-                </div>
-            </div>
-
-            <!-- Checkout Button -->
-            <div class="fixed bottom-0 left-0 w-full p-4 bg-white">
-                <button onclick="handleCheckout()" class="w-full bg-[#5E9EA0] text-white py-3 rounded-lg text-lg">
-                    Checkout
+                <button id="checkout-btn" onclick="handleCheckout()"
+                    class="bg-[#5E9EA0] text-white py-3 px-6 rounded-lg font-medium hover:bg-[#4d8c8e] transition-colors">
+                    Proceed to Checkout
                 </button>
             </div>
+        </div>
 
-            <!-- Alert Modal -->
-            <div id="alert-modal" class="hidden fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center z-50">
-                <div class="bg-white p-6 rounded-lg shadow-lg max-w-sm mx-4">
-                    <p class="text-lg text-center mb-4">Please add items to your cart before checking out</p>
-                    <button onclick="closeAlert()" class="w-full bg-[#5E9EA0] text-white py-2 rounded-lg">OK</button>
+        <!-- Alert Modal -->
+        <div id="alert-modal"
+            class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[60]">
+            <div class="bg-white rounded-lg p-6 m-4 max-w-sm w-full">
+                <div class="text-center">
+                    <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100">
+                        <svg class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-medium text-gray-900 mt-4">
+                        Empty Cart
+                    </h3>
+                    <p class="text-sm text-gray-500 mt-2">
+                        Please add items to your cart before proceeding to
+                        checkout.
+                    </p>
+                    <button onclick="closeAlert()"
+                        class="mt-4 w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-[#5E9EA0] text-base font-medium text-white hover:bg-[#4d8c8e] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#5E9EA0] sm:text-sm">
+                        OK
+                    </button>
                 </div>
             </div>
         </div>
 
         <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                const cartItemsContainer = document.getElementById('cart-items');
-                const cart = JSON.parse(localStorage.getItem('cart') || '{}');
-                const emptyCart = document.getElementById('empty-cart');
-                let total = 0;
+            function calculateEstimatedTime(itemCount) {
+                // Base preparation time
+                const baseTime = 5;
+                // Additional time per item
+                const timePerItem = 2;
+                return baseTime + itemCount * timePerItem;
+            }
+
+            function updateCart() {
+                const cart = JSON.parse(localStorage.getItem("cart") || "{}");
+                const cartItemsContainer = document.getElementById("cart-items");
+                const emptyCartMessage = document.getElementById("empty-cart");
+                const checkoutContainer = document.getElementById("checkout-container");
+                const estimatedTimeContainer = document.getElementById("estimated-time-container");
+
+                cartItemsContainer.innerHTML = "";
+                let subtotal = 0;
+                let totalItems = 0;
 
                 if (Object.keys(cart).length === 0) {
-                    emptyCart.classList.remove('hidden');
+                    emptyCartMessage.classList.remove("hidden");
+                    checkoutContainer.classList.add("hidden");
+                    estimatedTimeContainer.classList.add("hidden");
                 } else {
-                    emptyCart.classList.add('hidden');
+                    emptyCartMessage.classList.add("hidden");
+                    checkoutContainer.classList.remove("hidden");
+                    estimatedTimeContainer.classList.remove("hidden");
 
                     for (const [itemName, itemData] of Object.entries(cart)) {
-                        const price = parseFloat(itemData.price.replace('$', ''));
-                        total += price * itemData.quantity;
+                        const price = parseFloat(itemData.price.replace("$", ""));
+                        const itemTotal = price * itemData.quantity;
+                        subtotal += itemTotal;
+                        totalItems += itemData.quantity;
 
-                        const itemElement = document.createElement('div');
-                        itemElement.className = 'flex items-center justify-between border-b border-gray-200 py-2';
+                        const itemElement = document.createElement("div");
+                        itemElement.className = "flex items-center justify-between p-4 bg-gray-50 rounded-lg";
                         itemElement.innerHTML = `
-                            <div class="flex items-center space-x-4">
-                                <img src="${itemData.image}" alt="${itemName}" class="w-16 h-16 rounded-lg">
-                                <div>
-                                    <h4 class="font-medium">${itemName}</h4>
-                                    <div class="flex items-center space-x-2 mt-1">
-                                        <button onclick="updateQuantity('${itemName}', ${itemData.quantity - 1})" class="decrease-btn text-[#5E9EA0] w-6 h-6 rounded-full border border-[#5E9EA0]">-</button>
-                                        <span class="quantity">${itemData.quantity}</span>
-                                        <button onclick="updateQuantity('${itemName}', ${itemData.quantity + 1})" class="increase-btn text-[#5E9EA0] w-6 h-6 rounded-full border border-[#5E9EA0]">+</button>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="text-right">
-                                <div class="font-medium">${itemData.price}</div>
-                            </div>
-                        `;
+                <div class="flex items-center space-x-4">
+                    <img src="${itemData.image}" alt="${itemName}" class="w-16 h-16 object-cover rounded-lg">
+                    <div>
+                        <h4 class="font-medium text-gray-900">${itemName}</h4>
+                        <p class="text-sm text-gray-500">${itemData.price} each</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <button onclick="updateQuantity('${itemName}', ${itemData.quantity - 1})" 
+                        class="w-8 h-8 rounded-full border-2 border-[#5E9EA0] text-[#5E9EA0] flex items-center justify-center hover:bg-[#5E9EA0] hover:text-white transition-colors">-</button>
+                    <span class="w-8 text-center">${itemData.quantity}</span>
+                    <button onclick="updateQuantity('${itemName}', ${itemData.quantity + 1})" 
+                        class="w-8 h-8 rounded-full border-2 border-[#5E9EA0] text-[#5E9EA0] flex items-center justify-center hover:bg-[#5E9EA0] hover:text-white transition-colors">+</button>
+                </div>
+            `;
                         cartItemsContainer.appendChild(itemElement);
                     }
 
-                    document.querySelector('[id="total-amount"]').textContent = '$' + total.toFixed(2);
-                    
-                    // Calculate estimated time based on total items
-                    const totalItems = Object.values(cart).reduce((sum, item) => sum + item.quantity, 0);
-                    if (totalItems === 0) {
-                        document.getElementById('estimated-time').textContent = 'Add items to see estimated time';
-                    } else {
-                        const baseTime = 5;
-                        const additionalTimePerItem = 5;
-                        const estimatedTime = baseTime + ((totalItems - 1) * additionalTimePerItem);
-                        const timeRange = `${estimatedTime}-${estimatedTime + 5}`;
-                        document.getElementById('estimated-time').textContent = `${timeRange} mins`;
-                    }
+                    // Update estimated time
+                    const estimatedTime = calculateEstimatedTime(totalItems);
+                    document.getElementById("estimated-time").textContent = estimatedTime;
                 }
-            });
+
+                // Update subtotal and total together
+                updateTotal(subtotal);
+            }
+
+            function updateTotal(amount) {
+                const formattedTotal = `$${amount.toFixed(2)}`;
+                document.getElementById("subtotal").textContent = formattedTotal; // Update subtotal
+                document.querySelectorAll("#total").forEach(el => el.textContent = formattedTotal); // Update all total elements
+            }
+
+
+
 
 
             function updateQuantity(itemName, newQuantity) {
-                const cart = JSON.parse(localStorage.getItem('cart') || '{}');
+                const cart = JSON.parse(localStorage.getItem("cart") || "{}");
                 if (newQuantity > 0) {
                     cart[itemName].quantity = newQuantity;
-                    localStorage.setItem('cart', JSON.stringify(cart));
-                    location.reload();
                 } else {
                     delete cart[itemName];
-                    localStorage.setItem('cart', JSON.stringify(cart));
-                    location.reload();
-
                 }
+                localStorage.setItem("cart", JSON.stringify(cart));
+                updateCart();
             }
 
             function handleCheckout() {
-                const cart = JSON.parse(localStorage.getItem('cart') || '{}');
+                const cart = JSON.parse(localStorage.getItem("cart") || "{}");
                 if (Object.keys(cart).length === 0) {
-                    document.getElementById('alert-modal').classList.remove('hidden');
+                    document
+                        .getElementById("alert-modal")
+                        .classList.remove("hidden");
                 } else {
                     window.location.href = "{% url 'checkout' %}";
                 }
             }
 
             function closeAlert() {
-                document.getElementById('alert-modal').classList.add('hidden');
+                document.getElementById("alert-modal").classList.add("hidden");
             }
+
+            // Initialize cart on page load
+            document.addEventListener("DOMContentLoaded", updateCart);
+
+            // Add this code to calculate header height and apply padding
+            window.addEventListener('load', function () {
+                const header = document.getElementById('main-header');
+                const content = document.getElementById('main-content');
+                const headerHeight = header.offsetHeight;
+
+                content.style.paddingTop = headerHeight + 'px';
+            });
         </script>
-    </body>
+</body>
+
 </html>
