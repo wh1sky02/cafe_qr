@@ -33,7 +33,7 @@ def home(request):
     recommended_items = random.sample(all_items, min(3, len(all_items)))
     
     # Fetch active banners ordered by position
-    banners = Banner.objects.order_by('position')
+    banners = Banner.objects.all()
 
     return render(request, 'home.html', {
         'recommended_items': recommended_items,
@@ -48,7 +48,7 @@ def menu(request, token):
 
     categories = Category.objects.all()
     menu_items = MenuItem.objects.all()
-    return render(request, 'menu.html', {'table': table, 'categories': categories, 'menu_items': menu_items})
+    return render(request, 'menu.html', {'table': table, 'token': token , 'categories': categories, 'menu_items': menu_items})
 
 def order_list(request):
     return render(request, 'order_list.html')
