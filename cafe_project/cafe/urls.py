@@ -15,8 +15,9 @@ urlpatterns = [
     # Admin Panel Routes
     path('admin-panel/', views.dashboard, name='dashboard'),
     path('admin-panel/dashboard-data/', views.dashboard_data, name='dashboard_data'),
+    path('admin-panel/move-table/', views.move_table, name='move_table'),
     path('admin-panel/qr-code/', views.qr_code_management, name='qr_code_management'),
-    path('admin-panel/generate-qr-code/', views.generate_qr_code, name='generate_qr_code'),  # ✅ Corrected URL
+    path('admin-panel/generate-qr-code/', views.generate_qr_code, name='generate_qr_code'),
     path('admin-panel/remove-qr-code/', views.remove_qr_code, name='remove_qr_code'),
 
     # Authentication Routes

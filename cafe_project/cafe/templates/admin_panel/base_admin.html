@@ -100,26 +100,30 @@
       margin: 0;
     }
 
+    /* 
+       1) Remove cursor & hover from li
+       2) Make <a> fill the entire li
+       3) Apply hover style on <a>
+    */
     .sidebar nav ul li {
-      padding: 10px;
       margin: 5px 0;
-      text-align: left;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      cursor: pointer;
+      /* Remove cursor pointer & hover background from li */
+      cursor: default;
     }
-
-    .sidebar nav ul li:hover {
-      background-color: #f2f2f2;
-    }
-
     .sidebar nav ul li a {
+      display: block;           /* Make anchor fill the list item */
+      width: 100%;              /* Full width inside li */
+      padding: 10px;            /* Move padding from li to a */
       text-decoration: none;
       color: #333;
-      display: flex;
+      border-radius: 5px;       /* optional: gives a nicer hover highlight */
+      display: flex;            /* keep flex for icon + text alignment */
       align-items: center;
       gap: 10px;
+    }
+    .sidebar nav ul li a:hover {
+      background-color: #f2f2f2;
+      cursor: pointer;          /* Add pointer on the anchor */
     }
 
     /* Logout Button Container */
@@ -186,7 +190,7 @@
         <nav>
           <ul>
             <li><a href="{% url 'dashboard' %}">🏠 Dashboard</a></li>
-            <li><a href="#">🪑 Tables</a></li>
+            <li><a href="{% url 'move_table' %}">🪑 Tables</a></li>
             <li><a href="{% url 'qr_code_management' %}">🧾 QR Code</a></li>
             <li><a href="{% url 'admin_menu' %}">🍽️ Menu</a></li>
             <li><a href="#">📦 Orders</a></li>

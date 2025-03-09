@@ -77,8 +77,6 @@ def checkout(request):
 def order_status(request):
     return render(request, 'orderstatus.html')
 
-
-
 # --------------------- Admin Panel Views ---------------------
 @login_required
 def admin_menu(request):
@@ -90,9 +88,7 @@ def admin_menu(request):
         'categories': categories
     })
 
-
 # --------------------- Authentication Views ---------------------
-
 def custom_login(request):
     """Handles admin login"""
     if request.method == "POST":
@@ -113,9 +109,7 @@ def custom_logout(request):
     logout(request)
     return redirect("login")
 
-
 # --------------------- Admin Panel Views ---------------------
-
 @login_required
 def dashboard(request):
     """Displays the Admin Dashboard"""
@@ -139,6 +133,12 @@ def qr_code_management(request):
     """Displays the QR Code Management page."""
     tables = Table.objects.all().order_by('number')
     return render(request, 'admin_panel/qr_code.html', {'tables': tables})
+
+# --------------------- MOVE TABLE VIEW ---------------------
+@login_required
+def move_table(request):
+    """Displays the Move Table page."""
+    return render(request, "admin_panel/move_table.html")
 
 @csrf_exempt
 @login_required

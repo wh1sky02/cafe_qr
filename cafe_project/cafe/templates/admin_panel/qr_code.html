@@ -73,14 +73,20 @@
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    cursor: pointer;
+  }
+  .qr-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 2px 6px 12px rgba(0, 0, 0, 0.15);
   }
 
   /* Remove Button on Card */
   .qr-remove {
     background-color: red;
     color: white;
-    padding: 4px 6px;
-    font-size: 10px;
+    padding: 6px 9px;
+    font-size: 14px;
     border-radius: 50%;
     position: absolute;
     top: 5px;
