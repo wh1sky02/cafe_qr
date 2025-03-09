@@ -2,7 +2,7 @@
 <html>
 
 <head>
-    <title>Shopping Cart</title>
+    <title>Order Status</title>
     {% tailwind_css %}
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 </head>
@@ -11,14 +11,8 @@
     <!-- Header -->
     <div id="main-header" class="bg-[#5E9EA0] mb-6 top-0 left-0 w-full z-[999] fixed">
         <div class="container mx-auto px-4 py-8 flex items-center">
-            <a href="{% url 'menu' token=token %}" class="text-white">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
-                    stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-                </svg>
-            </a>
             <h1 class="text-2xl font-bold text-white text-center flex-1">
-                Shopping Cart
+                Order Status
             </h1>
         </div>
     </div>
@@ -29,23 +23,20 @@
 
       <!-- Progress Bar -->
 <div class="flex items-center w-full max-w-md mx-auto mb-4">
-    <!-- Menu Step -->
     <span class="bg-[#5E9EA0] text-white px-4 py-2 rounded-full font-medium">
-      Menu
+      Order Place
     </span>
 
     <div class="bg-[#5E9EA0] h-2 w-16 md:w-24 flex-shrink-0"></div>
 
-    <!-- Cart Step -->
     <span class="bg-[#5E9EA0] text-white px-4 py-2 rounded-full font-medium">
-      Cart
+      Processing
     </span>
 
     <div class="bg-gray-300 h-2 w-16 md:w-24 flex-shrink-0"></div>
 
-    <!-- Checkout Step -->
     <span class="bg-gray-300 text-gray-500 px-4 py-2 rounded-full font-medium">
-      Checkout
+      Finish
     </span>
 </div>
 
@@ -59,7 +50,7 @@
                     Estimated Time
                 </h4>
                 <div class="text-xl font-bold text-[#5E9EA0] bg-[#5E9EA0]/10 px-8 rounded-lg" style="margin-top: 4px;">
-                    <span>Standard</span>
+                    <span>Waiting Time</span>
                     <span>(</span>
                     <span id="estimated-time">0</span>
                     <span>minutes</span>
@@ -74,6 +65,10 @@
             <h2 class="text-2xl font-semibold mb-6">Order Details</h2>
             <div id="cart-items" class="space-y-6">
                 <!-- Cart items will be dynamically added here -->
+            </div>
+            <div class="mt-6 border-t p-4 text-sm font-medium">
+                Your order is on the way to your table <br>
+                Hope you enjoy our cafe
             </div>
 
             <!-- Empty Cart Message -->
@@ -96,24 +91,11 @@
                 </div>
             </div>
         </div>
-        <div class="flex justify-between p-4">
-            <span class="text-gray-600">Subtotal</span>
-            <span id="subtotal" class="font-medium">$0.00</span>
-        </div>
+        
 
 
-        <!-- Fixed Bottom Bar -->
-        <div id="checkout-container" class="fixed bottom-0 left-0 w-full bg-white border-t shadow-lg p-4 hidden">
-            <div class="flex justify-between items-center pt-4">
-                <div class="flex flex-col">
-                    <span class="text-lg font-semibold">Total</span>
-                    <span id="total" class="text-lg font-semibold">$0.00</span>
-                </div>
-                <button id="checkout-btn" onclick="handleCheckout()"
-                    class="bg-[#5E9EA0] text-white py-3 px-6 rounded-lg font-medium hover:bg-[#4d8c8e] transition-colors">
-                    Proceed to Checkout
-                </button>
-            </div>
+        <div id="checkout-container" class="fixed bottom-0 left-0 w-full shadow-lg p-4 hidden">
+            
         </div>
 
         <!-- Alert Modal -->
@@ -152,34 +134,34 @@
             }
 
             function updateCart() {
-                const cart = JSON.parse(localStorage.getItem("cart") || "{}");
-                const cartItemsContainer = document.getElementById("cart-items");
-                const emptyCartMessage = document.getElementById("empty-cart");
-                const checkoutContainer = document.getElementById("checkout-container");
-                const estimatedTimeContainer = document.getElementById("estimated-time-container");
+    const cart = JSON.parse(localStorage.getItem("cart") || "{}");
+    const cartItemsContainer = document.getElementById("cart-items");
+    const emptyCartMessage = document.getElementById("empty-cart");
+    const checkoutContainer = document.getElementById("checkout-container");
+    const estimatedTimeContainer = document.getElementById("estimated-time-container");
 
-                cartItemsContainer.innerHTML = "";
-                let subtotal = 0;
-                let totalItems = 0;
+    cartItemsContainer.innerHTML = "";
+    let subtotal = 0;
+    let totalItems = 0;
 
-                if (Object.keys(cart).length === 0) {
-                    emptyCartMessage.classList.remove("hidden");
-                    checkoutContainer.classList.add("hidden");
-                    estimatedTimeContainer.classList.add("hidden");
-                } else {
-                    emptyCartMessage.classList.add("hidden");
-                    checkoutContainer.classList.remove("hidden");
-                    estimatedTimeContainer.classList.remove("hidden");
+    if (Object.keys(cart).length === 0) {
+        emptyCartMessage.classList.remove("hidden");
+        checkoutContainer.classList.add("hidden");
+        estimatedTimeContainer.classList.add("hidden");
+    } else {
+        emptyCartMessage.classList.add("hidden");
+        checkoutContainer.classList.remove("hidden");
+        estimatedTimeContainer.classList.remove("hidden");
 
-                    for (const [itemName, itemData] of Object.entries(cart)) {
-                        const price = parseFloat(itemData.price.replace("$", ""));
-                        const itemTotal = price * itemData.quantity;
-                        subtotal += itemTotal;
-                        totalItems += itemData.quantity;
+        for (const [itemName, itemData] of Object.entries(cart)) {
+            const price = parseFloat(itemData.price.replace("$", ""));
+            const itemTotal = price * itemData.quantity;
+            subtotal += itemTotal;
+            totalItems += itemData.quantity;
 
-                        const itemElement = document.createElement("div");
-                        itemElement.className = "flex items-center justify-between p-4 bg-gray-50 rounded-lg";
-                        itemElement.innerHTML = `
+            const itemElement = document.createElement("div");
+            itemElement.className = "flex items-center justify-between p-4 bg-gray-50 rounded-lg";
+            itemElement.innerHTML = `
                 <div class="flex items-center space-x-4">
                     <img src="${itemData.image}" alt="${itemName}" class="w-16 h-16 object-cover rounded-lg">
                     <div>
@@ -188,56 +170,18 @@
                     </div>
                 </div>
                 <div class="flex items-center space-x-3">
-                    <button onclick="updateQuantity('${itemName}', ${itemData.quantity - 1})" 
-                        class="w-8 h-8 rounded-full border-2 border-[#5E9EA0] text-[#5E9EA0] flex items-center justify-center hover:bg-[#5E9EA0] hover:text-white transition-colors">-</button>
                     <span class="w-8 text-center">${itemData.quantity}</span>
-                    <button onclick="updateQuantity('${itemName}', ${itemData.quantity + 1})" 
-                        class="w-8 h-8 rounded-full border-2 border-[#5E9EA0] text-[#5E9EA0] flex items-center justify-center hover:bg-[#5E9EA0] hover:text-white transition-colors">+</button>
                 </div>
             `;
-                        cartItemsContainer.appendChild(itemElement);
-                    }
+            cartItemsContainer.appendChild(itemElement);
+        }
 
-                    // Update estimated time
-                    const estimatedTime = calculateEstimatedTime(totalItems);
-                    document.getElementById("estimated-time").textContent = estimatedTime;
-                }
+        // Update estimated time
+        const estimatedTime = calculateEstimatedTime(totalItems);
+        document.getElementById("estimated-time").textContent = estimatedTime;
+    }
+}
 
-                // Update subtotal and total together
-                updateTotal(subtotal);
-            }
-
-            function updateTotal(amount) {
-                const formattedTotal = `$${amount.toFixed(2)}`;
-                document.getElementById("subtotal").textContent = formattedTotal; // Update subtotal
-                document.querySelectorAll("#total").forEach(el => el.textContent = formattedTotal); // Update all total elements
-            }
-
-
-
-
-
-            function updateQuantity(itemName, newQuantity) {
-                const cart = JSON.parse(localStorage.getItem("cart") || "{}");
-                if (newQuantity > 0) {
-                    cart[itemName].quantity = newQuantity;
-                } else {
-                    delete cart[itemName];
-                }
-                localStorage.setItem("cart", JSON.stringify(cart));
-                updateCart();
-            }
-
-            function handleCheckout() {
-                const cart = JSON.parse(localStorage.getItem("cart") || "{}");
-                if (Object.keys(cart).length === 0) {
-                    document
-                        .getElementById("alert-modal")
-                        .classList.remove("hidden");
-                } else {
-                    window.location.href = "{% url 'checkout' %}";
-                }
-            }
 
             function closeAlert() {
                 document.getElementById("alert-modal").classList.add("hidden");

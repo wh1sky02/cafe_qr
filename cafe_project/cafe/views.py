@@ -74,6 +74,10 @@ def cart(request):
 def checkout(request):
     return render(request, 'checkout.html')
 
+def order_status(request):
+    return render(request, 'orderstatus.html')
+
+
 
 # --------------------- Admin Panel Views ---------------------
 @login_required

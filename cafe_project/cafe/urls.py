@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+from .views import order_status
 
 urlpatterns = [
     # Public Pages
@@ -8,6 +9,7 @@ urlpatterns = [
     path('order-list/', views.order_list, name='order_list'),
     path('item/<int:item_id>/', views.item_detail, name='item_detail'),
     path('cart/', views.cart, name='cart'),
+    path('order-status/', order_status, name='order_status'),
     path('checkout/', views.checkout, name='checkout'),
 
     # Admin Panel Routes
