@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.models import User
 from django.contrib import messages
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
@@ -34,7 +35,7 @@ def home(request):
     # If not enough bestsellers, fill with random items
     all_items = list(MenuItem.objects.all())
     recommended_items = random.sample(all_items, min(3, len(all_items)))
-    
+
     # Fetch active banners ordered by position
     banners = Banner.objects.all()
 
@@ -62,7 +63,12 @@ def order_list(request):
 
 def item_detail(request, item_id):
     item = get_object_or_404(MenuItem, id=item_id)
-    return render(request, 'item_detail.html', {'item': item})
+    # Get table token from session to keep it consistent across pages
+    table_token = request.session.get('table_token')
+    return render(request, 'item_detail.html', {
+        'item': item,
+        'token': table_token
+    })
 
 def cart(request):
     # Retrieve the token from session
@@ -73,6 +79,12 @@ def cart(request):
 
 def checkout(request):
     return render(request, 'checkout.html')
+
+def payment(request):
+    return render(request, 'payment.html')
+
+def order_confirmation(request):
+    return render(request, 'order_confirmation.html')
 
 def order_status(request):
     return render(request, 'orderstatus.html')
@@ -94,13 +106,32 @@ def custom_login(request):
     if request.method == "POST":
         username = request.POST.get("username")
         password = request.POST.get("password")
+
+        if not username or not password:
+            messages.error(request, "Username and password are required.")
+            return render(request, "admin_panel/login.html")
+
+        # Check if user exists in database
+        user_exists = User.objects.filter(username=username).exists()
+        if not user_exists:
+            messages.error(request, f"User '{username}' does not exist in the database.")
+
+        # Print all available users for debugging
+        all_users = User.objects.all().values_list('username', flat=True)
+        print(f"Available users in the database: {list(all_users)}")
+
         user = authenticate(request, username=username, password=password)
 
         if user is not None:
             login(request, user)
-            return redirect("dashboard")  # ✅ Redirect to the admin dashboard
+            messages.success(request, "Login successful!")
+            return redirect("dashboard")  # Redirect to the admin dashboard
         else:
-            messages.error(request, "Invalid username or password.")
+            messages.error(request, f"Authentication failed for '{username}'.")
+
+            # Check if user exists but password is wrong
+            if user_exists:
+                messages.warning(request, "Username exists but password is incorrect.")
 
     return render(request, "admin_panel/login.html")
 
@@ -231,10 +262,10 @@ def edit_menu_item(request, item_id):
         item.price = request.POST.get('price')
         item.category_id = request.POST.get('category')
         item.status = request.POST.get('status')
-        
+
         if 'image' in request.FILES:
             item.image = request.FILES['image']
-        
+
         item.save()
         messages.success(request, 'Menu item updated successfully!')
         return redirect('menu_settings')

@@ -1,0 +1,79 @@
+
+{% load static tailwind_tags %}
+<html>
+    <head>
+        <title>Order Confirmation</title>
+        {% tailwind_css %}
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    </head>
+    <body class="bg-gray-50">
+        <!-- Header -->
+        <div class="bg-[#5E9EA0] flex items-center px-5 py-5 w-full fixed top-0 left-0 h-20 z-50 shadow-md">
+            <a href="{% url 'home' %}" class="cursor-pointer">
+                <img class="h-10 w-10" src="{% static 'images/Back.png' %}" alt="Back">
+            </a>
+            <div class="flex-grow text-center text-3xl text-white font-bold">Order Confirmation</div>
+        </div>
+
+        <div class="mt-32 px-5 text-center max-w-md mx-auto">
+            <div class="bg-white rounded-xl p-8 shadow-lg mb-8">
+                <div class="mb-6 relative">
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <div class="h-20 w-20 rounded-full bg-[#5E9EA0]/10"></div>
+                    </div>
+                    <img src="{% static 'images/success.png' %}" alt="Success" class="w-28 h-28 mx-auto relative z-10">
+                </div>
+                
+                <h2 class="text-3xl font-bold mb-4 text-gray-800">Thank You!</h2>
+                <p class="text-gray-600 mb-8 text-lg">Your order has been successfully placed.</p>
+                
+                <div class="bg-gray-50 rounded-lg p-6 mb-6">
+                    <p class="text-2xl font-semibold mb-2 text-[#5E9EA0]">Order Amount: <span id="order-amount">$0</span></p>
+                    <div class="w-20 h-1 bg-[#5E9EA0] mx-auto my-4 rounded-full"></div>
+                    <p class="text-gray-600">Your order number: <span id="order-number" class="font-medium">0</span></p>
+                </div>
+                
+                <div class="text-gray-600 mb-8">
+                    <div class="flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-[#5E9EA0] mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <p>Your order will be ready shortly.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <a href="{% url 'order_status' %}" class="mb-4 inline-block bg-[#5E9EA0] text-white py-3 px-8 rounded-lg text-lg font-medium shadow-md hover:bg-[#4d8a8c] transition-colors">
+                Track Your Order
+            </a>
+            
+            <a href="{% url 'home' %}" class="inline-block bg-white border border-[#5E9EA0] text-[#5E9EA0] py-3 px-8 rounded-lg text-lg font-medium hover:bg-gray-50 transition-colors">
+                Return to Home
+            </a>
+        </div>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                // Get the amount from the URL parameters
+                const urlParams = new URLSearchParams(window.location.search);
+                const amount = urlParams.get('amount') || '0.00';
+                
+                // Set the amount in the confirmation
+                document.getElementById('order-amount').textContent = `$${amount}`;
+                
+                // Generate a random order number
+                const orderNumber = Math.floor(100000 + Math.random() * 900000);
+                document.getElementById('order-number').textContent = orderNumber;
+                
+                // Set success animation
+                setTimeout(() => {
+                    const successImage = document.querySelector('img[alt="Success"]');
+                    successImage.classList.add('animate-pulse');
+                    setTimeout(() => {
+                        successImage.classList.remove('animate-pulse');
+                    }, 1000);
+                }, 500);
+            });
+        </script>
+    </body>
+</html>

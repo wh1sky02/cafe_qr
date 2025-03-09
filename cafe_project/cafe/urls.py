@@ -11,6 +11,8 @@ urlpatterns = [
     path('cart/', views.cart, name='cart'),
     path('order-status/', order_status, name='order_status'),
     path('checkout/', views.checkout, name='checkout'),
+    path('payment/', views.payment, name='payment'),
+    path('order-confirmation/', views.order_confirmation, name='order_confirmation'), # Added order confirmation URL
 
     # Admin Panel Routes
     path('admin-panel/', views.dashboard, name='dashboard'),
