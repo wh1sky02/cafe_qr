@@ -1,170 +1,272 @@
 {% load static tailwind_tags %}
 <html>
-    <head>
-        <title>Menu List</title>
-        {% tailwind_css %}
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    </head>
-    <style>
-        .no-scrollbar::-webkit-scrollbar {
-            display: none;
-        }
-        .no-scrollbar {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
-    </style>
 
-    <body class="bg-white no-scrollbar">
-        <!-- Header -->
-        <div class="bg-[#5E9EA0] flex items-center px-5 py-5 w-full fixed top-0 left-0 h-40 z-50">
-            <div class="w-full">
-                <!-- Ensuring the image is responsive and doesn't stretch out -->
-                <img class="w-10 h-10" src="{% static 'images/Cafe_Logo-removebg-preview.png' %}" alt="Cafe Logo">
-            </div>
-            <div class="text-center sm:text-3xl text-5xl text-white font-bold w-full">Menu</div>
-            
-            <div class="text-center sm:text-sm text-2xl text-white font-bold w-full">Table #: {{ table.number }}</div>
+<head>
+    <title>Menu List</title>
+    {% tailwind_css %}
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+</head>
+
+<style>
+    .no-scrollbar::-webkit-scrollbar {
+        display: none;
+    }
+
+    .no-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+
+    .selected {
+        background-color: #5E9EA0;
+        color: white;
+    }
+
+    #hot-btn,
+    #cold-btn {
+        border: 1px solid slategray;
+    }
+
+    #hot-btn.selected,
+    #cold-btn.selected {
+        border-color: #5E9EA0;
+        background-color: #5E9EA0;
+        color: white;
+    }
+</style>
+
+<body class="bg-white no-scrollbar">
+    <!-- Header -->
+    <div class="bg-[#5E9EA0] flex items-center px-5 py-5 w-full fixed top-0 left-0 h-40 z-50">
+        <div class="w-full">
+            <!-- Ensuring the image is responsive and doesn't stretch out -->
+            <img class="w-10 h-10" src="{% static 'images/Cafe_Logo.png' %}" alt="Cafe Logo">
         </div>
+        <div class="text-center sm:text-3xl text-5xl text-white font-bold w-full">Menu</div>
+        <div class="text-center sm:text-sm text-2xl text-white font-bold w-full">Table #: {{ table.number }}</div>
+    </div>
 
-        <!-- Categories Section -->
-        <div class="mt-40 px-5 py-3 mb-10">
-            <div class="text-lg font-semibold">Categories</div>
-            <div class="flex space-x-4 overflow-x-auto no-scrollbar py-2">
-                <div class="category-btn flex items-center px-4 py-2 bg-[#5E9EA0] rounded-full text-white cursor-pointer shadow-lg whitespace-nowrap active-category" data-category="all">
-                    <div class="bg-white flex justify-center items-center w-10 h-10 rounded-full mr-3">
-                        <img class="w-6 h-6" src="{% static 'images/Cat_1.png' %}" alt="">
-                    </div>
-                    All Items
+    <!-- Categories Section -->
+    <div class="mt-40 px-5 py-3 mb-10">
+        <div class="text-lg font-semibold">Categories</div>
+        <div class="flex space-x-4 overflow-x-auto no-scrollbar py-2">
+            <div class="category-btn flex items-center px-4 py-2 bg-[#5E9EA0] rounded-full text-white cursor-pointer shadow-lg whitespace-nowrap active-category"
+                data-category="all">
+                <div class="bg-white flex justify-center items-center w-10 h-10 rounded-full mr-3">
+                    <img class="w-6 h-6" src="{% static 'images/Cat_1.png' %}" alt="">
                 </div>
-                {% for category in categories %}
-                <div class="category-btn flex items-center px-4 py-2 bg-white border border-gray-300 cursor-pointer rounded-full shadow-lg whitespace-nowrap" data-category="{{ category.id }}">
-                    <div class="bg-white flex justify-center items-center w-10 h-10 rounded-full mr-3">
-                        <img class="w-6 h-6" src="{% static 'images/Cat_2.png' %}" alt="">
-                    </div>
-                    {{ category.name }}
-                </div>
-                {% endfor %}
+                All Items
             </div>
-        </div>
-
-        <!-- Menu Items -->
-        <!-- <img class="h-24 w-24 rounded-lg" src="{{ item.image.url }}" alt="{{ item.name }}"> -->
-        <div id="menu-items" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 px-3 sm:px-5 py-3 mb-20">
-            {% for item in menu_items %}
-            <div class="menu-item bg-white rounded-xl shadow-lg h-[240px] px-3 py-4 flex flex-col text-xl items-center" data-category="{{ item.category.id }}">
-                <img class="h-24 w-24 rounded-lg" src="{{ item.image.url }}" alt="{{ item.name }}">
-                <div class="text-2xl font-semibold mt-2">{{ item.name }}</div>
-                <div class="flex items-center justify-between w-full mt-3 px-4">
-                    <div class="text-gray-700 text-xl">${{ item.price }}</div>
-                    <div class="flex items-center space-x-2">
-                        <button class="add-btn bg-[#5E9EA0] text-white text-lg px-3 py-1 rounded-lg">+</button>
-                    </div>
+            {% for category in categories %}
+            <div class="category-btn flex items-center px-4 py-2 bg-white border border-gray-300 cursor-pointer rounded-full shadow-lg whitespace-nowrap"
+                data-category="{{ category.id }}">
+                <div class="bg-white flex justify-center items-center w-10 h-10 rounded-full mr-3">
+                    <img class="w-6 h-6" src="{% static 'images/Cat_2.png' %}" alt="">
                 </div>
+                {{ category.name }}
             </div>
             {% endfor %}
         </div>
+    </div>
 
-        <!-- Bottom Navigation -->
-        <div class="fixed bottom-0 left-0 w-full bg-white shadow-md flex h-16">
-            <a href="{% url 'home' %}" class="flex-1 flex justify-center items-center border-t border-gray-300 cursor-pointer">
-                <img class="h-8 w-8 opacity-50" src="{% static 'images/Home.png' %}" alt="Home">
-            </a>
-            
-            <div class="flex-1 flex justify-center items-center border-t border-gray-300">
-                <img class="h-8 w-8" style="filter: invert(70%) sepia(11%) saturate(2066%) hue-rotate(130deg) brightness(90%) contrast(87%);" src="{% static 'images/Menu_selected.png' %}" alt="Menu">
-            </div>
-            <a href="{% url 'cart' %}" class="flex-1 flex justify-center items-center border-t border-gray-300 cursor-pointer">
-                <div class="relative">
-                    <img class="h-8 w-8" src="{% static 'images/Cart.png' %}" alt="Cart">
-                    <span id="cart-count" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full min-w-[16px] h-4 flex items-center justify-center px-1 hidden">0</span>
+    <!-- Modal Popup -->
+    <!-- Modal Popup -->
+    <div id="popup-modal" tabindex="-1"
+        class="fixed inset-0 z-50 hidden flex justify-center items-center bg-black bg-opacity-50" style="right: 0px; left: 0px;">
+
+        <div class="text-black p-4 rounded-lg border border-black bg-white">
+            <button type="button" class="p-5 rounded-lg text-sm w-8 h-8 flex justify-center items-center"
+                data-modal-hide="popup-modal">
+                ✖
+            </button>
+            <div class="text-center mb-5">
+                <div class="text-2xl font-semibold mb-4" id="item-name"></div>
+                <div class="text-lg mb-4" id="item-price"></div>
+                <div class="mb-10 text-lg font-normal">Do you prefer Hot or Cold?</div>
+                <div class="flex justify-center space-x-4">
+                    <button type="button" id="hot-btn"
+                        class="popup-btn-hot border border-slate-600 font-medium rounded-lg text-sm px-5 py-3">
+                        Hot
+                    </button>
+                    <button type="button" id="cold-btn"
+                        class="popup-btn-cold font-medium border border-slate-600 rounded-lg text-sm px-5 py-3">
+                        Cold
+                    </button>
                 </div>
-            </a>
+                <button id="add-to-cart-btn" class="bg-[#5E9EA0] text-white text-lg px-6 py-2 rounded-lg mt-4">Add to
+                    Cart</button>
+            </div>
         </div>
+    </div>
 
-        <script>
-            document.addEventListener("DOMContentLoaded", () => {
-                const categoryButtons = document.querySelectorAll(".category-btn");
-                const menuContainer = document.getElementById("menu-items");
-                const cartCount = document.getElementById("cart-count");
-        
-                // Load cart from localStorage
-                function getCart() {
-                    return JSON.parse(localStorage.getItem("cart") || "{}");
+
+    <!-- Menu Items -->
+    <div id="menu-items" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 px-3 sm:px-5 py-3 mb-20">
+        {% for item in menu_items %}
+        <div class="menu-item bg-white rounded-xl shadow-lg h-[240px] px-3 py-4 flex flex-col text-xl items-center"
+            data-category="{{ item.category.id }}" data-category-name="{{ item.category.name }}"
+            data-item-name="{{ item.name }}" data-item-price="{{ item.price }}" data-item-image="{{ item.image.url }}">
+            <img class="h-24 w-24 rounded-lg" src="{{ item.image.url }}" alt="{{ item.name }}">
+            <div class="text-2xl font-semibold mt-2">{{ item.name }}</div>
+            <div class="flex items-center justify-between w-full mt-3 px-4">
+                <div class="text-gray-700 text-xl">${{ item.price }}</div>
+                <div class="flex items-center space-x-2">
+                    <button data-modal-target="popup-modal" data-modal-toggle="popup-modal"
+                        class="add-btn bg-[#5E9EA0] text-white text-lg px-3 py-1 rounded-lg">+</button>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Bottom Navigation -->
+    <div class="fixed bottom-0 left-0 w-full bg-white shadow-md flex h-16">
+        <a href="{% url 'home' %}"
+            class="flex-1 flex justify-center items-center border-t border-gray-300 cursor-pointer">
+            <img class="h-8 w-8 opacity-50" src="{% static 'images/Home.png' %}" alt="Home">
+        </a>
+
+        <div class="flex-1 flex justify-center items-center border-t border-gray-300">
+            <img class="h-8 w-8"
+                style="filter: invert(70%) sepia(11%) saturate(2066%) hue-rotate(130deg) brightness(90%) contrast(87%);"
+                src="{% static 'images/Menu_selected.png' %}" alt="Menu">
+        </div>
+        <a href="{% url 'cart' %}"
+            class="flex-1 flex justify-center items-center border-t border-gray-300 cursor-pointer">
+            <div class="relative">
+                <img class="h-8 w-8" src="{% static 'images/Cart.png' %}" alt="Cart">
+                <span id="cart-count"
+                    class="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full min-w-[16px] h-4 flex items-center justify-center px-1 hidden">0</span>
+            </div>
+        </a>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const categoryButtons = document.querySelectorAll(".category-btn");
+            const modal = document.getElementById("popup-modal");
+            const closeModalBtn = modal.querySelector("[data-modal-hide='popup-modal']");
+            const menuContainer = document.getElementById("menu-items");
+            const cartCount = document.getElementById("cart-count");
+
+            let selectedItem = null;
+
+            const coffeeTeaCategories = ["coffee", "tea"];
+            function closeModal() {
+                modal.classList.add("hidden");
+            }
+
+            // Close modal when clicking the "✖" button
+            closeModalBtn.addEventListener("click", closeModal);
+
+
+            // Load cart from localStorage
+            function getCart() {
+                return JSON.parse(localStorage.getItem("cart") || "{}");
+            }
+
+            function saveCart(cart) {
+                localStorage.setItem("cart", JSON.stringify(cart));
+            }
+
+            function updateCartCount() {
+                const cart = getCart();
+                const totalCount = Object.values(cart).reduce((total, item) => total + item.quantity, 0);
+                if (totalCount > 0) {
+                    cartCount.textContent = totalCount;
+                    cartCount.classList.remove("hidden");
+                } else {
+                    cartCount.classList.add("hidden");
                 }
-        
-                function saveCart(cart) {
-                    localStorage.setItem("cart", JSON.stringify(cart));
-                }
-        
-                function updateCartCount() {
-                    const cart = getCart();
-                    const totalCount = Object.values(cart).reduce((total, item) => total + item.quantity, 0);
-                    if (totalCount > 0) {
-                        cartCount.textContent = totalCount;
-                        cartCount.classList.remove("hidden");
-                    } else {
-                        cartCount.classList.add("hidden");
-                    }
-                }
-        
-                // Category Filtering
-                categoryButtons.forEach(button => {
-                    button.addEventListener("click", () => {
-                        const selectedCategory = button.getAttribute("data-category");
-        
-                        // Highlight the selected category
-                        categoryButtons.forEach(btn => btn.classList.remove("bg-[#5E9EA0]", "text-white"));
-                        button.classList.remove("bg-white");
-                        button.classList.add("bg-[#5E9EA0]", "text-white");
-        
-                        // Filter menu items
-                        document.querySelectorAll(".menu-item").forEach(item => {
-                            item.style.display = (selectedCategory === "all" || item.getAttribute("data-category") === selectedCategory) 
-                                ? "flex" 
-                                : "none";
-                        });
+            }
+
+            // Category Filtering
+            categoryButtons.forEach(button => {
+                button.addEventListener("click", () => {
+                    const selectedCategory = button.getAttribute("data-category");
+
+                    // Highlight the selected category
+                    categoryButtons.forEach(btn => btn.classList.remove("bg-[#5E9EA0]", "text-white"));
+                    button.classList.remove("bg-white");
+                    button.classList.add("bg-[#5E9EA0]", "text-white");
+
+                    // Filter menu items
+                    document.querySelectorAll(".menu-item").forEach(item => {
+                        item.style.display = (selectedCategory === "all" || item.getAttribute("data-category") === selectedCategory)
+                            ? "flex"
+                            : "none";
                     });
                 });
-        
+            });
 
-                // Handle Add & Remove buttons using event delegation
-                menuContainer.addEventListener("click", (event) => {
-                    const target = event.target;
-                    if (target.classList.contains("add-btn")) {
-                        const item = target.closest(".menu-item");
-                        const itemName = item.querySelector(".text-2xl").innerText;
-                        const itemPrice = item.querySelector(".text-gray-700").innerText;
-                        const itemImage = item.querySelector("img").src;
-        
+            // Handle Add & Remove buttons using event delegation
+            menuContainer.addEventListener("click", (event) => {
+                const target = event.target;
+                if (target.classList.contains("add-btn")) {
+                    const item = target.closest(".menu-item");
+                    const itemName = item.dataset.itemName;
+                    const itemPrice = item.dataset.itemPrice;
+                    const itemImage = item.dataset.itemImage;
+
+                    const itemCategoryName = item.dataset.categoryName.toLowerCase(); // Get category name
+
+                    if (coffeeTeaCategories.includes(itemCategoryName)) {
+                        // Show modal for temperature selection
+                        modal.classList.remove("hidden");
+                        modal.classList.add("flex");
+
+                        // Set item info in the modal
+                        document.getElementById("item-name").innerText = itemName;
+                        document.getElementById("item-price").innerText = `$${itemPrice}`;
+
+                        // Store selected item data for later use
+                        selectedItem = { name: itemName, price: itemPrice, image: itemImage };
+                        selectedItem.temperature = "Hot";
+
+                        // Reset to Hot selection by default
+                        document.getElementById("hot-btn").classList.add("selected");
+                        document.getElementById("cold-btn").classList.remove("selected");
+
+                    } else {
+                        // Directly add to cart
                         let cart = getCart();
                         cart[itemName] = cart[itemName] || { quantity: 0, price: itemPrice, image: itemImage };
                         cart[itemName].quantity += 1;
-                        
                         saveCart(cart);
                         updateCartCount();
                     }
-        
-                    if (target.classList.contains("minus-btn")) {
-                        const item = target.closest(".menu-item");
-                        const itemName = item.querySelector(".text-2xl").innerText;
-                        let cart = getCart();
-        
-                        if (cart[itemName] && cart[itemName].quantity > 0) {
-                            cart[itemName].quantity -= 1;
-                            if (cart[itemName].quantity === 0) {
-                                delete cart[itemName]; // Remove item if quantity reaches 0
-                            }
-                            saveCart(cart);
-                            updateCartCount();
-                        }
-                    }
-                });
-        
-                // Initialize cart count
-                updateCartCount();
+                }
             });
-        </script>
-        
-    </body>
+
+            document.getElementById("hot-btn").addEventListener("click", () => {
+                selectedItem.temperature = "Hot";
+                document.getElementById("hot-btn").classList.add("selected", "bg-[#5E9EA0]", "text-white");
+                document.getElementById("cold-btn").classList.remove("selected", "bg-[#5E9EA0]", "text-white");
+            });
+
+            document.getElementById("cold-btn").addEventListener("click", () => {
+                selectedItem.temperature = "Cold";
+                document.getElementById("cold-btn").classList.add("selected", "bg-[#5E9EA0]", "text-white");
+                document.getElementById("hot-btn").classList.remove("selected", "bg-[#5E9EA0]", "text-white");
+            });
+
+            // Add to cart
+            document.getElementById("add-to-cart-btn").addEventListener("click", () => {
+                let cart = getCart();
+                cart[selectedItem.name] = cart[selectedItem.name] || { quantity: 0, price: selectedItem.price, image: selectedItem.image, temperature: selectedItem.temperature };
+                cart[selectedItem.name].quantity += 1;
+                saveCart(cart);
+                updateCartCount();
+                document.getElementById("hot-btn").classList.add("selected", "bg-[#5E9EA0]", "text-white");
+                document.getElementById("cold-btn").classList.remove("selected", "bg-[#5E9EA0]", "text-white");
+                modal.classList.add("hidden");
+            });
+
+            // Initialize cart count
+            updateCartCount();
+        });
+    </script>
+
+</body>
+
 </html>
