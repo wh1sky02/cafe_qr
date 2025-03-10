@@ -1,27 +1,175 @@
 
-{% extends "base.html" %}
-{% load static %}
+{% load static tailwind_tags %}
+<html>
+    <head>
+        <title>{{ item.name }} - Item Detail</title>
+        {% tailwind_css %}
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    </head>
+    <body class="bg-gray-50">
+        <!-- Header -->
+        <div class="bg-[#5E9EA0] flex items-center px-5 py-5 w-full fixed top-0 left-0 h-20 z-50 shadow-md">
+            <a href="javascript:history.back()" class="cursor-pointer">
+                <img class="h-10 w-10" src="{% static 'images/Back.png' %}" alt="Back">
+            </a>
+            <div class="flex-grow text-center text-3xl text-white font-bold">Item Details</div>
+        </div>
 
-{% block content %}
-<div class="container mx-auto px-4 py-8">
-    <div class="bg-white rounded-xl shadow-lg p-6 max-w-2xl mx-auto">
-        <div class="flex flex-col md:flex-row items-center">
-            <img src="{% static item.image %}" alt="{{ item.name }}" class="w-64 h-64 rounded-lg object-cover">
-            <div class="md:ml-8 mt-4 md:mt-0">
-                <h1 class="text-4xl font-bold">{{ item.name }}</h1>
-                <p class="text-gray-600 mt-2">{{ item.description }}</p>
-                <p class="text-3xl font-semibold text-gray-700 mt-4">${{ item.price }}</p>
-                <div class="mt-6 flex items-center">
-                    <button class="bg-[#5E9EA0] text-white px-6 py-2 rounded-lg text-xl">Add to Cart</button>
+        <!-- Main Content -->
+        <div class="pt-28 px-5 pb-32 max-w-xl mx-auto">
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                <!-- Item Image -->
+                <div class="w-full h-64 bg-gray-200 relative">
+                    {% if item.image %}
+                        <img src="{{ item.image.url }}" alt="{{ item.name }}" class="w-full h-full object-cover">
+                    {% else %}
+                        <div class="w-full h-full flex items-center justify-center bg-gray-200">
+                            <p class="text-gray-500">No image available</p>
+                        </div>
+                    {% endif %}
                 </div>
-                {% if item.is_bestseller %}
-                    <span class="mt-4 inline-block bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full">Bestseller</span>
-                {% endif %}
-                {% if item.is_new %}
-                    <span class="mt-4 ml-2 inline-block bg-green-100 text-green-800 px-3 py-1 rounded-full">New</span>
-                {% endif %}
+                
+                <!-- Item Details -->
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <h1 class="text-2xl font-bold text-gray-800">{{ item.name }}</h1>
+                        <span class="text-xl font-bold text-[#5E9EA0]">${{ item.price }}</span>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <h2 class="text-lg font-semibold text-gray-700 mb-2">Description</h2>
+                        <p class="text-gray-600">{{ item.description }}</p>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <h2 class="text-lg font-semibold text-gray-700 mb-2">Category</h2>
+                        <p class="text-gray-600">{{ item.category.name }}</p>
+                    </div>
+                    
+                    <!-- Temperature Selection (only for coffee/tea) -->
+                    {% if item.category.name|lower == 'coffee' or item.category.name|lower == 'tea' %}
+                    <div class="mb-6">
+                        <h2 class="text-lg font-semibold text-gray-700 mb-2">Temperature</h2>
+                        <div class="flex space-x-4">
+                            <button id="hot-btn" class="px-4 py-2 border border-[#5E9EA0] rounded-lg bg-[#5E9EA0] text-white selected">Hot</button>
+                            <button id="cold-btn" class="px-4 py-2 border border-[#5E9EA0] rounded-lg text-[#5E9EA0]">Cold</button>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Add to Cart Button -->
+                    <button id="add-to-cart-btn" class="w-full bg-[#5E9EA0] text-white font-bold py-3 px-6 rounded-lg text-xl shadow-md hover:bg-[#4E8E90] transition-colors">
+                        Add to Cart
+                    </button>
+                </div>
             </div>
         </div>
-    </div>
-</div>
-{% endblock %}
+        
+        <!-- Bottom Navigation -->
+        <div class="fixed bottom-0 left-0 right-0 bg-white shadow-lg py-3 px-5 flex justify-between">
+            <a href="{% url 'home' %}" class="flex flex-col items-center text-gray-500">
+                <img src="{% static 'images/Home.png' %}" alt="Home" class="w-6 h-6">
+                <span class="text-xs mt-1">Home</span>
+            </a>
+            <a href="{% url 'menu' token %}" class="flex flex-col items-center text-[#5E9EA0]">
+                <img src="{% static 'images/Menu_selected.png' %}" alt="Menu" class="w-6 h-6">
+                <span class="text-xs mt-1">Menu</span>
+            </a>
+            <a href="{% url 'cart' %}" class="flex flex-col items-center text-gray-500 relative">
+                <img src="{% static 'images/Cart.png' %}" alt="Cart" class="w-6 h-6">
+                <span id="cart-count" class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">0</span>
+                <span class="text-xs mt-1">Cart</span>
+            </a>
+        </div>
+
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                // Selected item data
+                let selectedItem = {
+                    name: "{{ item.name }}",
+                    price: "{{ item.price }}",
+                    image: "{{ item.image.url }}",
+                    temperature: "Hot" // Default to Hot for coffee/tea
+                };
+
+                // Cart functions
+                function getCart() {
+                    return JSON.parse(localStorage.getItem("cart") || "{}");
+                }
+
+                function saveCart(cart) {
+                    localStorage.setItem("cart", JSON.stringify(cart));
+                }
+
+                function updateCartCount() {
+                    const cart = getCart();
+                    const count = Object.values(cart).reduce((total, item) => total + item.quantity, 0);
+                    document.getElementById("cart-count").innerText = count;
+                }
+
+                // Initialize cart count
+                updateCartCount();
+
+                // Temperature buttons for coffee/tea
+                const hotBtn = document.getElementById("hot-btn");
+                const coldBtn = document.getElementById("cold-btn");
+                
+                if (hotBtn && coldBtn) {
+                    hotBtn.addEventListener("click", () => {
+                        selectedItem.temperature = "Hot";
+                        hotBtn.classList.add("bg-[#5E9EA0]", "text-white");
+                        hotBtn.classList.remove("text-[#5E9EA0]");
+                        coldBtn.classList.remove("bg-[#5E9EA0]", "text-white");
+                        coldBtn.classList.add("text-[#5E9EA0]");
+                    });
+
+                    coldBtn.addEventListener("click", () => {
+                        selectedItem.temperature = "Cold";
+                        coldBtn.classList.add("bg-[#5E9EA0]", "text-white");
+                        coldBtn.classList.remove("text-[#5E9EA0]");
+                        hotBtn.classList.remove("bg-[#5E9EA0]", "text-white");
+                        hotBtn.classList.add("text-[#5E9EA0]");
+                    });
+                }
+
+                // Add to cart button
+                document.getElementById("add-to-cart-btn").addEventListener("click", () => {
+                    let cart = getCart();
+                    
+                    // For coffee/tea with temperature, use a more specific key
+                    let itemKey = selectedItem.name;
+                    if ("{{ item.category.name|lower }}" === "coffee" || "{{ item.category.name|lower }}" === "tea") {
+                        itemKey = `${selectedItem.name} (${selectedItem.temperature})`;
+                    }
+                    
+                    cart[itemKey] = cart[itemKey] || { 
+                        quantity: 0, 
+                        price: selectedItem.price, 
+                        image: selectedItem.image
+                    };
+                    
+                    if ("{{ item.category.name|lower }}" === "coffee" || "{{ item.category.name|lower }}" === "tea") {
+                        cart[itemKey].temperature = selectedItem.temperature;
+                    }
+                    
+                    cart[itemKey].quantity += 1;
+                    saveCart(cart);
+                    updateCartCount();
+                    
+                    // Show confirmation message
+                    const button = document.getElementById("add-to-cart-btn");
+                    const originalText = button.innerText;
+                    button.innerText = "Added to Cart!";
+                    button.disabled = true;
+                    button.classList.add("bg-green-500");
+                    
+                    setTimeout(() => {
+                        button.innerText = originalText;
+                        button.disabled = false;
+                        button.classList.remove("bg-green-500");
+                    }, 1000);
+                });
+            });
+        </script>
+    </body>
+</html>

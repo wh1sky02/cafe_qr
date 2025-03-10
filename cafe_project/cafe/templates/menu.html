@@ -33,6 +33,15 @@
         background-color: #5E9EA0;
         color: white;
     }
+
+    .menu-item {
+        transition: all 0.3s ease;
+    }
+
+    .menu-item:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    }
 </style>
 
 <body class="bg-white no-scrollbar">
@@ -103,17 +112,13 @@
     <!-- Menu Items -->
     <div id="menu-items" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 px-3 sm:px-5 py-3 mb-20">
         {% for item in menu_items %}
-        <div class="menu-item bg-white rounded-xl shadow-lg h-[240px] px-3 py-4 flex flex-col text-xl items-center"
-            data-category="{{ item.category.id }}" data-category-name="{{ item.category.name }}"
-            data-item-name="{{ item.name }}" data-item-price="{{ item.price }}" data-item-image="{{ item.image.url }}">
+        <div class="menu-item cursor-pointer bg-white rounded-xl shadow-lg h-[240px] px-3 py-4 flex flex-col text-xl items-center"
+            onclick="window.location.href='{% url 'item_detail' item_id=item.id %}'" data-category="{{ item.category.id }}" data-category-name="{{ item.category.name }}"
+            data-item-name="{{ item.name }}" data-item-price="{{ item.price }}" data-item-image="{{ item.image.url }}" data-item-id="{{ item.id }}">
             <img class="h-24 w-24 rounded-lg" src="{{ item.image.url }}" alt="{{ item.name }}">
             <div class="text-2xl font-semibold mt-2">{{ item.name }}</div>
-            <div class="flex items-center justify-between w-full mt-3 px-4">
-                <div class="text-gray-700 text-xl">${{ item.price }}</div>
-                <div class="flex items-center space-x-2">
-                    <button data-modal-target="popup-modal" data-modal-toggle="popup-modal"
-                        class="add-btn bg-[#5E9EA0] text-white text-lg px-3 py-1 rounded-lg">+</button>
-                </div>
+            <div class="flex justify-end w-full mt-3 px-4">
+                <button class="add-btn bg-[#5E9EA0] text-white text-lg px-3 py-1 rounded-lg">+</button>
             </div>
         </div>
         {% endfor %}
