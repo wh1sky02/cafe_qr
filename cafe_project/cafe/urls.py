@@ -1,6 +1,5 @@
 from django.urls import path
 from . import views
-from .views import order_status
 
 urlpatterns = [
     # Public Pages
@@ -9,24 +8,23 @@ urlpatterns = [
     path('order-list/', views.order_list, name='order_list'),
     path('item/<int:item_id>/', views.item_detail, name='item_detail'),
     path('cart/', views.cart, name='cart'),
-    path('order-status/', order_status, name='order_status'),
+    path('order-status/', views.order_status, name='order_status'),
     path('checkout/', views.checkout, name='checkout'),
     path('payment/', views.payment, name='payment'),
-    path('order-confirmation/', views.order_confirmation, name='order_confirmation'), # Added order confirmation URL
+    path('order-confirmation/', views.order_confirmation, name='order_confirmation'),
 
-    # Admin Panel Routes
+    # Admin Panel - Dashboard & General Settings
     path('admin-panel/', views.dashboard, name='dashboard'),
     path('admin-panel/dashboard-data/', views.dashboard_data, name='dashboard_data'),
-    path('admin-panel/move-table/', views.move_table, name='move_table'),
+    path('admin-panel/settings/', views.settings, name='settings'),
+    path('admin-panel/change-password/', views.change_password, name='change_password'),
+
+    # Admin Panel - QR Code Management
     path('admin-panel/qr-code/', views.qr_code_management, name='qr_code_management'),
     path('admin-panel/generate-qr-code/', views.generate_qr_code, name='generate_qr_code'),
     path('admin-panel/remove-qr-code/', views.remove_qr_code, name='remove_qr_code'),
 
-    # Authentication Routes
-    path('login/', views.custom_login, name='login'),
-    path('logout/', views.custom_logout, name='logout'),
-    path('admin-panel/settings/', views.settings, name='settings'),
-    path('admin-panel/change-password/', views.change_password, name='change_password'),
+    # Admin Panel - Menu Management
     path('admin-panel/menu-settings/', views.menu_settings, name='menu_settings'),
     path('admin-panel/menu/', views.admin_menu, name='admin_menu'),
     path('admin-panel/add-menu-item/', views.add_menu_item, name='add_menu_item'),
@@ -34,4 +32,11 @@ urlpatterns = [
     path('admin-panel/delete-category/<int:category_id>/', views.delete_category, name='delete_category'),
     path('admin-panel/edit-menu-item/<int:item_id>/', views.edit_menu_item, name='edit_menu_item'),
     path('admin-panel/delete-menu-item/<int:item_id>/', views.delete_menu_item, name='delete_menu_item'),
+    
+    # Admin Panel - Table Management
+    path('admin-panel/move-table/', views.move_table, name='move_table'),
+
+    # Authentication Routes
+    path('login/', views.custom_login, name='login'),
+    path('logout/', views.custom_logout, name='logout'),
 ]
