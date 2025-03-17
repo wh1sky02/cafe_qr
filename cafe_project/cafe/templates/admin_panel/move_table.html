@@ -1,215 +1,57 @@
 {% extends "admin_panel/base_admin.html" %}
 {% load static tailwind_tags %}
-
 {% block content %}
-<head>
-    <title>Move Table</title>
-    {% tailwind_css %}
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-</head>
-
-<style>
-    .search-bar {
-        background-color: #F0F0F0;
-        color: #9E9E9E;
-        border-radius: 20px;
-        padding: 8px 16px;
-        width: 200px;
-        outline: none;
-        font-size: 14px;
-        transition: all 0.3s ease;
-        font-style: italic;
-    }
-    .search-bar:focus {
-        background-color: #FFFFFF;
-        color: #333;
-        border: 1px solid #B0BEC5;
-        font-style: normal;
-    }
-    .search-btn {
-        background-color: #5E9EA0;
-        color: white;
-        padding: 8px 16px;
-        border-radius: 20px;
-        font-size: 14px;
-        transition: all 0.3s ease;
-    }
-    .search-btn:hover {
-        background-color: #4F8B8D;
-    }
-
-    .table-card {
-        background-color: #FFFFFF;
-        border-radius: 12px;
-        box-shadow: 2px 4px 8px rgba(0, 0, 0, 0.1);
-        overflow: hidden;
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
-        cursor: pointer;
-        width: 100%;
-        max-width: 400px;
-    }
-    .table-card:hover {
-        transform: translateY(-4px);
-        box-shadow: 2px 6px 12px rgba(0, 0, 0, 0.15);
-    }
-    .table-card-header {
-        background-color: #5E9EA0;
-        color: white;
-        padding: 12px;
-        font-size: 14px;
-        font-weight: bold;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        border-top-left-radius: 12px;
-        border-top-right-radius: 12px;
-    }
-
-    .status-badge {
-        font-size: 12px;
-        padding: 2px 8px;
-        border-radius: 12px;
-        font-weight: 500;
-        display: inline-block;
-    }
-    .status-available {
-        background-color: #E8F5E9;
-        color: #388E3C;
-    }
-    .status-occupied {
-        background-color: #FFE0B2;
-        color: #E65100;
-    }
-
-    .move-btn {
-        background-color: #FFCDD2;
-        color: #D32F2F;
-        padding: 6px 12px;
-        border-radius: 6px;
-        font-size: 14px;
-        font-weight: 500;
-        transition: background-color 0.2s ease;
-        border: none;
-        cursor: pointer;
-        margin-top: 20px;
-        margin-bottom: 5px;
-    }
-    .move-btn:hover {
-        background-color: #EF5350;
-        color: white;
-    }
-</style>
-
+<!-- Page Header is inherited from base_admin.html -->
 <div class="p-6 w-full">
-    <!-- Search Bar -->
-    <div class="flex justify-end mb-6">
-        <input type="text" id="searchInput" placeholder="Table No." class="search-bar" />
-        <button id="searchBtn" class="search-btn ml-2">Search</button>
-    </div>
+  <!-- Search Bar -->
+  <div class="flex justify-end mb-6">
+    <input type="text" id="searchInput" placeholder="Table No." class="bg-gray-200 text-gray-600 rounded-full py-2 px-4 w-52 outline-none italic focus:bg-white focus:text-gray-900 focus:border focus:border-gray-400" />
+    <button id="searchBtn" class="ml-2 bg-teal-600 text-white py-2 px-4 rounded-full hover:bg-teal-700">Search</button>
+  </div>
 
-    <!-- 
-      Always 3 columns (no md: prefix), so on every screen size 
-      you'll get 3 tables in a row (and 2 rows total if you have 6 cards).
-    -->
-    <div class="grid grid-cols-3 gap-6 justify-items-center w-full">
-        <!-- Table 1 -->
-        <div class="table-card" data-tableno="1">
-            <div class="table-card-header">Table 1</div>
-            <div class="p-4">
-                <p class="text-sm text-gray-700"><strong>Customer Name:</strong> Jack</p><br>
-                <p class="text-sm text-gray-700">
-                    <strong>Status:</strong>
-                    <span class="status-badge status-occupied">Occupied</span>
-                </p><br>
-                <p class="text-sm text-gray-700"><strong>Order ID:</strong> #123</p>
-                <button class="mt-3 move-btn">Move</button>
-            </div>
+  <!-- Dynamic Table Cards -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 justify-items-center">
+    {% for table in tables %}
+      <div class="bg-white rounded-lg shadow-md overflow-hidden transform transition-transform hover:-translate-y-1 hover:shadow-lg w-full max-w-sm" data-tableno="{{ table.number }}">
+        <div class="bg-teal-600 text-white py-2 px-4 font-bold flex justify-between">
+          Table {{ table.number }}
         </div>
-        <!-- Table 2 -->
-        <div class="table-card" data-tableno="2">
-            <div class="table-card-header">Table 2</div>
-            <div class="p-4">
-                <p class="text-sm text-gray-700"><strong>Customer Name:</strong> -</p><br>
-                <p class="text-sm text-gray-700">
-                    <strong>Status:</strong>
-                    <span class="status-badge status-available">Available</span>
-                </p><br>
-                <p class="text-sm text-gray-700"><strong>Order ID:</strong> -</p>
-                <button class="mt-3 move-btn">Move</button>
-            </div>
+        <div class="p-4">
+          <p class="text-sm text-gray-700">
+            <strong>Customer Name:</strong> {{ table.customer_name|default:"-" }}
+          </p>
+          <p class="mt-2 text-sm text-gray-700">
+            <strong>Status:</strong>
+            <span class="inline-block text-xs px-2 py-1 rounded-full {% if table.is_active %}bg-green-100 text-green-700{% else %}bg-yellow-100 text-yellow-700{% endif %}">
+              {% if table.is_active %}Occupied{% else %}Available{% endif %}
+            </span>
+          </p>
+          <p class="mt-2 text-sm text-gray-700">
+            <strong>Order ID:</strong> {{ table.order_id|default:"-" }}
+          </p>
+          <button class="mt-4 bg-red-200 text-red-600 py-1 px-3 rounded hover:bg-red-300">Move</button>
         </div>
-        <!-- Table 3 -->
-        <div class="table-card" data-tableno="3">
-            <div class="table-card-header">Table 3</div>
-            <div class="p-4">
-                <p class="text-sm text-gray-700"><strong>Customer Name:</strong> Jack</p><br>
-                <p class="text-sm text-gray-700">
-                    <strong>Status:</strong>
-                    <span class="status-badge status-occupied">Occupied</span>
-                </p><br>
-                <p class="text-sm text-gray-700"><strong>Order ID:</strong> #123</p>
-                <button class="mt-3 move-btn">Move</button>
-            </div>
-        </div>
-
-        <!-- Table 4 -->
-        <div class="table-card" data-tableno="4">
-            <div class="table-card-header">Table 4</div>
-            <div class="p-4">
-                <p class="text-sm text-gray-700"><strong>Customer Name:</strong> -</p><br>
-                <p class="text-sm text-gray-700">
-                    <strong>Status:</strong>
-                    <span class="status-badge status-available">Available</span>
-                </p><br>
-                <p class="text-sm text-gray-700"><strong>Order ID:</strong> -</p>
-                <button class="mt-3 move-btn">Move</button>
-            </div>
-        </div>
-        <!-- Table 5 -->
-        <div class="table-card" data-tableno="5">
-            <div class="table-card-header">Table 5</div>
-            <div class="p-4">
-                <p class="text-sm text-gray-700"><strong>Customer Name:</strong> Jack</p><br>
-                <p class="text-sm text-gray-700">
-                    <strong>Status:</strong>
-                    <span class="status-badge status-occupied">Occupied</span>
-                </p><br>
-                <p class="text-sm text-gray-700"><strong>Order ID:</strong> #123</p>
-                <button class="mt-3 move-btn">Move</button>
-            </div>
-        </div>
-        <!-- Table 6 -->
-        <div class="table-card" data-tableno="6">
-            <div class="table-card-header">Table 6</div>
-            <div class="p-4">
-                <p class="text-sm text-gray-700"><strong>Customer Name:</strong> Jack</p><br>
-                <p class="text-sm text-gray-700">
-                    <strong>Status:</strong>
-                    <span class="status-badge status-occupied">Occupied</span>
-                </p><br>
-                <p class="text-sm text-gray-700"><strong>Order ID:</strong> #123</p>
-                <button class="mt-3 move-btn">Move</button>
-            </div>
-        </div>
-    </div>
+      </div>
+    {% endfor %}
+  </div>
 </div>
 
 <script>
-document.addEventListener("DOMContentLoaded", () => {
+  document.addEventListener("DOMContentLoaded", () => {
     const searchBtn = document.getElementById("searchBtn");
     const searchInput = document.getElementById("searchInput");
-    const tableCards = document.querySelectorAll(".table-card");
+    const tableCards = document.querySelectorAll("[data-tableno]");
 
     // Simple search by table number
     searchBtn.addEventListener("click", () => {
-        const searchTerm = searchInput.value.trim().toLowerCase();
-        tableCards.forEach(card => {
-            const tableNo = card.getAttribute("data-tableno").toLowerCase();
-            card.style.display = (tableNo.includes(searchTerm) || searchTerm === "")
-                ? "block"
-                : "none";
-        });
+      const searchTerm = searchInput.value.trim().toLowerCase();
+      tableCards.forEach(card => {
+        const tableNo = card.getAttribute("data-tableno").toLowerCase();
+        card.style.display = (tableNo.includes(searchTerm) || searchTerm === "")
+          ? "block"
+          : "none";
+      });
     });
-});
+  });
 </script>
 {% endblock %}

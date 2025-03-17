@@ -5,3 +5,4 @@ django-tailwind==3.8.0
 pillow==10.2.0
 qrcode[pil]
 psycopg2-binary
+django-cors-headers

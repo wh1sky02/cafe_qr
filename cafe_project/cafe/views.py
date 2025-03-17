@@ -1,20 +1,23 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
 from django.contrib.auth.models import User
 from django.contrib import messages
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.contrib.auth.decorators import login_required
-from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
 from django.core.files import File
 from django.utils.timezone import now
 from django.db.models import Sum
+from django.template.context_processors import csrf
+from django.urls import reverse
 from datetime import timedelta
-from .models import MenuItem, Table, Category, Order, Banner
+from io import BytesIO
 import qrcode
 import random
 import json
-from io import BytesIO
-from django.contrib.auth import update_session_auth_hash
+import uuid
+
+from .models import MenuItem, Table, Category, Order, Banner, QRCode
 
 # --------------------- Public Views ---------------------
 
@@ -48,8 +51,11 @@ def home(request):
     })
 
 def menu(request, token):
-    # Lookup table by token
-    table = get_object_or_404(Table, token=token)
+    # Lookup QRCode by token
+    qr_code = get_object_or_404(QRCode, token=token)
+
+    # Get the related table
+    table = qr_code.table
 
     # Store the token in session
     request.session['table_token'] = str(token)
@@ -128,8 +134,6 @@ def custom_login(request):
             return redirect("dashboard")  # Redirect to the admin dashboard
         else:
             messages.error(request, f"Authentication failed for '{username}'.")
-
-            # Check if user exists but password is wrong
             if user_exists:
                 messages.warning(request, "Username exists but password is incorrect.")
 
@@ -161,71 +165,84 @@ def dashboard_data(request):
 
 @login_required
 def qr_code_management(request):
-    """Displays the QR Code Management page."""
-    tables = Table.objects.all().order_by('number')
-    return render(request, 'admin_panel/qr_code.html', {'tables': tables})
+    tables = Table.objects.all()
+    context = {
+        'tables': tables,
+    }
+    context.update(csrf(request))  # Add CSRF token to context
+    return render(request, 'admin_panel/qr_code.html', context)
 
 # --------------------- MOVE TABLE VIEW ---------------------
 @login_required
 def move_table(request):
-    """Displays the Move Table page."""
-    return render(request, "admin_panel/move_table.html")
+    """Displays the Move Table page with a dynamic list of tables."""
+    tables = Table.objects.all().order_by('number')
+    return render(request, "admin_panel/move_table.html", {"tables": tables})
 
 @csrf_exempt
 @login_required
 def generate_qr_code(request):
-    """Generates a QR Code for a given table number."""
-    if request.method == "POST":
+    if request.method == 'POST':
         try:
-            data = json.loads(request.body.decode("utf-8"))
-            table_number = data.get("table_number")
+            data = json.loads(request.body)
+            table_number = data.get('table_number')
 
             if not table_number:
-                return JsonResponse({'success': False, 'error': 'Table number is required'})
+                return JsonResponse({'success': False, 'error': 'Table number is required.'}, status=400)
 
-            # Retrieve or create a table object for the given number
-            table, created = Table.objects.get_or_create(number=table_number)
+            table = Table.objects.get(number=table_number)
 
-            # Generate the QR code using the model's method
-            table.generate_qr_code()
+            # Check if QR code already exists for the table
+            if hasattr(table, 'qr_code'):
+                return JsonResponse({'success': False, 'error': f'QR Code for Table {table_number} already exists.'}, status=400)
 
-            return JsonResponse({
-                'success': True,
-                'table_number': table.number,
-                'qr_code_url': table.qr_code.url,
-                'status': 'active' if table.is_active else 'inactive'
-            })
+            # Create and generate QR code
+            qr_code = QRCode.objects.create(table=table)
+            qr_code.generate_qr_code()
 
+            return JsonResponse({'success': True, 'table_number': table_number})
+
+        except Table.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'Table not found.'}, status=404)
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)}, status=500)
+    else:
+        return JsonResponse({'success': False, 'error': 'Invalid request method.'}, status=405)
+
+@csrf_exempt
+@login_required
+def remove_qr_code(request):
+    """Deletes the QR code entry associated with a table, not the table itself."""
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            table_number = data.get("table_number")
+
+            table = Table.objects.get(number=table_number)
+
+            # Delete only the QRCode object if exists, preserving the table.
+            qr_code_obj = getattr(table, 'qr_code', None)
+            if qr_code_obj:
+                qr_code_obj.delete()
+                return JsonResponse({'success': True})
+            else:
+                return JsonResponse({'success': False, 'error': 'QR code not found for this table'})
+
+        except Table.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'Table not found'})
         except json.JSONDecodeError:
             return JsonResponse({'success': False, 'error': 'Invalid JSON format'})
 
     return JsonResponse({'success': False, 'error': 'Invalid request method'})
 
-@csrf_exempt
-@login_required
-def remove_qr_code(request):
-    """Deletes the entire table entry when removing QR code"""
-    if request.method == "POST":
-        data = json.loads(request.body)
-        table_number = data.get("table_number")
-
-        try:
-            table = Table.objects.get(number=table_number)
-            table.delete()  # Deletes the table entry entirely
-            return JsonResponse({'success': True})
-        except Table.DoesNotExist:
-            return JsonResponse({'success': False, 'error': 'Table not found'})
-
-    return JsonResponse({'success': False, 'error': 'Invalid request method'})
-
 @login_required
 def settings(request):
-    """Displays the settings page"""
+    """Displays the settings page."""
     return render(request, "admin_panel/settings.html")
 
 @login_required
 def menu_settings(request):
-    """Displays the menu settings page"""
+    """Displays the menu settings page."""
     menu_items = MenuItem.objects.all().order_by('-status', 'name')
     categories = Category.objects.all()
     return render(request, "admin_panel/menu_settings.html", {'menu_items': menu_items, 'categories': categories})
@@ -301,7 +318,7 @@ def add_menu_item(request):
 
 @login_required
 def change_password(request):
-    """Handles password change"""
+    """Handles password change."""
     if request.method == "POST":
         current_password = request.POST.get("current_password")
         new_password = request.POST.get("new_password")
