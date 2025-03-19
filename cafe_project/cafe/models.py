@@ -1,4 +1,6 @@
+
 from django.db import models
+import uuid
 from django.utils.timezone import now
 import qrcode
 import uuid
@@ -13,16 +15,11 @@ class Category(models.Model):
         return self.name
 
 class MenuItem(models.Model):
-    class Status(models.TextChoices):
-        REGULAR = 'regular', 'Regular'
-        SET_MENU = 'set_menu', 'Set Menu'
-
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True)
     price = models.DecimalField(max_digits=6, decimal_places=2)
     image = models.ImageField(upload_to='menu_images/', blank=True, null=True)
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='menu_items')
-    status = models.CharField(max_length=10, choices=Status.choices, default=Status.REGULAR)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -43,18 +40,36 @@ class Table(models.Model):
     number = models.IntegerField(unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
     is_active = models.BooleanField(default=True)
-
+    token = models.UUIDField(null=True, blank=True)
+    
     def __str__(self):
         return f"Table {self.number}"
 
+    def save(self, *args, **kwargs):
+        if not self.token:
+            self.token = uuid.uuid4()
+        super().save(*args, **kwargs)
+
 class QRCode(models.Model):
     table = models.OneToOneField(Table, on_delete=models.CASCADE, related_name='qr_code')
-    token = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
-    qr_code = models.ImageField(upload_to='qr_codes/', blank=True)
+    token = models.UUIDField(editable=False, unique=True)
+    image = models.ImageField(upload_to='qr_codes/', blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
+    def __str__(self):
+        return f"QR Code for Table {self.table.number}"
+        
+    def generate_token(self):
+        # Generate token using table number and UUID
+        return uuid.uuid5(uuid.NAMESPACE_DNS, f"table_{self.table.number}")
+        
+    def save(self, *args, **kwargs):
+        if not self.token:
+            self.token = self.generate_token()
+        super().save(*args, **kwargs)
+
     def generate_qr_code(self):
-        url = f'http://localhost:8000/menu/{self.token}/'
+        url = f'http://0.0.0.0:8000/menu/{self.table.token}/'
         qr = qrcode.QRCode(
             version=1,
             error_correction=qrcode.constants.ERROR_CORRECT_L,
@@ -63,54 +78,36 @@ class QRCode(models.Model):
         )
         qr.add_data(url)
         qr.make(fit=True)
-        
         img = qr.make_image(fill_color="black", back_color="white")
         buffer = BytesIO()
         img.save(buffer, 'PNG')
-        self.qr_code.save(f'table_{self.token}_qr.png', File(buffer), save=False)
-        self.save()
+        self.image.save(f'{self.table.token}_{self.token}.png', File(buffer), save=False)
 
-    def get_qr_code_url(self):
-        return self.qr_code.url if self.qr_code else None
-    
-    def __str__(self):
-        return f"QR Code for Table {self.table.number}"
-
-class OrderSession(models.Model): 
-    table = models.ForeignKey(Table, on_delete=models.CASCADE, related_name="order_sessions")
-    session_id = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
-    created_at = models.DateTimeField(auto_now_add=True)
+class OrderSession(models.Model):
+    table = models.ForeignKey(Table, on_delete=models.CASCADE)
+    start_time = models.DateTimeField(auto_now_add=True)
+    end_time = models.DateTimeField(null=True, blank=True)
     is_active = models.BooleanField(default=True)
-    test_field = models.CharField(max_length=10, blank=True, null=True)
 
     def __str__(self):
-        return f"Session {self.session_id} for Table {self.table.number}"
-
-    @classmethod
-    def get_active_session(cls, table):
-        session = cls.objects.filter(table=table, is_active=True).order_by("-created_at").first()
-        return session if session else cls.objects.create(table=table)
+        return f"Session for Table {self.table.number}"
 
 class Order(models.Model):
-    session = models.ForeignKey(
-        OrderSession, 
-        on_delete=models.CASCADE, 
-        related_name="orders",
-        null=True,  # Allows NULL values
-        blank=True  # Allows empty values in forms
-    )
-    menu_item = models.ForeignKey(MenuItem, on_delete=models.CASCADE, related_name="orders")
+    session = models.ForeignKey(OrderSession, on_delete=models.CASCADE, related_name='orders', null=True)
+    menu_item = models.ForeignKey(MenuItem, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=1)
     created_at = models.DateTimeField(auto_now_add=True)
-    is_completed = models.BooleanField(default=False)
+    notes = models.TextField(blank=True)
+    status = models.CharField(max_length=20, choices=[
+        ('pending', 'Pending'),
+        ('preparing', 'Preparing'),
+        ('completed', 'Completed'),
+        ('cancelled', 'Cancelled')
+    ], default='pending')
 
     def __str__(self):
-        return f"Session {self.session.session_id} - {self.quantity}x {self.menu_item.name}"
+        return f"Order {self.id} - {self.menu_item.name} x{self.quantity}"
 
-    def mark_as_completed(self):
-        self.is_completed = True
-        self.save()
-    
 class Banner(models.Model):
     image = models.ImageField(upload_to='banners/')
     created_at = models.DateTimeField(auto_now_add=True)

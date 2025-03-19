@@ -1,0 +1,179 @@
+
+{% extends "admin_panel/base_admin.html" %} {% load static tailwind_tags %} {% block content %}
+<div class="p-6 w-full">
+    <!-- Management Buttons -->
+    <div class="flex justify-between items-center mb-6">
+        <button id="addTableBtn" class="add-table-btn">+ Add Table</button>
+        <div class="flex items-center">
+            <input type="text" id="searchInput" placeholder="Table No." class="search-bar"/>
+            <button id="searchBtn" class="search-btn ml-2">Search</button>
+        </div>
+    </div>
+
+    <!-- Table Grid -->
+    <div class="table-grid" id="gridContainer">
+        {% for table in tables %}
+        <div class="table-card" id="table-{{ table.number }}">
+            <div class="table-info">
+                <h3>Table {{ table.number }}</h3>
+                <p class="table-status {% if table.is_active %}active{% else %}inactive{% endif %}">
+                    Status: {% if table.is_active %} ✅ Active {% else %} ❌ Inactive {% endif %}
+                </p>
+            </div>
+            <div class="table-actions">
+                <button class="toggle-status-btn" onclick="toggleTableStatus({{ table.number }})">
+                    Toggle Status
+                </button>
+                <button class="delete-btn" onclick="deleteTable({{ table.number }})">
+                    Delete
+                </button>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+    .add-table-btn {
+        background-color: #4caf50;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-weight: bold;
+    }
+    .search-bar {
+        padding: 8px 16px;
+        border-radius: 20px;
+        border: 1px solid #ddd;
+    }
+    .table-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 20px;
+        padding: 20px 0;
+    }
+    .table-card {
+        background-color: white;
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+    .table-info {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    .table-info h3 {
+        font-size: 18px;
+        font-weight: bold;
+        margin: 0;
+    }
+    .table-status {
+        font-weight: bold;
+        margin: 0;
+    }
+    .active {
+        color: green;
+    }
+    .inactive {
+        color: red;
+    }
+    .table-actions {
+        display: flex;
+        gap: 10px;
+    }
+    .toggle-status-btn {
+        background-color: #2196f3;
+        color: white;
+        padding: 8px 16px;
+        border-radius: 6px;
+        flex: 1;
+    }
+    .delete-btn {
+        background-color: #ff5252;
+        color: white;
+        padding: 8px 16px;
+        border-radius: 6px;
+        flex: 1;
+    }
+</style>
+
+<script>
+    // Search functionality
+    document.getElementById('searchBtn').onclick = () => {
+        const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+        document.querySelectorAll('.table-card').forEach(card => {
+            const tableNo = card.querySelector('h3').textContent.toLowerCase();
+            card.style.display = tableNo.includes(searchTerm) ? 'flex' : 'none';
+        });
+    };
+
+    // Add Table functionality
+    document.getElementById('addTableBtn').addEventListener('click', async () => {
+        try {
+            const response = await fetch('/admin-panel/tables/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                },
+                body: JSON.stringify({
+                    action: 'add'
+                })
+            });
+            const data = await response.json();
+            if (data.success) {
+                location.reload();
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    });
+
+    // Table management functions
+    async function toggleTableStatus(tableNumber) {
+        if (!confirm(`Are you sure you want to toggle status of Table ${tableNumber}?`)) return;
+        try {
+            const response = await fetch('/admin-panel/toggle-table-status/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                },
+                body: JSON.stringify({ table_number: tableNumber })
+            });
+            if (response.ok) location.reload();
+            else alert('Failed to toggle table status');
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error toggling table status');
+        }
+    }
+
+    async function deleteTable(tableNumber) {
+        const renumber = confirm(`Do you want to renumber the remaining tables after deleting Table ${tableNumber}?\n\nOK = Yes (Recommended)\nCancel = No`);
+        if (!confirm(`Are you sure you want to delete Table ${tableNumber}?`)) return;
+        try {
+            const response = await fetch('/admin-panel/delete-table/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                },
+                body: JSON.stringify({ 
+                    table_number: tableNumber,
+                    renumber: renumber 
+                })
+            });
+            if (response.ok) location.reload();
+            else alert('Failed to delete table');
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error deleting table');
+        }
+    }
+</script>
+{% endblock %}
