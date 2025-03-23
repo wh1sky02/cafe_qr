@@ -1,4 +1,3 @@
-
 {% load static tailwind_tags %}
 <html>
     <head>
@@ -8,9 +7,11 @@
     </head>
     <body class="bg-gray-50">
         <!-- Main Content -->
-        <div class="pt-[120px] px-4 pb-10 max-w-2xl mx-auto">
+        <div class="pt-[120px] px-4 pb-10 max-w-7xl mx-auto">
             <!-- Card container -->
-            <div class="bg-white rounded-xl shadow-lg overflow-hidden max-w-xl mx-auto">
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden max-w-6xl mx-auto">
+                <div class="grid md:grid-cols-12 gap-6">
+                    <div class="md:col-span-8 p-5 md:p-8 pt-8">
                 <!-- Card header -->
                 <div class="bg-[#5E9EA0] p-4 md:p-6">
                     <div class="flex items-center">
@@ -23,7 +24,7 @@
                     </div>
                 </div>
 
-                
+
 
                 <!-- Card body -->
                 <div class="p-5 md:p-8 pt-8">
@@ -31,81 +32,59 @@
                         <!-- Name on Card -->
                         <div class="space-y-2">
                             <label class="block text-gray-700 font-medium">Name on Card</label>
-                            <div class="relative">
-                                <input type="text" placeholder="John Smith" class="w-full p-3 bg-gray-100 rounded-lg border border-gray-200 focus:border-[#5E9EA0] focus:ring-1 focus:ring-[#5E9EA0] focus:outline-none transition-colors pl-10" required>
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 absolute left-3 top-3.5" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
-                                </svg>
-                            </div>
+                            <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#5E9EA0]" placeholder="Enter name on card" required>
                         </div>
 
                         <!-- Card Number -->
                         <div class="space-y-2">
                             <label class="block text-gray-700 font-medium">Card Number</label>
                             <div class="relative">
-                                <input type="text" placeholder="**** **** **** ****" class="w-full p-3 bg-gray-100 rounded-lg border border-gray-200 focus:border-[#5E9EA0] focus:ring-1 focus:ring-[#5E9EA0] focus:outline-none transition-colors pl-10" required>
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 absolute left-3 top-3.5" viewBox="0 0 20 20" fill="currentColor">
-                                    <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z" />
-                                    <path fill-rule="evenodd" d="M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z" clip-rule="evenodd" />
-                                </svg>
-                            </div>
-                        </div>
-
-                        <!-- Two-column layout for expiration date and security code -->
-                        <div class="flex gap-4">
-                            <div class="w-1/2 space-y-2">
-                                <label class="block text-gray-700 font-medium">Expiration Date</label>
-                                <div class="relative">
-                                    <input type="text" placeholder="MM/YY" class="w-full p-3 bg-gray-100 rounded-lg border border-gray-200 focus:border-[#5E9EA0] focus:ring-1 focus:ring-[#5E9EA0] focus:outline-none transition-colors pl-10" required>
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 absolute left-3 top-3.5" viewBox="0 0 20 20" fill="currentColor">
-                                        <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd" />
-                                    </svg>
-                                </div>
-                            </div>
-                            <div class="w-1/2 space-y-2">
-                                <label class="block text-gray-700 font-medium">Security Code</label>
-                                <div class="relative">
-                                    <input type="text" placeholder="CVC" class="w-full p-3 bg-gray-100 rounded-lg border border-gray-200 focus:border-[#5E9EA0] focus:ring-1 focus:ring-[#5E9EA0] focus:outline-none transition-colors pl-10" required>
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 absolute left-3 top-3.5" viewBox="0 0 20 20" fill="currentColor">
-                                        <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd" />
-                                    </svg>
+                                <input 
+                                    type="text" 
+                                    id="cardNumber"
+                                    pattern="[0-9\s]{13,19}"
+                                    inputmode="numeric"
+                                    maxlength="19" 
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#5E9EA0] pr-10" 
+                                    placeholder="1234 5678 9012 3456" 
+                                    required
+                                    oninput="this.value = this.value.replace(/[^\d]/g, '').replace(/(.{4})/g, '$1 ').trim()"
+                                >
+                                <div class="absolute inset-y-0 right-3 flex items-center">
+                                    <img id="cardType" src="" alt="" class="h-6 w-auto hidden">
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Billing Address -->
-                        <div class="space-y-2">
-                            <label class="block text-gray-700 font-medium">Billing Address</label>
-                            <div class="relative">
-                                <input type="text" placeholder="Town, city" class="w-full p-3 bg-gray-100 rounded-lg border border-gray-200 focus:border-[#5E9EA0] focus:ring-1 focus:ring-[#5E9EA0] focus:outline-none transition-colors pl-10" required>
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 absolute left-3 top-3.5" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
-                                </svg>
+                        <!-- Expiry and CVV -->
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="space-y-2">
+                                <label class="block text-gray-700 font-medium">Expiry Date</label>
+                                <input 
+                                    type="text" 
+                                    id="expiryDate"
+                                    inputmode="numeric"
+                                    pattern="(0[1-9]|1[0-2])\/([0-9]{2})" 
+                                    maxlength="5" 
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#5E9EA0]" 
+                                    placeholder="MM/YY" 
+                                    required
+                                    oninput="validateExpiry(this)"
+                                >
                             </div>
-                        </div>
-
-                        <!-- Order Summary -->
-                        <div class="mt-8 p-4 bg-gray-50 rounded-lg shadow-sm">
-                            <h3 class="font-medium text-gray-700 mb-3 text-lg">Order Summary</h3>
-                            <div id="order-items" class="space-y-2 mb-3">
-                                <!-- Dynamic order items will be added here by JS -->
-                            </div>
-                            <div class="flex justify-between text-sm mb-2">
-                                <span class="text-gray-600">Subtotal</span>
-                                <span class="font-medium" id="summary-subtotal">-</span>
-                            </div>
-                            <div class="flex justify-between text-sm mb-2">
-                                <span class="text-gray-600">Tax</span>
-                                <span class="font-medium" id="summary-tax">-</span>
-                            </div>
-                            <div class="flex justify-between text-sm mb-2">
-                                <span class="text-gray-600">Tip</span>
-                                <span class="font-medium" id="summary-tip">-</span>
-                            </div>
-                            <div class="border-t border-gray-200 my-2"></div>
-                            <div class="flex justify-between font-medium text-base">
-                                <span>Total</span>
-                                <span id="summary-total">$0.00</span>
+                            <div class="space-y-2">
+                                <label class="block text-gray-700 font-medium">CVV</label>
+                                <input 
+                                    type="password" 
+                                    id="cvv"
+                                    inputmode="numeric"
+                                    pattern="\d*" 
+                                    maxlength="3" 
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#5E9EA0]" 
+                                    placeholder="123" 
+                                    required
+                                    oninput="this.value = this.value.replace(/[^\d]/g, '')"
+                                >
                             </div>
                         </div>
 
@@ -123,17 +102,100 @@
                         </button>
                     </form>
                 </div>
+
+                </div>
+                    <!-- Order Summary Section -->
+                    <div class="md:col-span-4 bg-gray-50 p-5 md:p-8 border-l border-gray-200">
+                    <h2 class="text-2xl font-bold mb-6 text-gray-800">Order Summary</h2>
+                    <div id="order-items" class="space-y-4 mb-6">
+                        <!-- Dynamic order items will be added here by JS -->
+                    </div>
+                    <div class="space-y-3">
+                        <div class="flex justify-between text-gray-600">
+                            <span>Subtotal</span>
+                            <span class="font-medium" id="summary-subtotal">-</span>
+                        </div>
+                        <div class="flex justify-between text-gray-600">
+                            <span>Tax</span>
+                            <span class="font-medium" id="summary-tax">-</span>
+                        </div>
+                        <div class="flex justify-between text-gray-600">
+                            <span>Tip</span>
+                            <span class="font-medium" id="summary-tip">-</span>
+                        </div>
+                        <div class="pt-3 border-t border-gray-200">
+                            <div class="flex justify-between text-lg font-bold">
+                                <span>Total</span>
+                                <span id="summary-total" class="text-[#5E9EA0]">$0.00</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
+    </div>
 
         <script>
+            // Expiry date validation
+            function validateExpiry(input) {
+                input.value = input.value.replace(/[^\d]/g, '').replace(/^(\d{2})(?=\d)/,'$1/');
+                
+                if (input.value.length === 5) {
+                    const [month, year] = input.value.split('/');
+                    const currentYear = new Date().getFullYear() % 100;
+                    const currentMonth = new Date().getMonth() + 1;
+                    
+                    if (parseInt(year) < currentYear || 
+                        (parseInt(year) === currentYear && parseInt(month) < currentMonth)) {
+                        input.setCustomValidity('Card has expired');
+                    } else {
+                        input.setCustomValidity('');
+                    }
+                }
+            }
+
+            // Card type detection
+            function detectCardType(number) {
+                const patterns = {
+                    visa: /^4/,
+                    mastercard: /^5[1-5]/
+                };
+
+                for (const [card, pattern] of Object.entries(patterns)) {
+                    if (pattern.test(number)) {
+                        return card;
+                    }
+                }
+                return null;
+            }
+
             document.addEventListener('DOMContentLoaded', function() {
+                // Card number validation and formatting
+                const cardInput = document.getElementById('cardNumber');
+                const cardTypeImg = document.getElementById('cardType');
+
+                cardInput.addEventListener('input', function() {
+                    const cardNumber = this.value.replace(/\s/g, '');
+                    const cardType = detectCardType(cardNumber);
+
+                    if (cardType) {
+                        cardTypeImg.src = `/static/images/${cardType}.png`;
+                        cardTypeImg.classList.remove('hidden');
+                        this.setCustomValidity('');
+                    } else if (cardNumber.length >= 4) {
+                        cardTypeImg.classList.add('hidden');
+                        this.setCustomValidity('Please enter a valid Visa or Mastercard number');
+                    } else {
+                        cardTypeImg.classList.add('hidden');
+                        this.setCustomValidity('');
+                    }
+                });
                 // Get the order data from session storage
                 const orderData = JSON.parse(sessionStorage.getItem('orderData') || '{}');
-                
+
                 // Log the data to help debug
                 console.log('Order Data:', orderData);
-                
+
                 // Get the amount, ensuring we're getting the numeric value
                 let amount = orderData.total || '0.00';
                 let subtotal = '0.00';
@@ -147,21 +209,21 @@
                             const price = parseFloat(itemData.price.replace('$', ''));
                             return total + (price * itemData.quantity);
                         }, 0).toFixed(2) : '0.00';
-                    
+
                     tax = orderData.taxAmount || (parseFloat(subtotal) * 0.09).toFixed(2);
                     tip = orderData.tipAmount || '0.00';
-                    
+
                     // If total is not present, calculate it
                     if (!orderData.total) {
                         amount = (parseFloat(subtotal) + parseFloat(tax) + parseFloat(tip)).toFixed(2);
                     }
                 }
-                
+
                 // Remove any $ sign if present
                 if (typeof amount === 'string' && amount.includes('$')) {
                     amount = amount.replace('$', '');
                 }
-                
+
                 // Set the amounts in the summary
                 document.getElementById('total-amount').textContent = `$${amount}`;
                 document.getElementById('summary-total').textContent = `$${amount}`;
@@ -173,7 +235,7 @@
                 if (orderData.items) {
                     const orderItemsContainer = document.getElementById('order-items');
                     orderItemsContainer.innerHTML = '';
-                    
+
                     for (const [itemName, itemData] of Object.entries(orderData.items)) {
                         const itemElement = document.createElement('div');
                         itemElement.className = 'flex justify-between text-sm';
@@ -188,19 +250,19 @@
                 // Handle form submission
                 document.getElementById('payment-form').addEventListener('submit', function(e) {
                     e.preventDefault();
-                    
+
                     // Process the payment (simulation)
                     console.log('Processing payment for amount:', amount);
-                    
+
                     // Show processing indicator
                     const submitBtn = this.querySelector('button[type="submit"]');
                     submitBtn.innerHTML = '<svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Processing...';
                     submitBtn.disabled = true;
-                    
+
                     // Add visual feedback for form validation
                     const inputs = this.querySelectorAll('input[required]');
                     let isValid = true;
-                    
+
                     inputs.forEach(input => {
                         if (!input.value) {
                             input.classList.add('border-red-500');
@@ -209,18 +271,18 @@
                             input.classList.remove('border-red-500');
                         }
                     });
-                    
+
                     if (!isValid) {
                         submitBtn.innerHTML = 'Pay <span class="ml-1">$' + amount + '</span>';
                         submitBtn.disabled = false;
                         return;
                     }
-                    
+
                     // Simulate payment processing
                     setTimeout(() => {
                         // Clear cart after successful payment
                         localStorage.removeItem('cart');
-                        
+
                         // Redirect to order confirmation page
                         window.location.href = `/order-confirmation/?amount=${amount}`;
                     }, 1500);

@@ -58,4 +58,5 @@ urlpatterns = [
     path('admin-panel/delete-menu-item/<int:item_id>/',
          views.delete_menu_item,
          name='delete_menu_item'),
+
 ]

@@ -3,6 +3,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.http import JsonResponse
+import uuid
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 from django.core.files import File
@@ -172,14 +173,14 @@ def move_table(request):
     if request.method == "POST":
         data = json.loads(request.body)
         action = data.get("action")
-        
+
         if action == "add":
             # Get the highest table number and add 1
             highest_table = Table.objects.order_by('-number').first()
             new_table_number = 1 if not highest_table else highest_table.number + 1
             Table.objects.create(number=new_table_number)
             return JsonResponse({'success': True})
-            
+
         elif action == "toggle":
             table_number = data.get("table_number")
             try:
@@ -189,7 +190,7 @@ def move_table(request):
                 return JsonResponse({'success': True})
             except Table.DoesNotExist:
                 return JsonResponse({'success': False, 'error': 'Table not found'})
-                
+
         elif action == "delete":
             table_number = data.get("table_number")
             try:
@@ -198,7 +199,7 @@ def move_table(request):
                 return JsonResponse({'success': True})
             except Table.DoesNotExist:
                 return JsonResponse({'success': False, 'error': 'Table not found'})
-                
+
     tables = Table.objects.all().order_by('number')
     return render(request, "admin_panel/tables.html", {'tables': tables})
 
@@ -217,11 +218,18 @@ def generate_qr_code(request):
             try:
                 table = Table.objects.get(number=int(table_number))
 
-                # Delete existing QR code if it exists
-                QRCode.objects.filter(table=table).delete()
+                # Delete existing QR code image if it exists
+                if hasattr(table, 'qr_code'):
+                    if table.qr_code.image:
+                        table.qr_code.image.delete(save=False)
+                    table.qr_code.delete()
 
-                # Create new QR code
+                # Create new QR code with new tokens
+                table.token = uuid.uuid4()  # Generate new table token
+                table.save()
+
                 qr = QRCode(table=table)
+                qr.token = uuid.uuid4()  # Generate new QR code token
                 qr.generate_qr_code()
                 qr.save()
 
@@ -233,7 +241,6 @@ def generate_qr_code(request):
                 })
             except Table.DoesNotExist:
                 return JsonResponse({'success': False, 'error': 'Table not found'})
-
 
         except json.JSONDecodeError:
             return JsonResponse({'success': False, 'error': 'Invalid JSON format'})
@@ -269,18 +276,18 @@ def delete_table(request):
         data = json.loads(request.body)
         table_number = data.get("table_number")
         renumber = data.get("renumber", True)  # Default to True
-        
+
         try:
             table = Table.objects.get(number=table_number)
             table.delete()
-            
+
             if renumber:
                 # Get all tables with higher numbers and decrement them
                 tables = Table.objects.filter(number__gt=table_number).order_by('number')
                 for t in tables:
                     t.number -= 1
                     t.save()
-                    
+
             return JsonResponse({'success': True})
         except Table.DoesNotExist:
             return JsonResponse({'success': False, 'error': 'Table not found'})
@@ -344,6 +351,68 @@ def delete_menu_item(request, item_id):
     item.delete()
     messages.success(request, 'Menu item deleted successfully!')
     return redirect('menu_settings')
+
+
+
+
+@login_required
+def admin_orders(request):
+    """Display and manage orders in admin panel"""
+    orders = Order.objects.exclude(status='completed').order_by('-created_at')
+    
+    # Get counts for order statuses
+    pending_count = orders.filter(status='pending').count()
+    preparing_count = orders.filter(status='preparing').count()
+    
+    return render(request, 'admin_panel/orders.html', {
+        'orders': orders,
+        'pending_count': pending_count,
+        'preparing_count': preparing_count,
+    })
+
+@login_required
+def admin_transactions(request):
+    """Display transaction history in admin panel"""
+    completed_orders = Order.objects.filter(
+        status='completed',
+        payment_status='paid'
+    ).order_by('-created_at')
+
+    total_revenue = sum(
+        order.menu_item.price * order.quantity 
+        for order in completed_orders
+    )
+
+    return render(request, 'admin_panel/transactions.html', {
+        'orders': completed_orders,
+        'total_revenue': total_revenue
+    })
+
+@login_required
+def update_order_status(request, order_id):
+    """Update the status of an order"""
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            order = Order.objects.get(id=order_id)
+            order.status = data.get('status')
+            order.save()
+            return JsonResponse({'success': True})
+        except Order.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'Order not found'})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+    return JsonResponse({'success': False, 'error': 'Invalid request method'})
+
+    total_revenue = sum(
+        order.menu_item.price * order.quantity 
+        for order in completed_orders
+    )
+
+    return render(request, 'admin_panel/transactions.html', {
+        'orders': completed_orders,
+        'total_revenue': total_revenue
+    })
 
 @login_required
 def add_menu_item(request):

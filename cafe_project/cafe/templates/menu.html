@@ -113,10 +113,12 @@
     <div id="menu-items" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 px-3 sm:px-5 py-3 mb-20">
         {% for item in menu_items %}
         <div class="menu-item cursor-pointer bg-white rounded-xl shadow-lg h-[240px] px-3 py-4 flex flex-col text-xl items-center"
-            onclick="window.location.href='{% url 'item_detail' item_id=item.id %}'" data-category="{{ item.category.id }}" data-category-name="{{ item.category.name }}"
+            onclick="window.location.href='{% url 'item_detail' item_id=item.id %}'"
+            data-category="{{ item.category.id }}" data-category-name="{{ item.category.name }}"
             data-item-name="{{ item.name }}" data-item-price="{{ item.price }}" data-item-image="{{ item.image.url }}" data-item-id="{{ item.id }}">
             <img class="h-24 w-24 rounded-lg" src="{{ item.image.url }}" alt="{{ item.name }}">
             <div class="text-2xl font-semibold mt-2">{{ item.name }}</div>
+            <div class="text-lg text-gray-600">${{ item.price }}</div>
             <div class="flex justify-end w-full mt-3 px-4">
                 <button class="add-btn bg-[#5E9EA0] text-white text-lg px-3 py-1 rounded-lg">+</button>
             </div>
@@ -134,7 +136,7 @@
         <div class="flex-1 flex justify-center items-center border-t border-gray-300">
             <img class="h-8 w-8"
                 style="filter: invert(70%) sepia(11%) saturate(2066%) hue-rotate(130deg) brightness(90%) contrast(87%);"
-                src="{% static 'images/Menu_selected.png' %}" alt="Menu">
+                src="{% static 'images/Menu.png' %}" alt="Menu">
         </div>
         <a href="{% url 'cart' %}"
             class="flex-1 flex justify-center items-center border-t border-gray-300 cursor-pointer">
@@ -204,16 +206,33 @@
                 });
             });
 
-            // Handle Add & Remove buttons using event delegation
+            // Handle item clicks and add button using event delegation
             menuContainer.addEventListener("click", (event) => {
                 const target = event.target;
+                const item = target.closest(".menu-item");
+                
+                // If clicked on add button, handle cart logic
                 if (target.classList.contains("add-btn")) {
-                    const item = target.closest(".menu-item");
+                    event.preventDefault();
+                    event.stopPropagation();
                     const itemName = item.dataset.itemName;
                     const itemPrice = item.dataset.itemPrice;
                     const itemImage = item.dataset.itemImage;
-
-                    const itemCategoryName = item.dataset.categoryName.toLowerCase(); // Get category name
+                    
+                    // Add item to cart logic here
+                    let cart = getCart();
+                    cart[itemName] = cart[itemName] || { 
+                        quantity: 0, 
+                        price: itemPrice, 
+                        image: itemImage
+                    };
+                    cart[itemName].quantity += 1;
+                    saveCart(cart);
+                    updateCartCount();
+                } else {
+                    // Navigate to item detail page only when not clicking the + button
+                    window.location.href = `/item/${item.dataset.itemId}/`;age;
+                    const itemCategoryName = item.dataset.categoryName.toLowerCase();
 
                     if (coffeeTeaCategories.includes(itemCategoryName)) {
                         // Show modal for temperature selection

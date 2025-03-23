@@ -2,6 +2,7 @@
 {% load static tailwind_tags %}
 {% block content %}
 <div class="qr-page-container">
+  <h2 class="text-2xl font-bold">QR Code Management</h2>
   <!-- Generate QR Code Button -->
   <button id="openModal" class="qr-btn">+ Generate QR Code</button>
 
@@ -28,11 +29,42 @@
   </div>
 
   <!-- Grid of QR Code Cards -->
+
+<style>
+.qr-actions {
+  display: flex;
+  gap: 5px;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+
+.qr-regenerate {
+  background: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 15px;
+  cursor: pointer;
+  font-size: 14px;
+  margin: 10px 0;
+  display: block;
+  width: 100%;
+  text-align: center;
+}
+
+.qr-regenerate:hover {
+  background: #45a049;
+}
+</style>
+
   <div class="qr-grid" id="gridContainer">
     {% for table in tables %}
       <div class="qr-card" id="table-{{ table.number }}">
         {% if table.qr_code %}
-          <button class="qr-remove" onclick="removeQRCode({{ table.number }})">X</button>
+          <div class="qr-actions">
+            <button class="qr-remove" onclick="removeQRCode({{ table.number }})">X</button>
+          </div>
           <!-- Left side: Table Info -->
           <div class="qr-info">
             <h3>Table {{ table.number }}</h3>
@@ -40,9 +72,10 @@
               Status: {% if table.is_active %} ✅ Active {% else %} ❌ Inactive {% endif %}
             </p>
           </div>
-          <!-- Right side: QR Code & Download -->
+          <!-- Right side: QR Code & Controls -->
           <div class="qr-img-container">
             <img src="{{ table.qr_code.image.url }}" alt="QR Code">
+            <button class="qr-regenerate" onclick="regenerateQRCode({{ table.number }})">↻ Regenerate</button>
             <a href="{{ table.qr_code.image.url }}" download="table_{{ table.number }}.png" class="qr-download">⬇ Download</a>
           </div>
         {% else %}
@@ -270,15 +303,58 @@ document.addEventListener("DOMContentLoaded", function() {
         },
         body: JSON.stringify({ table_number: tableNumber })
       });
+
       const data = await response.json();
       if (data.success) {
-        alert(`QR code for Table ${tableNumber} removed successfully!`);
-        location.reload(); // Reload to show updated state
+        location.reload(); // Reload to update the UI
       } else {
-        alert("Error: " + data.error);
+        throw new Error(data.error || 'Failed to remove QR code');
       }
     } catch (error) {
-      alert("Request failed. Please try again.");
+      alert("Error: " + error.message);
+      console.error(error);
+    }
+  };
+
+  window.regenerateQRCode = async function(tableNumber) {
+    if (!confirm(`Are you sure you want to regenerate the QR code for Table ${tableNumber}?`)) return;
+    try {
+      const csrfToken = document.querySelector("[name=csrfmiddlewaretoken]").value;
+
+      // First remove the existing QR code
+      const removeResponse = await fetch("/admin-panel/remove-qr-code/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": csrfToken
+        },
+        body: JSON.stringify({ table_number: tableNumber })
+      });
+
+      if (!removeResponse.ok) {
+        throw new Error('Failed to remove old QR code');
+      }
+
+      await new Promise(resolve => setTimeout(resolve, 100)); // Small delay
+
+      // Then generate a new one
+      const generateResponse = await fetch("/admin-panel/generate-qr-code/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": csrfToken
+        },
+        body: JSON.stringify({ table_number: tableNumber })
+      });
+
+      const data = await generateResponse.json();
+      if (data.success) {
+        location.reload(); // Reload the page to show new QR code
+      } else {
+        throw new Error(data.error || 'Failed to generate new QR code');
+      }
+    } catch (error) {
+      alert("Error: " + error.message);
       console.error(error);
     }
   };
