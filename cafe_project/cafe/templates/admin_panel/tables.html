@@ -22,7 +22,7 @@
             </div>
             <div class="table-actions">
                 <button class="toggle-status-btn" onclick="toggleTableStatus({{ table.number }})">
-                    Toggle Status
+                    Change Status
                 </button>
                 <button class="delete-btn" onclick="deleteTable({{ table.number }})">
                     Delete
@@ -35,11 +35,22 @@
 
 <style>
     .add-table-btn {
-        background-color: #4caf50;
+        background-color: #008080;
         color: white;
         padding: 10px 20px;
         border-radius: 8px;
         font-weight: bold;
+        margin-bottom: 20px;
+        cursor: pointer;
+    }
+    .search-btn {
+        background-color: #008080;
+        color: white;
+        padding: 5px 10px;
+        border-radius: 8px;
+        font-weight: bold;
+        margin-bottom: 20px;
+        cursor: pointer;
     }
     .search-bar {
         padding: 8px 16px;
@@ -60,7 +71,12 @@
         display: flex;
         flex-direction: column;
         gap: 15px;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
+    .table-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 2px 6px 12px rgba(0, 0, 0, 0.15);
+      }
     .table-info {
         display: flex;
         flex-direction: column;
@@ -86,11 +102,12 @@
         gap: 10px;
     }
     .toggle-status-btn {
-        background-color: #2196f3;
+        background-color: #008080;
         color: white;
         padding: 8px 16px;
         border-radius: 6px;
         flex: 1;
+        cursor: pointer;
     }
     .delete-btn {
         background-color: #ff5252;
@@ -98,6 +115,7 @@
         padding: 8px 16px;
         border-radius: 6px;
         flex: 1;
+        cursor: pointer;
     }
 </style>
 
