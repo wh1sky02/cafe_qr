@@ -69,7 +69,7 @@ class QRCode(models.Model):
         super().save(*args, **kwargs)
 
     def generate_qr_code(self):
-        url = f'http://0.0.0.0:8000/menu/{self.table.token}/'
+        url = f'http://localhost:8000/menu/{self.table.token}/'
         qr = qrcode.QRCode(
             version=1,
             error_correction=qrcode.constants.ERROR_CORRECT_L,
