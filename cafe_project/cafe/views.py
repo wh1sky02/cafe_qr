@@ -472,3 +472,34 @@ def toggle_table_status(request):
         except Table.DoesNotExist:
             return JsonResponse({'success': False, 'error': 'Table not found'})
     return JsonResponse({'success': False, 'error': 'Invalid request method'})
+
+# --------------------- KITCHEN VIEW ---------------------
+def kitchen_login(request):
+    if request.method == "POST":
+        username = request.POST.get("username", "").strip()
+        password = request.POST.get("password", "").strip()
+
+        if not username or not password:
+            messages.error(request, "Username and password are required.")
+            return render(request, "kitchen/kitchen_login.html")
+
+        user = authenticate(request, username=username, password=password)
+
+        if user is not None:
+            login(request, user)
+            messages.success(request, "Login successful!")
+            return redirect("kitchen_dashboard")
+        else:
+            # Check if the username exists
+            if User.objects.filter(username=username).exists():
+                messages.warning(request, "Username exists, but the password is incorrect.")
+            else:
+                messages.error(request, f"User '{username}' does not exist in the database.")
+
+    return render(request, "kitchen/kitchen_login.html")
+
+
+@login_required
+def kitchen_dashboard(request):
+    return render(request, "kitchen/kitchen_dashboard.html")
+
