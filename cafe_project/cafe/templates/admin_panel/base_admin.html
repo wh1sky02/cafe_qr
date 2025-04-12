@@ -4,6 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Admin Panel</title>
+    <!-- Add Font Awesome if not already present -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
       /* Basic Reset + Font */
       * {
@@ -27,7 +29,7 @@
         align-items: center;
         justify-content: space-between;
         background-color: #008080;
-        height: 80px;
+        height: 90px;
         padding: 0 20px;
         color: #fff;
       }
@@ -162,7 +164,7 @@
       .container {
         margin-top: 2px;
         background-color: #fff;
-        height: 850px;
+        /* height: 850px; */
         border-radius: 10px;
         padding: 20px;
         box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
@@ -192,8 +194,14 @@
               <li><a href="{% url 'tables' %}">🪑 Tables</a></li>
               <li><a href="{% url 'qr_code_management' %}">🧾 QR Code</a></li>
               <li><a href="{% url 'admin_menu' %}">🍽️ Menu</a></li>
-              <li><a href="#">📦 Orders</a></li>
-              <li><a href="#">💰 Transactions</a></li>
+              <li><a href="{% url 'orders' %}" class="nav-link {% if request.resolver_match.url_name == 'orders' %}active{% endif %}">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span>Orders</span>
+                </a></li>
+              <li><a href="{% url 'transactions' %}" class="nav-link {% if request.resolver_match.url_name == 'transactions' %}active{% endif %}">
+                    <i class="fas fa-money-bill-wave"></i>
+                    <span>Transactions</span>
+                </a></li>
               <li><a href="{% url 'settings' %}">⚙️ Settings</a></li>
             </ul>
           </nav>
@@ -210,7 +218,7 @@
 
       <!-- Main Content -->
       <main class="main-content">
-        <div class="container">{% block content %} {% endblock %}</div>
+        <div class="{% block container_class %}container{% endblock %}">{% block content %} {% endblock %}</div>
       </main>
     </div>
   </body>

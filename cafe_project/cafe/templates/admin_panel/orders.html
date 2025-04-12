@@ -1,0 +1,754 @@
+{% extends 'admin_panel/base_admin.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    .orders-container {
+        padding: 30px;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .orders-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+    }
+
+    .orders-title {
+        font-size: 28px;
+        font-weight: 600;
+        color: #2d3748;
+        margin: 0;
+    }
+
+    .refresh-btn {
+        padding: 10px 20px;
+        background: #4CAF50;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.2s;
+    }
+
+    .refresh-btn:hover {
+        background: #43a047;
+        transform: translateY(-1px);
+    }
+
+    .filters {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+        margin-bottom: 30px;
+    }
+
+    .filters-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: #4a5568;
+        margin-bottom: 15px;
+    }
+
+    .filters-content {
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+    }
+
+    .filter-group {
+        flex: 1;
+        min-width: 200px;
+    }
+
+    .filter-label {
+        display: block;
+        font-size: 14px;
+        color: #718096;
+        margin-bottom: 8px;
+    }
+
+    .filter-select {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #e2e8f0;
+        border-radius: 6px;
+        font-size: 14px;
+        color: #4a5568;
+        background: #f8fafc;
+        transition: all 0.2s;
+    }
+
+    .filter-select:focus {
+        outline: none;
+        border-color: #4CAF50;
+        box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+    }
+
+    .orders-table-container {
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+        overflow: hidden;
+    }
+
+    .orders-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+
+    .orders-table th {
+        background: #f8fafc;
+        padding: 16px;
+        text-align: left;
+        font-weight: 600;
+        color: #4a5568;
+        font-size: 14px;
+        border-bottom: 2px solid #e2e8f0;
+    }
+
+    .orders-table td {
+        padding: 16px;
+        border-bottom: 1px solid #e2e8f0;
+        color: #2d3748;
+        font-size: 14px;
+    }
+
+    .orders-table tr:hover {
+        background: #f8fafc;
+    }
+
+    .status-badge {
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 13px;
+        font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .status-badge::before {
+        content: '';
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+    }
+
+    .status-pending { 
+        background: #fff3cd; 
+        color: #856404; 
+    }
+    .status-pending::before { background: #f59e0b; }
+
+    .status-preparing { 
+        background: #cfe2ff; 
+        color: #084298; 
+    }
+    .status-preparing::before { background: #3b82f6; }
+
+    .status-completed { 
+        background: #d4edda; 
+        color: #155724; 
+    }
+    .status-completed::before { background: #10b981; }
+
+    .status-cancelled { 
+        background: #f8d7da; 
+        color: #721c24; 
+    }
+    .status-cancelled::before { background: #ef4444; }
+
+    .action-btn {
+        padding: 8px 16px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 500;
+        font-size: 13px;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        transition: all 0.2s;
+    }
+
+    .action-btn:hover {
+        transform: translateY(-1px);
+    }
+
+    .view-btn { 
+        background: #e3f2fd; 
+        color: #1976d2; 
+    }
+    .view-btn:hover {
+        background: #bbdefb;
+    }
+
+    .update-btn { 
+        background: #e8f5e9; 
+        color: #2e7d32; 
+    }
+    .update-btn:hover {
+        background: #c8e6c9;
+    }
+
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.5);
+        z-index: 1000;
+        animation: fadeIn 0.2s ease-out;
+    }
+
+    .modal-content {
+        background: white;
+        margin: 50px auto;
+        padding: 0;
+        width: 90%;
+        max-width: 600px;
+        border-radius: 12px;
+        box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
+        overflow: hidden;
+        animation: slideIn 0.3s ease-out;
+    }
+
+    .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px;
+        background: #f8fafc;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .modal-header h2 {
+        font-size: 20px;
+        font-weight: 600;
+        color: #2d3748;
+        margin: 0;
+    }
+
+    .modal-body {
+        padding: 20px;
+    }
+
+    .close-btn {
+        background: none;
+        border: none;
+        font-size: 24px;
+        cursor: pointer;
+        color: #718096;
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 6px;
+        transition: all 0.2s;
+    }
+
+    .close-btn:hover {
+        background: #e2e8f0;
+        color: #4a5568;
+    }
+
+    .order-info {
+        background: #f8fafc;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 24px;
+    }
+
+    .order-info h3 {
+        margin: 0 0 16px 0;
+        color: #2d3748;
+        font-size: 18px;
+    }
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 16px;
+    }
+
+    .info-item {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .info-label {
+        font-size: 13px;
+        color: #718096;
+        margin-bottom: 4px;
+    }
+
+    .info-value {
+        font-size: 15px;
+        color: #2d3748;
+        font-weight: 500;
+    }
+
+    .items-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    .items-table th {
+        background: #f8fafc;
+        padding: 12px 16px;
+        text-align: left;
+        font-weight: 600;
+        color: #4a5568;
+        font-size: 13px;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .items-table td {
+        padding: 12px 16px;
+        border-bottom: 1px solid #e2e8f0;
+        color: #2d3748;
+        font-size: 14px;
+    }
+
+    .items-table tr:last-child td {
+        border-bottom: none;
+    }
+
+    .status-buttons {
+        display: flex;
+        gap: 10px;
+        margin-top: 20px;
+    }
+
+    .status-btn {
+        padding: 8px 16px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 500;
+        font-size: 13px;
+        transition: all 0.2s;
+    }
+
+    .status-btn[data-status="pending"] {
+        background: #fff3cd;
+        color: #856404;
+    }
+
+    .status-btn[data-status="preparing"] {
+        background: #cfe2ff;
+        color: #084298;
+    }
+
+    .status-btn[data-status="completed"] {
+        background: #d4edda;
+        color: #155724;
+    }
+
+    .status-btn[data-status="cancelled"] {
+        background: #f8d7da;
+        color: #721c24;
+    }
+
+    .status-btn:hover {
+        filter: brightness(95%);
+        transform: translateY(-1px);
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    @keyframes slideIn {
+        from { 
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+        to { 
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @media (max-width: 768px) {
+        .orders-container {
+            padding: 15px;
+        }
+
+        .orders-header {
+            flex-direction: column;
+            gap: 15px;
+            align-items: stretch;
+            text-align: center;
+        }
+
+        .action-btn {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .orders-table {
+            display: block;
+            overflow-x: auto;
+        }
+    }
+</style>
+
+<div class="orders-container">
+    <div class="orders-header">
+        <h1 class="orders-title">Orders Management</h1>
+        <button id="refreshBtn" class="refresh-btn">
+            <i class="fas fa-sync-alt"></i>
+            Refresh Orders
+        </button>
+    </div>
+
+    <div class="filters">
+        <h2 class="filters-title">Filters</h2>
+        <div class="filters-content">
+            <div class="filter-group">
+                <label class="filter-label">Order Status</label>
+                <select id="statusFilter" class="filter-select">
+                    <option value="">All Statuses</option>
+                    <option value="pending">Pending</option>
+                    <option value="preparing">Preparing</option>
+                    <option value="completed">Completed</option>
+                    <option value="cancelled">Cancelled</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label class="filter-label">Table Number</label>
+                <select id="tableFilter" class="filter-select">
+                    <option value="">All Tables</option>
+                    {% for table in tables %}
+                    <option value="{{ table.number }}">Table {{ table.number }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="orders-table-container">
+        <table class="orders-table">
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Table</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                    <th>Time</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="ordersTableBody">
+                {% for order in orders %}
+                <tr>
+                    <td>#{{ order.id }}</td>
+                    <td>{% if order.table %}Table {{ order.table.number }}{% else %}N/A{% endif %}</td>
+                    <td>${{ order.total_price }}</td>
+                    <td>
+                        <span class="status-badge status-{{ order.order_status }}">
+                            {{ order.get_order_status_display }}
+                        </span>
+                    </td>
+                    <td>{{ order.created_at|timesince }} ago</td>
+                    <td>
+                        <button class="action-btn view-btn" data-order-id="{{ order.id }}">
+                            <i class="fas fa-eye"></i> View
+                        </button>
+                        <button class="action-btn update-btn" data-order-id="{{ order.id }}">
+                            <i class="fas fa-edit"></i> Update
+                        </button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Order Details Modal -->
+<div id="orderDetailsModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Order Details</h2>
+            <button class="close-btn">&times;</button>
+        </div>
+        <div class="modal-body" id="orderDetailsContent"></div>
+    </div>
+</div>
+
+<!-- Update Status Modal -->
+<div id="updateStatusModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Update Order Status</h2>
+            <button class="close-btn">&times;</button>
+        </div>
+        <div class="modal-body" id="updateStatusContent">
+            <p style="margin-bottom: 20px; color: #4a5568;">Select a new status for order #<span id="updateOrderId"></span>:</p>
+            <div class="status-buttons">
+                <button class="status-btn" data-status="pending">
+                    <i class="fas fa-clock"></i> Pending
+                </button>
+                <button class="status-btn" data-status="preparing">
+                    <i class="fas fa-fire"></i> Preparing
+                </button>
+                <button class="status-btn" data-status="completed">
+                    <i class="fas fa-check"></i> Completed
+                </button>
+                <button class="status-btn" data-status="cancelled">
+                    <i class="fas fa-times"></i> Cancelled
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Get CSRF token
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    
+    // Refresh button
+    document.getElementById('refreshBtn').addEventListener('click', function() {
+        window.location.reload();
+    });
+    
+    // Filter change handlers
+    document.getElementById('statusFilter').addEventListener('change', filterOrders);
+    document.getElementById('tableFilter').addEventListener('change', filterOrders);
+    
+    // View button click handler
+    document.querySelectorAll('.view-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const orderId = this.getAttribute('data-order-id');
+            viewOrderDetails(orderId);
+        });
+    });
+    
+    // Update button click handler
+    document.querySelectorAll('.update-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const orderId = this.getAttribute('data-order-id');
+            openUpdateStatusModal(orderId);
+        });
+    });
+    
+    // Status button click handler
+    document.querySelectorAll('.status-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const status = this.getAttribute('data-status');
+            updateOrderStatus(status);
+        });
+    });
+    
+    // Close button click handlers
+    document.querySelectorAll('.close-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const modal = this.closest('.modal');
+            modal.style.display = 'none';
+        });
+    });
+    
+    // Close modal when clicking outside
+    window.addEventListener('click', function(event) {
+        if (event.target.classList.contains('modal')) {
+            event.target.style.display = 'none';
+        }
+    });
+});
+
+function filterOrders() {
+    const status = document.getElementById('statusFilter').value;
+    const table = document.getElementById('tableFilter').value;
+    
+    fetch(`/admin-panel/filter-orders/?status=${status}&table=${table}`)
+        .then(response => response.json())
+        .then(data => {
+            const tbody = document.getElementById('ordersTableBody');
+            tbody.innerHTML = data.orders.map(order => `
+                <tr>
+                    <td>#${order.id}</td>
+                    <td>${order.table}</td>
+                    <td>$${order.total_price}</td>
+                    <td>
+                        <span class="status-badge status-${order.order_status}">
+                            ${order.order_status_display}
+                        </span>
+                    </td>
+                    <td>${timeAgo(new Date(order.created_at))}</td>
+                    <td>
+                        <button class="action-btn view-btn" data-order-id="${order.id}">
+                            <i class="fas fa-eye"></i> View
+                        </button>
+                        <button class="action-btn update-btn" data-order-id="${order.id}">
+                            <i class="fas fa-edit"></i> Update
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+            
+            // Re-add event listeners to new buttons
+            document.querySelectorAll('.view-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const orderId = this.getAttribute('data-order-id');
+                    viewOrderDetails(orderId);
+                });
+            });
+            
+            document.querySelectorAll('.update-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const orderId = this.getAttribute('data-order-id');
+                    openUpdateStatusModal(orderId);
+                });
+            });
+        })
+        .catch(error => {
+            console.error('Error filtering orders:', error);
+            alert('Failed to filter orders');
+        });
+}
+
+function viewOrderDetails(orderId) {
+    fetch(`/admin-panel/order-details/${orderId}/`)
+        .then(response => response.json())
+        .then(data => {
+            const modal = document.getElementById('orderDetailsModal');
+            const content = document.getElementById('orderDetailsContent');
+            
+            content.innerHTML = `
+                <div class="order-info">
+                    <h3>Order Information</h3>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <span class="info-label">Order ID</span>
+                            <span class="info-value">#${data.order.id}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Table</span>
+                            <span class="info-value">${data.order.table}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Status</span>
+                            <span class="info-value">
+                                <span class="status-badge status-${data.order.order_status}">
+                                    ${data.order.order_status}
+                                </span>
+                            </span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Total</span>
+                            <span class="info-value">$${data.order.total_price}</span>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <h4 style="margin: 0 0 16px 0; color: #2d3748;">Order Items</h4>
+                    <table class="items-table">
+                        <thead>
+                            <tr>
+                                <th>Item</th>
+                                <th>Quantity</th>
+                                <th>Price</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${data.order_details.map(item => `
+                                <tr>
+                                    <td>${item.menu_name}</td>
+                                    <td>${item.qty}</td>
+                                    <td>$${item.price}</td>
+                                    <td>$${(item.qty * item.price).toFixed(2)}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+            
+            modal.style.display = 'block';
+        })
+        .catch(error => {
+            console.error('Error fetching order details:', error);
+            alert('Failed to load order details');
+        });
+}
+
+function openUpdateStatusModal(orderId) {
+    document.getElementById('updateOrderId').textContent = orderId;
+    document.getElementById('updateStatusModal').style.display = 'block';
+}
+
+function updateOrderStatus(status) {
+    const orderId = document.getElementById('updateOrderId').textContent;
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    
+    fetch(`/admin-panel/update-order-status/${orderId}/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken
+        },
+        body: JSON.stringify({ status: status })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            document.getElementById('updateStatusModal').style.display = 'none';
+            window.location.reload();
+        } else {
+            alert('Failed to update status');
+        }
+    })
+    .catch(error => {
+        console.error('Error updating status:', error);
+        alert('Failed to update status');
+    });
+}
+
+function timeAgo(date) {
+    const seconds = Math.floor((new Date() - date) / 1000);
+    
+    let interval = seconds / 31536000;
+    if (interval > 1) return Math.floor(interval) + " years ago";
+    
+    interval = seconds / 2592000;
+    if (interval > 1) return Math.floor(interval) + " months ago";
+    
+    interval = seconds / 86400;
+    if (interval > 1) return Math.floor(interval) + " days ago";
+    
+    interval = seconds / 3600;
+    if (interval > 1) return Math.floor(interval) + " hours ago";
+    
+    interval = seconds / 60;
+    if (interval > 1) return Math.floor(interval) + " minutes ago";
+    
+    return Math.floor(seconds) + " seconds ago";
+}
+</script>
+{% endblock %} 

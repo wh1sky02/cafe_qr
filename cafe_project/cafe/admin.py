@@ -1,8 +1,7 @@
-
 from django.contrib import admin
 from django.contrib.auth.models import Group, User
 from django.contrib.auth.admin import GroupAdmin, UserAdmin
-from .models import MenuItem, Table, Category, Order, OrderSession, Banner, QRCode
+from .models import MenuItem, Table, Category, Order, OrderSession, Banner, QRCode, Cart, OrderDetail, Payment
 
 # Unregister default models
 admin.site.unregister(Group)
@@ -45,9 +44,9 @@ class OrderSessionAdmin(admin.ModelAdmin):
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ('id', 'session', 'menu_item', 'quantity', 'status', 'created_at')
-    list_filter = ('status', 'created_at')
-    search_fields = ('menu_item__name', 'notes')
+    list_display = ('id', 'table', 'total_price', 'order_status', 'payment_status', 'created_at')
+    list_filter = ('order_status', 'payment_status', 'created_at')
+    search_fields = ('table__number',)
 
 @admin.register(Table)
 class TableAdmin(admin.ModelAdmin):
@@ -56,5 +55,21 @@ class TableAdmin(admin.ModelAdmin):
 
 # Set admin site header and title
 admin.site.site_header = 'Cafe Administration'
+@admin.register(Cart)
+class CartAdmin(admin.ModelAdmin):
+    list_display = ('table', 'menu_name', 'qty', 'price', 'total_price', 'created_at')
+    search_fields = ('menu_name', 'table__number')
+
+@admin.register(OrderDetail)
+class OrderDetailAdmin(admin.ModelAdmin):
+    list_display = ('order', 'menu_name', 'table_number', 'qty', 'price', 'total_price')
+    search_fields = ('menu_name', 'order__id', 'table_number')
+    list_filter = ('table_number',)
+
+@admin.register(Payment)
+class PaymentAdmin(admin.ModelAdmin):
+    list_display = ('order', 'payment_method', 'payment_status', 'created_at')
+    list_filter = ('payment_method', 'payment_status')
+
 admin.site.site_title = 'Cafe Admin Portal'
 admin.site.index_title = 'Site administration'

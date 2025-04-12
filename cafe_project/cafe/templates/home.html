@@ -82,7 +82,10 @@
     <!-- Promotions Section -->
     <div class="px-5 mt-8 mb-20">
         <h2 class="text-xl font-bold mb-4">Promotions</h2>
-        <div class="space-y-4">
+        <div>
+            Currently, no promotions available yet.
+        </div>
+        <!-- <div class="space-y-4">
             {% for i in '12'|make_list %}
             <div class="bg-white rounded-xl shadow-md p-4 flex justify-between items-center">
                 <div>
@@ -100,7 +103,7 @@
                 </div>
             </div>
             {% endfor %}
-        </div>
+        </div> -->
     </div>
 
     <!-- Bottom Navigation -->
@@ -117,7 +120,9 @@
             <div class="relative">
                 <img class="h-6 w-6" src="{% static 'images/Cart.png' %}" alt="Cart">
                 <span id="cart-count"
-                    class="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full min-w-[16px] h-4 flex items-center justify-center px-1 hidden">0</span>
+                    class="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full min-w-[16px] h-4 flex items-center justify-center px-1 {% if not total_qty %}hidden{% endif %}">
+                    {{ total_qty|default:0 }}
+                </span>
             </div>
         </a>
     </div>
@@ -157,13 +162,21 @@
             dots.forEach((dot, i) => dot.addEventListener('click', () => showSlide(i)));
             showSlide(0);
 
-            const updateCartCount = () => {
-                const count = Object.values(JSON.parse(localStorage.getItem('cart') || '{}'))
-                    .reduce((total, { quantity }) => total + quantity, 0);
-                document.getElementById('cart-count').classList.toggle('hidden', count === 0);
-                document.getElementById('cart-count').textContent = count || '';
-            };
-            updateCartCount();
+            // Initialize cart counter
+            const initialTotalQty = {{ total_qty|default:0 }};
+            const cartCountElement = document.getElementById("cart-count");
+            
+            function updateCartCount(count) {
+                if (count > 0) {
+                    cartCountElement.textContent = count;
+                    cartCountElement.classList.remove("hidden");
+                } else {
+                    cartCountElement.classList.add("hidden");
+                }
+            }
+            
+            // Initialize cart counter on page load
+            updateCartCount(initialTotalQty);
         });
     </script>
 </body>

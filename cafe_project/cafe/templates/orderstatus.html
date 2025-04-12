@@ -16,32 +16,22 @@
             </h1>
         </div>
     </div>
-    
+
 
     <!-- Main Content -->
     <div id="main-content" class="container mb-20 mx-auto px-4 mt-4 pb-32 max-w-2xl flex flex-col pt-20">
-
-      <!-- Progress Bar -->
-<div class="flex items-center w-full max-w-md mx-auto mb-4">
-    <span class="bg-[#5E9EA0] text-white px-4 py-2 rounded-full font-medium">
-      Order Place
-    </span>
-
-    <div class="bg-[#5E9EA0] h-2 w-16 md:w-24 flex-shrink-0"></div>
-
-    <span class="bg-[#5E9EA0] text-white px-4 py-2 rounded-full font-medium">
-      Processing
-    </span>
-
-    <div class="bg-gray-300 h-2 w-16 md:w-24 flex-shrink-0"></div>
-
-    <span class="bg-gray-300 text-gray-500 px-4 py-2 rounded-full font-medium">
-      Finish
-    </span>
-</div>
-
-  
-
+        {% if order %}
+        <div class="bg-white rounded-lg shadow-md mb-4 p-6 w-full">
+            <h4 class="text-lg font-semibold text-gray-800 mb-2">Order Status</h4>
+            
+            {% if order.order_status == 'pending' %}
+                <p class="text-center mt-4 text-lg font-medium text-[#5E9EA0]">Your order is pending</p>
+            {% elif order.order_status == 'preparing' %}
+                <p class="text-center mt-4 text-lg font-medium text-[#5E9EA0]">Your order is being prepared</p>
+            {% elif order.order_status == 'completed' %}
+                <p class="text-center mt-4 text-lg font-medium text-[#5E9EA0]">Your order is ready!</p>
+            {% endif %}
+        </div>
 
         <!-- Estimated Time -->
         <div id="estimated-time-container" class="bg-white rounded-lg shadow-md mb-4 p-6 w-full hidden">
@@ -64,65 +54,53 @@
         <div class="bg-white rounded-lg shadow-md mb-4 p-6 w-full">
             <h2 class="text-2xl font-semibold mb-6">Order Details</h2>
             <div id="cart-items" class="space-y-6">
-                <!-- Cart items will be dynamically added here -->
-            </div>
-            <div class="mt-6 border-t p-4 text-sm font-medium">
-                Your order is on the way to your table <br>
-                Hope you enjoy our cafe
-            </div>
-
-            <!-- Empty Cart Message -->
-            <div id="empty-cart" class="text-center py-8 hidden">
-                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-                </svg>
-                <h3 class="mt-2 text-sm font-medium text-gray-900">
-                    Cart is empty
-                </h3>
-                <p class="mt-1 text-sm text-gray-500">
-                    Add some items to your cart
-                </p>
-                <div class="mt-6">
-                    <a 
-                        class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-[#5E9EA0] hover:bg-[#4d8c8e]">
-                        Browse Menu
-                    </a>
-                </div>
+                {% if order_details %}
+                    {% for item in order_details %}
+                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                            <div class="flex items-center space-x-4">
+                                <img src="{{ item.image }}" alt="{{ item.menu_name }}" class="w-16 h-16 object-cover rounded-lg">
+                                <div>
+                                    <h4 class="font-medium text-gray-900">{{ item.menu_name }}</h4>
+                                    <p class="text-sm text-gray-500">${{ item.price }} each</p>
+                                    {% if item.table_number %}
+                                    <p class="text-sm text-gray-500">Table: {{ item.table_number }}</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-3">
+                                <span class="w-8 text-center">{{ item.qty }}</span>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div id="empty-cart" class="text-center py-8">
+                        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                        </svg>
+                        <h3 class="mt-2 text-sm font-medium text-gray-900">No orders found</h3>
+                        <p class="mt-1 text-sm text-gray-500">You don't have any active orders</p>
+                    </div>
+                {% endif %}
             </div>
         </div>
         
-
-
-        <div id="checkout-container" class="fixed bottom-0 left-0 w-full shadow-lg p-4 hidden">
-            
-        </div>
-
-        <!-- Alert Modal -->
-        <div id="alert-modal"
-            class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[60]">
-            <div class="bg-white rounded-lg p-6 m-4 max-w-sm w-full">
-                <div class="text-center">
-                    <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100">
-                        <svg class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                    </div>
-                    <h3 class="text-lg font-medium text-gray-900 mt-4">
-                        Empty Cart
-                    </h3>
-                    <p class="text-sm text-gray-500 mt-2">
-                        Please add items to your cart before proceeding to
-                        checkout.
-                    </p>
-                    <button onclick="closeAlert()"
-                        class="mt-4 w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-[#5E9EA0] text-base font-medium text-white hover:bg-[#4d8c8e] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#5E9EA0] sm:text-sm">
-                        OK
-                    </button>
-                </div>
+        <!-- Order Total -->
+        <div class="bg-white rounded-lg shadow-md mb-4 p-6 w-full">
+            <div class="flex justify-between items-center mb-2">
+                <span class="text-gray-500">Subtotal</span>
+                <span class="font-medium">${{ order.total_price }}</span>
+            </div>
+            <div class="flex justify-between items-center">
+                <span class="text-xl font-bold">Total</span>
+                <span class="text-xl font-bold">${{ order.total_price }}</span>
             </div>
         </div>
+        {% endif %}
+
+        <a href="{% url 'home' %}" class="inline-block bg-white border border-[#5E9EA0] text-[#5E9EA0] py-3 px-8 rounded-lg text-lg font-medium hover:bg-gray-50 transition-colors">
+            Return to Home
+        </a>
 
         <script>
             function calculateEstimatedTime(itemCount) {
@@ -133,62 +111,42 @@
                 return baseTime + itemCount * timePerItem;
             }
 
-            function updateCart() {
-    const cart = JSON.parse(localStorage.getItem("cart") || "{}");
-    const cartItemsContainer = document.getElementById("cart-items");
-    const emptyCartMessage = document.getElementById("empty-cart");
-    const checkoutContainer = document.getElementById("checkout-container");
-    const estimatedTimeContainer = document.getElementById("estimated-time-container");
-
-    cartItemsContainer.innerHTML = "";
-    let subtotal = 0;
-    let totalItems = 0;
-
-    if (Object.keys(cart).length === 0) {
-        emptyCartMessage.classList.remove("hidden");
-        checkoutContainer.classList.add("hidden");
-        estimatedTimeContainer.classList.add("hidden");
-    } else {
-        emptyCartMessage.classList.add("hidden");
-        checkoutContainer.classList.remove("hidden");
-        estimatedTimeContainer.classList.remove("hidden");
-
-        for (const [itemName, itemData] of Object.entries(cart)) {
-            const price = parseFloat(itemData.price.replace("$", ""));
-            const itemTotal = price * itemData.quantity;
-            subtotal += itemTotal;
-            totalItems += itemData.quantity;
-
-            const itemElement = document.createElement("div");
-            itemElement.className = "flex items-center justify-between p-4 bg-gray-50 rounded-lg";
-            itemElement.innerHTML = `
-                <div class="flex items-center space-x-4">
-                    <img src="${itemData.image}" alt="${itemName}" class="w-16 h-16 object-cover rounded-lg">
-                    <div>
-                        <h4 class="font-medium text-gray-900">${itemName}</h4>
-                        <p class="text-sm text-gray-500">${itemData.price} each</p>
-                    </div>
-                </div>
-                <div class="flex items-center space-x-3">
-                    <span class="w-8 text-center">${itemData.quantity}</span>
-                </div>
-            `;
-            cartItemsContainer.appendChild(itemElement);
-        }
-
-        // Update estimated time
-        const estimatedTime = calculateEstimatedTime(totalItems);
-        document.getElementById("estimated-time").textContent = estimatedTime;
-    }
-}
-
-
-            function closeAlert() {
-                document.getElementById("alert-modal").classList.add("hidden");
-            }
-
             // Initialize cart on page load
-            document.addEventListener("DOMContentLoaded", updateCart);
+            document.addEventListener("DOMContentLoaded", function() {
+                // Calculate estimated time
+                {% if order_details %}
+                const totalItems = {{ order_details|length }};
+                const estimatedTime = calculateEstimatedTime(totalItems);
+                document.getElementById("estimated-time").textContent = estimatedTime;
+                document.getElementById("estimated-time-container").classList.remove("hidden");
+                {% endif %}
+                
+                // Initialize cart counter
+                const initialCount = {{ total_qty|default:0 }};
+                const cartCountElement = document.getElementById("cart-count");
+                
+                function updateCartCount(count) {
+                    if (count > 0) {
+                        cartCountElement.textContent = count;
+                        cartCountElement.classList.remove("hidden");
+                    } else {
+                        cartCountElement.classList.add("hidden");
+                    }
+                }
+                
+                // Initialize cart counter
+                const initialTotalQty = {{ total_qty|default:0 }};
+                updateCartCount(initialTotalQty);
+                
+                if (cartCountElement) {
+                    if (initialCount > 0) {
+                        cartCountElement.textContent = initialCount;
+                        cartCountElement.classList.remove('hidden');
+                    } else {
+                        cartCountElement.classList.add('hidden');
+                    }
+                }
+            });
 
             // Add this code to calculate header height and apply padding
             window.addEventListener('load', function () {

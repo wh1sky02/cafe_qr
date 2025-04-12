@@ -1,0 +1,59 @@
+[04/Apr/2025 16:20:40] "GET /admin-panel/qr-code/ HTTP/1.1" 200 13846
+[04/Apr/2025 16:20:41] "GET /admin-panel/tables/ HTTP/1.1" 200 11307
+[04/Apr/2025 16:20:42] "POST /admin-panel/tables/ HTTP/1.1" 200 17
+[04/Apr/2025 16:20:42] "GET /admin-panel/tables/ HTTP/1.1" 200 11899
+[04/Apr/2025 16:20:42] "GET /static/django-browser-reload/reload-listener.js HTTP/1.1" 304 0
+[04/Apr/2025 16:20:44] "GET /admin-panel/qr-code/ HTTP/1.1" 200 14117
+[04/Apr/2025 16:20:47] "POST /admin-panel/generate-qr-code/ HTTP/1.1" 200 168
+[04/Apr/2025 16:20:47] "GET /admin-panel/qr-code/ HTTP/1.1" 200 14798
+[04/Apr/2025 16:20:47] "GET /media/qr_codes/908072c6-6c1a-4ca2-aea8-727278b73df0_e0fdbde4-0d0c-4b6a-b7f8-2034023936a4.png HTTP/1.1" 200 808
+[04/Apr/2025 16:20:47] "GET /static/django-browser-reload/reload-listener.js HTTP/1.1" 304 0
+[04/Apr/2025 16:20:57] "GET /admin-panel/qr-code/ HTTP/1.1" 200 14798
+[04/Apr/2025 16:20:57] "GET /media/qr_codes/908072c6-6c1a-4ca2-aea8-727278b73df0_e0fdbde4-0d0c-4b6a-b7f8-2034023936a4.png HTTP/1.1" 304 0
+[04/Apr/2025 16:20:58] "GET /admin-panel/menu/ HTTP/1.1" 200 16688
+[04/Apr/2025 16:21:02] "POST /admin-panel/add-category/ HTTP/1.1" 302 0
+Internal Server Error: /admin-panel/menu-settings/
+Traceback (most recent call last):
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/django/contrib/auth/decorators.py", line 60, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/cafe/views.py", line 304, in menu_settings
+    menu_items = MenuItem.objects.all().order_by('-status', 'name')
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/django/db/models/query.py", line 1701, in order_by
+    obj.query.add_ordering(*field_names)
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/django/db/models/sql/query.py", line 2249, in add_ordering
+    self.names_to_path(item.split(LOOKUP_SEP), self.model._meta)
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/django/db/models/sql/query.py", line 1768, in names_to_path
+    raise FieldError(
+django.core.exceptions.FieldError: Cannot resolve keyword 'status' into field. Choices are: category, category_id, created_at, description, id, image, name, order, price
+[04/Apr/2025 16:21:02] "GET /admin-panel/menu-settings/ HTTP/1.1" 500 122862
+[04/Apr/2025 16:21:10] "POST /admin-panel/add-category/ HTTP/1.1" 302 0
+Internal Server Error: /admin-panel/menu-settings/
+Traceback (most recent call last):
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/django/contrib/auth/decorators.py", line 60, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/cafe/views.py", line 304, in menu_settings
+    menu_items = MenuItem.objects.all().order_by('-status', 'name')
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/django/db/models/query.py", line 1701, in order_by
+    obj.query.add_ordering(*field_names)
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/django/db/models/sql/query.py", line 2249, in add_ordering
+    self.names_to_path(item.split(LOOKUP_SEP), self.model._meta)
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/django/db/models/sql/query.py", line 1768, in names_to_path
+    raise FieldError(
+django.core.exceptions.FieldError: Cannot resolve keyword 'status' into field. Choices are: category, category_id, created_at, description, id, image, name, order, price
+[04/Apr/2025 16:21:10] "GET /admin-panel/menu-settings/ HTTP/1.1" 500 122862

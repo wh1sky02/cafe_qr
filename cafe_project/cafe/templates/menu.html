@@ -1,4 +1,4 @@
-{% load static tailwind_tags %}
+{% load static tailwind_tags custom_filters %}
 <html>
 
 <head>
@@ -47,12 +47,8 @@
 <body class="bg-white no-scrollbar">
     <!-- Header -->
     <div class="bg-[#5E9EA0] flex items-center px-5 py-5 w-full fixed top-0 left-0 h-40 z-50">
-        <div class="w-full">
-            <!-- Ensuring the image is responsive and doesn't stretch out -->
-            <img class="w-10 h-10" src="{% static 'images/Cafe_Logo.png' %}" alt="Cafe Logo">
-        </div>
-        <div class="text-center sm:text-3xl text-5xl text-white font-bold w-full">Menu</div>
-        <div class="text-center sm:text-sm text-2xl text-white font-bold w-full">Table #: {{ table.number }}</div>
+        <div class="text-center md:text-5xl text-3xl text-white font-bold w-full">Menu</div>
+        <div class="text-center md:text-2xl text-3xl text-white font-bold w-full">Table #: {{ table.number }}</div>
     </div>
 
     <!-- Categories Section -->
@@ -77,7 +73,7 @@
             {% endfor %}
         </div>
     </div>
-    
+
     <!-- Modal Popup -->
     <div id="popup-modal" tabindex="-1"
         class="fixed inset-0 z-50 hidden flex justify-center items-center bg-black bg-opacity-50"
@@ -110,20 +106,32 @@
 
 
     <!-- Menu Items -->
-    <div id="menu-items" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 px-3 sm:px-5 py-3 mb-20">
+    <div id="menu-items" class="grid grid-cols-2 lg:grid-cols-3 gap-4 px-3 sm:px-5 py-3 mb-20">
         {% for item in menu_items %}
-        <div class="menu-item cursor-pointer bg-white rounded-xl shadow-lg h-[240px] px-3 py-4 flex flex-col text-xl items-center"
+        <div class="border menu-item cursor-pointer bg-white rounded-xl shadow-lg h-[240px] px-3 py-4 flex flex-col text-xl items-center"
             data-category="{{ item.category.id }}" data-category-name="{{ item.category.name }}"
             data-item-name="{{ item.name }}" data-item-price="{{ item.price }}" data-item-image="{{ item.image.url }}"
             data-item-id="{{ item.id }}">
             <div onclick="window.location.href='{% url 'item_detail' item_id=item.id %}'">
                 <img class="h-24 w-24 rounded-lg" src="{{ item.image.url }}" alt="{{ item.name }}">
-                <div class="text-2xl font-semibold mt-2">{{ item.name }}</div>
+                <div class="text-lg font-semibold mt-2">{{ item.name }}</div>
                 <div class="text-lg text-gray-600">${{ item.price }}</div>
             </div>
 
             <div class="flex justify-end w-full mt-3 px-4">
-                <button class="add-btn bg-[#5E9EA0] text-white text-lg px-3 py-1 rounded-lg">+</button>
+                <div class="flex items-center space-x-2">
+                
+                <button class="add-btn bg-[#5E9EA0] text-white text-lg px-3 py-1 rounded-lg" 
+                    data-item-id="{{ item.id }}"
+                    data-item-name="{{ item.name }}"
+                    data-item-price="{{ item.price }}"
+                    data-item-image="{{ item.image.url }}">
+                    <span class="cart-count font-bold text-lg {% if cart_counts|get_item:item.name %}{% else %}hidden{% endif %}">
+                        {{ cart_counts|get_item:item.name|default:0 }}
+                    </span>
+                    +
+                </button>
+            </div>
             </div>
         </div>
         {% endfor %}
@@ -146,7 +154,9 @@
             <div class="relative">
                 <img class="h-8 w-8" src="{% static 'images/Cart.png' %}" alt="Cart">
                 <span id="cart-count"
-                    class="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full min-w-[16px] h-4 flex items-center justify-center px-1 hidden">0</span>
+                    class="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full min-w-[16px] h-4 flex items-center justify-center px-1 {% if not total_qty %}hidden{% endif %}">
+                    {{ total_qty|default:0 }}
+                </span>
             </div>
         </a>
     </div>
@@ -157,18 +167,20 @@
             const modal = document.getElementById("popup-modal");
             const closeModalBtn = modal.querySelector("[data-modal-hide='popup-modal']");
             const menuContainer = document.getElementById("menu-items");
-            const cartCount = document.getElementById("cart-count");
+            const cartCountElement = document.getElementById("cart-count");
 
             let selectedItem = null;
-
             const coffeeTeaCategories = ["coffee", "tea"];
+
+            // Initialize cart count from server data
+            const initialTotalQty = {{ total_qty|default:0 }};
+
             function closeModal() {
                 modal.classList.add("hidden");
             }
 
             // Close modal when clicking the "✖" button
             closeModalBtn.addEventListener("click", closeModal);
-
 
             // Load cart from localStorage
             function getCart() {
@@ -179,15 +191,19 @@
                 localStorage.setItem("cart", JSON.stringify(cart));
             }
 
-            function updateCartCount() {
-                const cart = getCart();
-                const totalCount = Object.values(cart).reduce((total, item) => total + item.quantity, 0);
-                if (totalCount > 0) {
-                    cartCount.textContent = totalCount;
-                    cartCount.classList.remove("hidden");
+            function updateCartCount(count) {
+                if (count > 0) {
+                    cartCountElement.textContent = count;
+                    cartCountElement.classList.remove("hidden");
                 } else {
-                    cartCount.classList.add("hidden");
+                    cartCountElement.classList.add("hidden");
                 }
+            }
+
+            // Initialize cart counter on page load
+            const initialCount = {{ total_qty|default:0 }};
+            if (initialCount > 0) {
+                updateCartCount(initialCount);
             }
 
             // Category Filtering
@@ -196,7 +212,10 @@
                     const selectedCategory = button.getAttribute("data-category");
 
                     // Highlight the selected category
-                    categoryButtons.forEach(btn => btn.classList.remove("bg-[#5E9EA0]", "text-white"));
+                    categoryButtons.forEach(btn => {
+                        btn.classList.remove("bg-[#5E9EA0]", "text-white");
+                        btn.classList.add("bg-white");
+                    });
                     button.classList.remove("bg-white");
                     button.classList.add("bg-[#5E9EA0]", "text-white");
 
@@ -236,14 +255,35 @@
                         // Reset to Hot selection by default
                         document.getElementById("hot-btn").classList.add("selected");
                         document.getElementById("cold-btn").classList.remove("selected");
-
                     } else {
                         // Directly add to cart
-                        let cart = getCart();
-                        cart[itemName] = cart[itemName] || { quantity: 0, price: itemPrice, image: itemImage };
-                        cart[itemName].quantity += 1;
-                        saveCart(cart);
-                        updateCartCount();
+                        fetch('/add-to-cart/', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                table_token: '{{ table.token }}',
+                                menu_name: itemName,
+                                price: itemPrice,
+                                image: itemImage,
+                                qty: 1
+                            })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                // Update main cart count display
+                                updateCartCount(data.cart_count);
+
+                                // Update item-specific count display
+                                const itemCountDisplay = item.querySelector('.cart-count');
+                                if (itemCountDisplay) {
+                                    itemCountDisplay.textContent = data.item_count;
+                                    itemCountDisplay.classList.remove('hidden');
+                                }
+                            }
+                        });
                     }
                 }
             });
@@ -263,18 +303,56 @@
             // Add to cart
             document.getElementById("add-to-cart-btn").addEventListener("click", () => {
                 let cart = getCart();
-                cart[selectedItem.name] = cart[selectedItem.name] || { quantity: 0, price: selectedItem.price, image: selectedItem.image, temperature: selectedItem.temperature };
+                cart[selectedItem.name] = cart[selectedItem.name] || { 
+                    quantity: 0, 
+                    price: selectedItem.price, 
+                    image: selectedItem.image, 
+                    temperature: selectedItem.temperature 
+                };
                 cart[selectedItem.name].quantity += 1;
                 saveCart(cart);
-                updateCartCount();
-                document.getElementById("hot-btn").classList.add("selected", "bg-[#5E9EA0]", "text-white");
-                document.getElementById("cold-btn").classList.remove("selected", "bg-[#5E9EA0]", "text-white");
-                modal.classList.add("hidden");
+
+                // Send to server
+                fetch('/add-to-cart/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        table_token: '{{ table.token }}',
+                        menu_name: selectedItem.name,
+                        price: selectedItem.price,
+                        image: selectedItem.image,
+                        temperature: selectedItem.temperature,
+                        qty: 1
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        updateCartCount(data.cart_count);
+
+                        // Find and update the item count display
+                        const menuItems = document.querySelectorAll('.menu-item');
+                        menuItems.forEach(item => {
+                            if (item.dataset.itemName === selectedItem.name) {
+                                const itemCountDisplay = item.querySelector('.cart-count');
+                                if (itemCountDisplay) {
+                                    itemCountDisplay.textContent = data.item_count;
+                                    itemCountDisplay.classList.remove('hidden');
+                                }
+                            }
+                        });
+                    }
+                });
+
+                closeModal();
             });
 
-            // Initialize cart count
-            updateCartCount();
+            // Initialize cart count on page load
+            updateCartCount(initialTotalQty);
         });
+
     </script>
 
 </body>

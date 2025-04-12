@@ -1,4 +1,3 @@
-
 {% load static tailwind_tags %}
 <html>
     <head>
@@ -10,7 +9,7 @@
         <!-- Header -->
         <div class="bg-[#5E9EA0] flex items-center px-5 py-5 w-full fixed top-0 left-0 h-20 z-50 shadow-md">
             <a href="{% url 'home' %}" class="cursor-pointer">
-                <img class="h-10 w-10" src="{% static 'images/Back.png' %}" alt="Back">
+                <img class="h-5 w-5" src="{% static 'images/Back.png' %}" alt="Back">
             </a>
             <div class="flex-grow text-center text-3xl text-white font-bold">Order Confirmation</div>
         </div>
@@ -28,10 +27,38 @@
                 <p class="text-gray-600 mb-8 text-lg">Your order has been successfully placed.</p>
                 
                 <div class="bg-gray-50 rounded-lg p-6 mb-6">
+                    {% if order %}
+                    <p class="text-2xl font-semibold mb-2 text-[#5E9EA0]">Order Amount: ${{ order.total_price }}</p>
+                    <div class="w-20 h-1 bg-[#5E9EA0] mx-auto my-4 rounded-full"></div>
+                    <p class="text-gray-600">Your order number: <span class="font-medium">{{ order.id }}</span></p>
+                    <p class="text-gray-600 mt-2">Order Status: <span class="font-medium">{{ order.order_status|title }}</span></p>
+                    <p class="text-gray-600 mt-2">Payment Status: <span class="font-medium">{{ order.payment_status|title }}</span></p>
+                    {% else %}
                     <p class="text-2xl font-semibold mb-2 text-[#5E9EA0]">Order Amount: <span id="order-amount">$0</span></p>
                     <div class="w-20 h-1 bg-[#5E9EA0] mx-auto my-4 rounded-full"></div>
                     <p class="text-gray-600">Your order number: <span id="order-number" class="font-medium">0</span></p>
+                    {% endif %}
                 </div>
+                
+                {% if order_details %}
+                <div class="text-left mb-6">
+                    <h3 class="text-lg font-bold mb-3 text-gray-800">Order Details</h3>
+                    <div class="space-y-2">
+                        {% for item in order_details %}
+                        <div class="flex justify-between items-center pb-2 border-b border-gray-200">
+                            <div class="flex items-center gap-2">
+                                <span class="font-medium">{{ item.menu_name }}</span>
+                                <span class="text-gray-500">x{{ item.qty }}</span>
+                                {% if item.table_number %}
+                                <span class="text-gray-500 ml-2">(Table: {{ item.table_number }})</span>
+                                {% endif %}
+                            </div>
+                            <span>${{ item.price }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
                 
                 <div class="text-gray-600 mb-8">
                     <div class="flex items-center justify-center">
@@ -52,18 +79,17 @@
             </a>
         </div>
 
+        {% if not order %}
         <script>
             document.addEventListener('DOMContentLoaded', function() {
-                // Get the amount from the URL parameters
+                // Get the amount and order ID from the URL parameters
                 const urlParams = new URLSearchParams(window.location.search);
                 const amount = urlParams.get('amount') || '0.00';
+                const orderId = urlParams.get('order_id') || Math.floor(100000 + Math.random() * 900000);
                 
-                // Set the amount in the confirmation
+                // Set the amount and order number in the confirmation
                 document.getElementById('order-amount').textContent = `$${amount}`;
-                
-                // Generate a random order number
-                const orderNumber = Math.floor(100000 + Math.random() * 900000);
-                document.getElementById('order-number').textContent = orderNumber;
+                document.getElementById('order-number').textContent = orderId;
                 
                 // Set success animation
                 setTimeout(() => {
@@ -75,5 +101,6 @@
                 }, 500);
             });
         </script>
+        {% endif %}
     </body>
 </html>

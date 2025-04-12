@@ -4,3 +4,4 @@ django-tailwind
 pillow==10.2.0
 qrcode[pil]
 psycopg2-binary
+python-dotenv

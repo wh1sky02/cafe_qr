@@ -6,33 +6,68 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     </head>
     <body class="bg-gray-50">
-        <!-- Main Content -->
-        <div class="pt-[120px] px-4 pb-10 max-w-7xl mx-auto">
-            <!-- Card container -->
-            <div class="bg-white rounded-xl shadow-lg overflow-hidden max-w-6xl mx-auto">
-                <div class="grid md:grid-cols-12 gap-6">
-                    <div class="md:col-span-8 p-5 md:p-8 pt-8">
-                <!-- Card header -->
-                <div class="bg-[#5E9EA0] p-4 md:p-6">
-                    <div class="flex items-center">
-                        <a href="{% url 'checkout' %}" class="text-white hover:text-gray-200 transition-colors">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-                            </svg>
-                        </a>
-                        <h2 class="text-2xl md:text-3xl text-white font-bold flex-grow text-center mr-8">Card Details</h2>
+        <!-- Header -->
+        <div class="bg-[#5E9EA0] flex items-center px-5 py-5 w-full fixed top-0 left-0 h-20 z-50 shadow-md">
+            <a href="{% url 'checkout' %}" class="cursor-pointer text-white">
+                <img class="h-5 w-5" src="{% static 'images/Back.png' %}" alt="Back">
+            </a>
+            <div class="flex-grow text-center text-2xl text-white font-bold">Card Payment</div>
+            
+        </div>
+
+        <!-- Order Summary -->
+        <div class="mt-32 px-4 pb-10 max-w-7xl mx-auto">
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden p-6 mb-6">
+                <h3 class="text-xl font-bold mb-4 text-[#5E9EA0]">Order Summary</h3>
+                <div class="space-y-3 mb-4">
+                    {% for item in cart_items %}
+                    <div class="flex justify-between items-center pb-2 border-b border-gray-200">
+                        <div class="flex items-center gap-2">
+                            <span class="font-medium">{{ item.menu_name }}</span>
+                            <span class="text-gray-500">x{{ item.qty }}</span>
+                        </div>
+                        <span>${{ item.total_price }}</span>
                     </div>
+                    {% endfor %}
                 </div>
+                
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-gray-600">Subtotal</span>
+                    <span>${{ subtotal }}</span>
+                </div>
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-gray-600">Tax (9%)</span>
+                    <span>${{ tax_amount }}</span>
+                </div>
+                <div class="flex justify-between items-center font-bold text-lg">
+                    <span>Total</span>
+                    <span>${{ total_amount }}</span>
+                </div>
+            </div>
 
-
-
-                <!-- Card body -->
-                <div class="p-5 md:p-8 pt-8">
-                    <form id="payment-form" class="space-y-6">
+            <!-- Card Details Form -->
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                <div class="p-6">
+                    <h3 class="text-xl font-bold mb-4">Card Details</h3>
+                    {% if error and error != '' %}
+                    <div id="error-container" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                        {{ error }}
+                    </div>
+                    {% else %}
+                    <div id="error-container" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4"></div>
+                    {% endif %}
+                    
+                    <form id="payment-form" class="space-y-6" method="POST">
+                        {% csrf_token %}
+                        <input type="hidden" name="payment_method" value="card">
+                        <input type="hidden" name="tip_amount" value="{{ tip_amount|default:0 }}">
+                        <input type="hidden" name="tax_amount" value="{{ tax_amount }}">
+                        <input type="hidden" name="total_amount" value="{{ total_amount }}">
+                        
                         <!-- Name on Card -->
                         <div class="space-y-2">
                             <label class="block text-gray-700 font-medium">Name on Card</label>
-                            <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#5E9EA0]" placeholder="Enter name on card" required>
+                            <input type="text" name="card_name" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#5E9EA0]" placeholder="Enter name on card" required>
                         </div>
 
                         <!-- Card Number -->
@@ -42,6 +77,7 @@
                                 <input 
                                     type="text" 
                                     id="cardNumber"
+                                    name="card_number"
                                     pattern="[0-9\s]{13,19}"
                                     inputmode="numeric"
                                     maxlength="19" 
@@ -63,6 +99,7 @@
                                 <input 
                                     type="text" 
                                     id="expiryDate"
+                                    name="expiry_date"
                                     inputmode="numeric"
                                     pattern="(0[1-9]|1[0-2])\/([0-9]{2})" 
                                     maxlength="5" 
@@ -77,14 +114,32 @@
                                 <input 
                                     type="password" 
                                     id="cvv"
+                                    name="cvv"
                                     inputmode="numeric"
-                                    pattern="\d*" 
+                                    pattern="\d{3}" 
                                     maxlength="3" 
                                     class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#5E9EA0]" 
                                     placeholder="123" 
                                     required
                                     oninput="this.value = this.value.replace(/[^\d]/g, '')"
                                 >
+                            </div>
+                        </div>
+
+                        <!-- Billing Address -->
+                        <div class="space-y-2">
+                            <label class="block text-gray-700 font-medium">Billing Address</label>
+                            <input type="text" name="billing_address" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#5E9EA0]" placeholder="Street Address" required>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="space-y-2">
+                                <label class="block text-gray-700 font-medium">City</label>
+                                <input type="text" name="city" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#5E9EA0]" placeholder="City" required>
+                            </div>
+                            <div class="space-y-2">
+                                <label class="block text-gray-700 font-medium">Postal Code</label>
+                                <input type="text" name="postal_code" pattern="[0-9]{5}" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#5E9EA0]" placeholder="12345" required>
                             </div>
                         </div>
 
@@ -95,56 +150,54 @@
                                 I acknowledge that I have read and agree to the Terms and Conditions.
                             </label>
                         </div>
-
+                        
                         <!-- Pay Button -->
-                        <button type="submit" class="w-full bg-[#5E9EA0] text-white font-bold py-3 px-6 rounded-lg text-xl flex justify-center items-center hover:bg-[#4E8E90] transition-colors shadow-md">
-                            Pay <span id="total-amount" class="ml-1">$0.00</span>
+                        <button type="submit" id="pay-button" class="w-full bg-[#5E9EA0] text-white font-bold py-3 px-6 rounded-lg text-xl flex justify-center items-center hover:bg-[#4E8E90] transition-colors shadow-md">
+                            Pay ${{ total_amount }}
                         </button>
                     </form>
                 </div>
-
-                </div>
-                    <!-- Order Summary Section -->
-                    <div class="md:col-span-4 bg-gray-50 p-5 md:p-8 border-l border-gray-200">
-                    <h2 class="text-2xl font-bold mb-6 text-gray-800">Order Summary</h2>
-                    <div id="order-items" class="space-y-4 mb-6">
-                        <!-- Dynamic order items will be added here by JS -->
+                
+                <!-- Security Badge -->
+                <div class="bg-gray-50 p-4 border-t border-gray-200">
+                    <div class="flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-600 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 1.944A11.954 11.954 0 0 1 18 7c0 3.268-1.25 6.15-3.162 8.324a14.853 14.853 0 0 1-4.733 3.587L10 19l-.105-.089a14.856 14.856 0 0 1-4.733-3.587A11.959 11.959 0 0 1 2 7c0-2.509 1.4-4.9 3.6-6.056L10 1.944zM10 16a2 2 0 1 0 0-4 2 2 0 0 0 0 4z" clip-rule="evenodd" />
+                        </svg>
+                        <span class="text-sm text-gray-600">Secure Payment - Your card information is encrypted</span>
                     </div>
-                    <div class="space-y-3">
-                        <div class="flex justify-between text-gray-600">
-                            <span>Subtotal</span>
-                            <span class="font-medium" id="summary-subtotal">-</span>
+                </div>
+                
+                <!-- Test Card Info (for testing only - should be removed in production) -->
+                <div class="bg-blue-50 p-4 border-t border-blue-100">
+                    <div class="text-center">
+                        <p class="text-sm font-medium text-blue-800 mb-1">Test Card Information</p>
+                        <div class="grid grid-cols-2 gap-2 text-xs text-blue-700">
+                            <div class="text-right">Card Number:</div>
+                            <div>4242 4242 4242 4242</div>
+                            <div class="text-right">Expiry Date:</div>
+                            <div>Any future date (MM/YY)</div>
+                            <div class="text-right">CVV:</div>
+                            <div>Any 3 digits</div>
+                            <div class="text-right">Name:</div>
+                            <div>Any name</div>
                         </div>
-                        <div class="flex justify-between text-gray-600">
-                            <span>Tax</span>
-                            <span class="font-medium" id="summary-tax">-</span>
-                        </div>
-                        <div class="flex justify-between text-gray-600">
-                            <span>Tip</span>
-                            <span class="font-medium" id="summary-tip">-</span>
-                        </div>
-                        <div class="pt-3 border-t border-gray-200">
-                            <div class="flex justify-between text-lg font-bold">
-                                <span>Total</span>
-                                <span id="summary-total" class="text-[#5E9EA0]">$0.00</span>
-                            </div>
-                        </div>
+                        <p class="text-xs text-blue-500 mt-1">This is a test environment. No actual charges will be made.</p>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
         <script>
             // Expiry date validation
             function validateExpiry(input) {
                 input.value = input.value.replace(/[^\d]/g, '').replace(/^(\d{2})(?=\d)/,'$1/');
-                
+
                 if (input.value.length === 5) {
                     const [month, year] = input.value.split('/');
                     const currentYear = new Date().getFullYear() % 100;
                     const currentMonth = new Date().getMonth() + 1;
-                    
+
                     if (parseInt(year) < currentYear || 
                         (parseInt(year) === currentYear && parseInt(month) < currentMonth)) {
                         input.setCustomValidity('Card has expired');
@@ -158,7 +211,9 @@
             function detectCardType(number) {
                 const patterns = {
                     visa: /^4/,
-                    mastercard: /^5[1-5]/
+                    mastercard: /^5[1-5]/,
+                    amex: /^3[47]/,
+                    discover: /^6(?:011|5[0-9]{2})/
                 };
 
                 for (const [card, pattern] of Object.entries(patterns)) {
@@ -169,7 +224,39 @@
                 return null;
             }
 
+            function validateCardNumber(number) {
+                // Remove all spaces
+                number = number.replace(/\s/g, '');
+                
+                // Check if it contains only digits
+                if (!/^\d+$/.test(number)) return false;
+                
+                // Check length
+                if (number.length < 13 || number.length > 19) return false;
+                
+                // Luhn algorithm for card validation
+                let sum = 0;
+                let shouldDouble = false;
+                
+                // Loop through values starting from the rightmost digit
+                for (let i = number.length - 1; i >= 0; i--) {
+                    let digit = parseInt(number.charAt(i));
+                    
+                    if (shouldDouble) {
+                        digit *= 2;
+                        if (digit > 9) digit -= 9;
+                    }
+                    
+                    sum += digit;
+                    shouldDouble = !shouldDouble;
+                }
+                
+                return (sum % 10) === 0;
+            }
+
             document.addEventListener('DOMContentLoaded', function() {
+                const errorContainer = document.getElementById('error-container');
+                
                 // Card number validation and formatting
                 const cardInput = document.getElementById('cardNumber');
                 const cardTypeImg = document.getElementById('cardType');
@@ -184,108 +271,120 @@
                         this.setCustomValidity('');
                     } else if (cardNumber.length >= 4) {
                         cardTypeImg.classList.add('hidden');
-                        this.setCustomValidity('Please enter a valid Visa or Mastercard number');
+                        this.setCustomValidity('Please enter a valid card number');
                     } else {
                         cardTypeImg.classList.add('hidden');
                         this.setCustomValidity('');
                     }
                 });
-                // Get the order data from session storage
-                const orderData = JSON.parse(sessionStorage.getItem('orderData') || '{}');
-
-                // Log the data to help debug
-                console.log('Order Data:', orderData);
-
-                // Get the amount, ensuring we're getting the numeric value
-                let amount = orderData.total || '0.00';
-                let subtotal = '0.00';
-                let tax = '0.00';
-                let tip = '0.00';
-
-                // Extract values from orderData if available
-                if (orderData) {
-                    subtotal = orderData.subtotal || orderData.items ? 
-                        Object.entries(orderData.items).reduce((total, [_, itemData]) => {
-                            const price = parseFloat(itemData.price.replace('$', ''));
-                            return total + (price * itemData.quantity);
-                        }, 0).toFixed(2) : '0.00';
-
-                    tax = orderData.taxAmount || (parseFloat(subtotal) * 0.09).toFixed(2);
-                    tip = orderData.tipAmount || '0.00';
-
-                    // If total is not present, calculate it
-                    if (!orderData.total) {
-                        amount = (parseFloat(subtotal) + parseFloat(tax) + parseFloat(tip)).toFixed(2);
-                    }
-                }
-
-                // Remove any $ sign if present
-                if (typeof amount === 'string' && amount.includes('$')) {
-                    amount = amount.replace('$', '');
-                }
-
-                // Set the amounts in the summary
-                document.getElementById('total-amount').textContent = `$${amount}`;
-                document.getElementById('summary-total').textContent = `$${amount}`;
-                document.getElementById('summary-subtotal').textContent = `$${subtotal}`;
-                document.getElementById('summary-tax').textContent = `$${tax}`;
-                document.getElementById('summary-tip').textContent = `$${tip}`;
-
-                // Display order items if available
-                if (orderData.items) {
-                    const orderItemsContainer = document.getElementById('order-items');
-                    orderItemsContainer.innerHTML = '';
-
-                    for (const [itemName, itemData] of Object.entries(orderData.items)) {
-                        const itemElement = document.createElement('div');
-                        itemElement.className = 'flex justify-between text-sm';
-                        itemElement.innerHTML = `
-                            <span class="text-gray-700">${itemName} x${itemData.quantity}</span>
-                            <span class="font-medium">${itemData.price}</span>
-                        `;
-                        orderItemsContainer.appendChild(itemElement);
-                    }
-                }
 
                 // Handle form submission
                 document.getElementById('payment-form').addEventListener('submit', function(e) {
                     e.preventDefault();
+                    
+                    // Clear previous errors
+                    errorContainer.classList.add('hidden');
+                    errorContainer.textContent = '';
 
-                    // Process the payment (simulation)
-                    console.log('Processing payment for amount:', amount);
+                    // Validate form fields
+                    const cardName = document.querySelector('input[name="card_name"]').value.trim();
+                    const cardNumber = cardInput.value.replace(/\s/g, '');
+                    const expiryDate = document.querySelector('input[name="expiry_date"]').value.trim();
+                    const cvv = document.querySelector('input[name="cvv"]').value.trim();
+                    const terms = document.getElementById('terms').checked;
 
-                    // Show processing indicator
-                    const submitBtn = this.querySelector('button[type="submit"]');
-                    submitBtn.innerHTML = '<svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Processing...';
-                    submitBtn.disabled = true;
-
-                    // Add visual feedback for form validation
-                    const inputs = this.querySelectorAll('input[required]');
-                    let isValid = true;
-
-                    inputs.forEach(input => {
-                        if (!input.value) {
-                            input.classList.add('border-red-500');
-                            isValid = false;
-                        } else {
-                            input.classList.remove('border-red-500');
-                        }
-                    });
-
-                    if (!isValid) {
-                        submitBtn.innerHTML = 'Pay <span class="ml-1">$' + amount + '</span>';
-                        submitBtn.disabled = false;
+                    // Basic validation
+                    if (!cardName) {
+                        errorContainer.textContent = 'Please enter the name on card';
+                        errorContainer.classList.remove('hidden');
                         return;
                     }
 
-                    // Simulate payment processing
-                    setTimeout(() => {
-                        // Clear cart after successful payment
-                        localStorage.removeItem('cart');
+                    if (!cardNumber) {
+                        errorContainer.textContent = 'Please enter a card number';
+                        errorContainer.classList.remove('hidden');
+                        return;
+                    }
 
-                        // Redirect to order confirmation page
-                        window.location.href = `/order-confirmation/?amount=${amount}`;
-                    }, 1500);
+                    if (!validateCardNumber(cardNumber)) {
+                        errorContainer.textContent = 'Invalid card number. Please check and try again.';
+                        errorContainer.classList.remove('hidden');
+                        return;
+                    }
+
+                    if (!expiryDate || expiryDate.length !== 5) {
+                        errorContainer.textContent = 'Please enter a valid expiry date (MM/YY)';
+                        errorContainer.classList.remove('hidden');
+                        return;
+                    }
+
+                    if (!cvv || cvv.length !== 3) {
+                        errorContainer.textContent = 'Please enter a valid 3-digit CVV';
+                        errorContainer.classList.remove('hidden');
+                        return;
+                    }
+
+                    if (!terms) {
+                        errorContainer.textContent = 'Please accept the terms and conditions';
+                        errorContainer.classList.remove('hidden');
+                        return;
+                    }
+
+                    // Show loading animation
+                    const submitBtn = document.getElementById('pay-button');
+                    const originalBtnText = submitBtn.innerHTML;
+                    submitBtn.innerHTML = `
+                        <div class="flex items-center">
+                            <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            Processing...
+                        </div>
+                    `;
+                    submitBtn.disabled = true;
+
+                    // Submit the form to create order and process payment
+                    const formData = new FormData(this);
+
+                    fetch('{% url "payment" %}', {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-CSRFToken': '{{ csrf_token }}',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    })
+                    .then(response => {
+                        if (response.ok) {
+                            return response.json();
+                        } else {
+                            // Handle non-200 HTTP responses
+                            return response.json().then(data => {
+                                throw new Error(data.error || 'Server error. Please try again.');
+                            }).catch(e => {
+                                throw new Error('Server error. Please try again.');
+                            });
+                        }
+                    })
+                    .then(data => {
+                        if (data.success) {
+                            // Redirect to order confirmation with total amount
+                            window.location.href = `/order-confirmation/?amount=${data.total_amount}&order_id=${data.order_id}`;
+                        } else {
+                            errorContainer.textContent = data.error || 'Payment failed. Please try again.';
+                            errorContainer.classList.remove('hidden');
+                            submitBtn.innerHTML = originalBtnText;
+                            submitBtn.disabled = false;
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        errorContainer.textContent = error.message || 'Payment failed. Please try again.';
+                        errorContainer.classList.remove('hidden');
+                        submitBtn.innerHTML = originalBtnText;
+                        submitBtn.disabled = false;
+                    });
                 });
             });
         </script>

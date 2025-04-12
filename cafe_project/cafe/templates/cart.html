@@ -22,239 +22,148 @@
             </h1>
         </div>
     </div>
-    
 
     <!-- Main Content -->
     <div id="main-content" class="container mb-20 mx-auto px-4 mt-4 pb-32 max-w-2xl flex flex-col pt-20">
-
-      <!-- Progress Bar -->
-<div class="flex items-center w-full max-w-md mx-auto mb-4">
-    <!-- Menu Step -->
-    <span class="bg-[#5E9EA0] text-white px-4 py-2 rounded-full font-medium">
-      Menu
-    </span>
-
-    <div class="bg-[#5E9EA0] h-2 w-16 md:w-24 flex-shrink-0"></div>
-
-    <!-- Cart Step -->
-    <span class="bg-[#5E9EA0] text-white px-4 py-2 rounded-full font-medium">
-      Cart
-    </span>
-
-    <div class="bg-gray-300 h-2 w-16 md:w-24 flex-shrink-0"></div>
-
-    <!-- Checkout Step -->
-    <span class="bg-gray-300 text-gray-500 px-4 py-2 rounded-full font-medium">
-      Checkout
-    </span>
-</div>
-
-  
-
-
-        <!-- Estimated Time -->
-        <div id="estimated-time-container" class="bg-white rounded-lg shadow-md mb-4 p-6 w-full hidden">
-            <div class="flex flex-col space-y-4">
-                <h4 class="text-lg font-semibold text-gray-800">
-                    Estimated Time
-                </h4>
-                <div class="text-xl font-bold text-[#5E9EA0] bg-[#5E9EA0]/10 px-8 rounded-lg" style="margin-top: 4px;">
-                    <span>Standard</span>
-                    <span>(</span>
-                    <span id="estimated-time">0</span>
-                    <span>minutes</span>
-                    <span>)</span>
-                </div>
-            </div>
+        <!-- Progress Bar -->
+        <div class="flex items-center w-full max-w-md mx-auto mb-4">
+            <span class="bg-[#5E9EA0] text-white px-4 py-2 rounded-full font-medium">Menu</span>
+            <div class="bg-[#5E9EA0] h-2 w-16 md:w-24 flex-shrink-0"></div>
+            <span class="bg-[#5E9EA0] text-white px-4 py-2 rounded-full font-medium">Cart</span>
+            <div class="bg-gray-300 h-2 w-16 md:w-24 flex-shrink-0"></div>
+            <span class="bg-gray-300 text-gray-500 px-4 py-2 rounded-full font-medium">Checkout</span>
         </div>
 
+        <!-- Estimated Time -->
+        <div id="estimated-time-container" class="bg-white rounded-lg shadow-md mb-4 p-6 w-full {% if not cart_items %}hidden{% endif %}">
+            <h4 class="text-lg font-semibold text-gray-800 mb-2">Estimated Time</h4>
+            <div class="text-xl font-bold text-[#5E9EA0] bg-[#5E9EA0]/10 px-8 py-2 rounded-lg">
+                <!-- <span id="estimated-time">{{ 5|add:cart_items|length|stringformat:"d"|add:"2" }}</span> -->
+                <span id="estimated-time">0</span> minutes
+            </div>
+        </div>
 
         <!-- Order Summary -->
         <div class="bg-white rounded-lg shadow-md mb-4 p-6 w-full">
             <h2 class="text-2xl font-semibold mb-6">Order Details</h2>
             <div id="cart-items" class="space-y-6">
-                <!-- Cart items will be dynamically added here -->
+                {% if cart_items %}
+                    {% for item in cart_items %}
+                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg" id="cart-item-{{ item.id }}">
+                            <div class="flex items-center space-x-4">
+                                <img src="{{ item.image }}" alt="{{ item.menu_name }}" class="w-16 h-16 object-cover rounded-lg">
+                                <div>
+                                    <h4 class="font-medium text-gray-900">{{ item.menu_name }}</h4>
+                                    <p class="text-sm text-gray-500">${{ item.price }} each</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center ">
+                                <button onclick="updateQuantity('{{ item.id }}', {{ item.qty|add:'-1' }})"
+                                    class="w-8 h-8 rounded-full border-2 border-[#5E9EA0] text-[#5E9EA0] flex items-center justify-center hover:bg-[#5E9EA0] hover:text-white transition-colors">-</button>
+                                <span id="qty-{{ item.id }}" class="w-8 text-center qty-display">{{ item.qty }}</span>
+                                <button onclick="updateQuantity('{{ item.id }}', {{ item.qty|add:'1' }})"
+                                    class="w-8 h-8 rounded-full border-2 border-[#5E9EA0] text-[#5E9EA0] flex items-center justify-center hover:bg-[#5E9EA0] hover:text-white transition-colors">+</button>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% endif %}
             </div>
 
             <!-- Empty Cart Message -->
-            <div id="empty-cart" class="text-center py-8 hidden">
+            <div id="empty-cart" class="text-center py-8 {% if cart_items %}hidden{% endif %}">
                 <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                 </svg>
-                <h3 class="mt-2 text-sm font-medium text-gray-900">
-                    Cart is empty
-                </h3>
-                <p class="mt-1 text-sm text-gray-500">
-                    Add some items to your cart
-                </p>
+                <h3 class="mt-2 text-sm font-medium text-gray-900">Cart is empty</h3>
+                <p class="mt-1 text-sm text-gray-500">Add some items to your cart</p>
                 <div class="mt-6">
-                    <a 
+                    <a href="{% url 'menu' token=token %}"
                         class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-[#5E9EA0] hover:bg-[#4d8c8e]">
                         Browse Menu
                     </a>
                 </div>
             </div>
         </div>
+
         <div class="flex justify-between p-4">
             <span class="text-gray-600">Subtotal</span>
-            <span id="subtotal" class="font-medium">$0.00</span>
+            <span id="subtotal" class="font-medium">${{ total_price }}</span>
         </div>
 
-
         <!-- Fixed Bottom Bar -->
-        <div id="checkout-container" class="fixed bottom-0 left-0 w-full bg-white border-t shadow-lg p-4 hidden">
+        <div id="checkout-container"
+            class="fixed bottom-0 left-0 w-full bg-white border-t shadow-lg p-4 {% if not cart_items %}hidden{% endif %}">
             <div class="flex justify-between items-center pt-4">
                 <div class="flex flex-col">
                     <span class="text-lg font-semibold">Total</span>
-                    <span id="total" class="text-lg font-semibold">$0.00</span>
+                    <span id="total" class="text-lg font-semibold">${{ total_price }}</span>
                 </div>
-                <button id="checkout-btn" onclick="handleCheckout()"
-                    class="bg-[#5E9EA0] text-white py-3 px-6 rounded-lg font-medium hover:bg-[#4d8c8e] transition-colors">
+                <a href="{% url 'checkout' %}"
+                    class="bg-[#5E9EA0] text-white py-3 px-6 rounded-lg font-medium hover:bg-[#4d8c8e] transition-colors inline-block text-center">
                     Proceed to Checkout
-                </button>
+                </a>
             </div>
         </div>
+    </div>
 
-        <!-- Alert Modal -->
-        <div id="alert-modal"
-            class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[60]">
-            <div class="bg-white rounded-lg p-6 m-4 max-w-sm w-full">
-                <div class="text-center">
-                    <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100">
-                        <svg class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                    </div>
-                    <h3 class="text-lg font-medium text-gray-900 mt-4">
-                        Empty Cart
-                    </h3>
-                    <p class="text-sm text-gray-500 mt-2">
-                        Please add items to your cart before proceeding to
-                        checkout.
-                    </p>
-                    <button onclick="closeAlert()"
-                        class="mt-4 w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-[#5E9EA0] text-base font-medium text-white hover:bg-[#4d8c8e] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#5E9EA0] sm:text-sm">
-                        OK
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <script>
-            function calculateEstimatedTime(itemCount) {
+    <script>
+        function calculateEstimatedTime(itemCount) {
                 // Base preparation time
                 const baseTime = 5;
                 // Additional time per item
                 const timePerItem = 2;
                 return baseTime + itemCount * timePerItem;
-            }
+        }
 
-            function updateCart() {
-                const cart = JSON.parse(localStorage.getItem("cart") || "{}");
-                const cartItemsContainer = document.getElementById("cart-items");
-                const emptyCartMessage = document.getElementById("empty-cart");
-                const checkoutContainer = document.getElementById("checkout-container");
-                const estimatedTimeContainer = document.getElementById("estimated-time-container");
+        
 
-                cartItemsContainer.innerHTML = "";
-                let subtotal = 0;
-                let totalItems = 0;
+        function updateQuantity(itemId, newQty) {
+            if (newQty < 0) return;
 
-                if (Object.keys(cart).length === 0) {
-                    emptyCartMessage.classList.remove("hidden");
-                    checkoutContainer.classList.add("hidden");
-                    estimatedTimeContainer.classList.add("hidden");
+            fetch("{% url 'update_cart_item' %}", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": "{{ csrf_token }}"
+                },
+                body: JSON.stringify({
+                    item_id: itemId,
+                    quantity: newQty
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Reload the page to reflect all updates
+                    window.location.reload();
                 } else {
-                    emptyCartMessage.classList.add("hidden");
-                    checkoutContainer.classList.remove("hidden");
-                    estimatedTimeContainer.classList.remove("hidden");
-
-                    for (const [itemName, itemData] of Object.entries(cart)) {
-                        const price = parseFloat(itemData.price.replace("$", ""));
-                        const itemTotal = price * itemData.quantity;
-                        subtotal += itemTotal;
-                        totalItems += itemData.quantity;
-
-                        const itemElement = document.createElement("div");
-                        itemElement.className = "flex items-center justify-between p-4 bg-gray-50 rounded-lg";
-                        itemElement.innerHTML = `
-                <div class="flex items-center space-x-4">
-                    <img src="${itemData.image}" alt="${itemName}" class="w-16 h-16 object-cover rounded-lg">
-                    <div>
-                        <h4 class="font-medium text-gray-900">${itemName}</h4>
-                        <p class="text-sm text-gray-500">${itemData.price} each</p>
-                    </div>
-                </div>
-                <div class="flex items-center space-x-3">
-                    <button onclick="updateQuantity('${itemName}', ${itemData.quantity - 1})" 
-                        class="w-8 h-8 rounded-full border-2 border-[#5E9EA0] text-[#5E9EA0] flex items-center justify-center hover:bg-[#5E9EA0] hover:text-white transition-colors">-</button>
-                    <span class="w-8 text-center">${itemData.quantity}</span>
-                    <button onclick="updateQuantity('${itemName}', ${itemData.quantity + 1})" 
-                        class="w-8 h-8 rounded-full border-2 border-[#5E9EA0] text-[#5E9EA0] flex items-center justify-center hover:bg-[#5E9EA0] hover:text-white transition-colors">+</button>
-                </div>
-            `;
-                        cartItemsContainer.appendChild(itemElement);
-                    }
-
-                    // Update estimated time
-                    const estimatedTime = calculateEstimatedTime(totalItems);
-                    document.getElementById("estimated-time").textContent = estimatedTime;
+                    alert("Error updating cart.");
                 }
-
-                // Update subtotal and total together
-                updateTotal(subtotal);
-            }
-
-            function updateTotal(amount) {
-                const formattedTotal = `$${amount.toFixed(2)}`;
-                document.getElementById("subtotal").textContent = formattedTotal; // Update subtotal
-                document.querySelectorAll("#total").forEach(el => el.textContent = formattedTotal); // Update all total elements
-            }
-
-
-
-
-
-            function updateQuantity(itemName, newQuantity) {
-                const cart = JSON.parse(localStorage.getItem("cart") || "{}");
-                if (newQuantity > 0) {
-                    cart[itemName].quantity = newQuantity;
-                } else {
-                    delete cart[itemName];
-                }
-                localStorage.setItem("cart", JSON.stringify(cart));
-                updateCart();
-            }
-
-            function handleCheckout() {
-                const cart = JSON.parse(localStorage.getItem("cart") || "{}");
-                if (Object.keys(cart).length === 0) {
-                    document
-                        .getElementById("alert-modal")
-                        .classList.remove("hidden");
-                } else {
-                    window.location.href = "{% url 'checkout' %}";
-                }
-            }
-
-            function closeAlert() {
-                document.getElementById("alert-modal").classList.add("hidden");
-            }
-
-            // Initialize cart on page load
-            document.addEventListener("DOMContentLoaded", updateCart);
-
-            // Add this code to calculate header height and apply padding
-            window.addEventListener('load', function () {
-                const header = document.getElementById('main-header');
-                const content = document.getElementById('main-content');
-                const headerHeight = header.offsetHeight;
-
-                content.style.paddingTop = headerHeight + 'px';
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                alert("Failed to update cart. Please try again.");
             });
-        </script>
+        }
+
+        // Adjust for header padding
+        window.addEventListener('load', function () {
+        const header = document.getElementById('main-header');
+        const content = document.getElementById('main-content');
+        content.style.paddingTop = header.offsetHeight + 'px';
+
+        {% if cart_items %}
+            let totalItems = 0;
+            {% for item in cart_items %}
+                totalItems += {{ item.qty }};
+            {% endfor %}
+
+            const estimatedTime = calculateEstimatedTime(totalItems);
+            document.getElementById("estimated-time").textContent = estimatedTime;
+        {% endif %}
+        });
+    </script>
 </body>
 
 </html>

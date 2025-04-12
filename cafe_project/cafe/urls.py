@@ -3,9 +3,11 @@ from . import views
 from .views import order_status
 
 urlpatterns = [
+    path('update-cart-item/', views.update_cart_item, name='update_cart_item'),
      # Public Pages
      path('', views.home, name='home'),
      path('menu/<uuid:token>/', views.menu, name='menu'),
+    path('add-to-cart/', views.add_to_cart, name='add_to_cart'),
      path('order-list/', views.order_list, name='order_list'),
      path('item/<int:item_id>/', views.item_detail, name='item_detail'),
      path('cart/', views.cart, name='cart'),
@@ -33,6 +35,13 @@ urlpatterns = [
      path('admin-panel/remove-qr-code/',
           views.remove_qr_code,
           name='remove_qr_code'),
+     path('admin-panel/orders/', views.orders_page, name='orders'),
+     path('admin-panel/order-details/<int:order_id>/', views.order_details, name='order_details'),
+     path('admin-panel/update-order-status/<int:order_id>/', views.update_order_status, name='update_order_status'),
+     path('admin-panel/filter-orders/', views.filter_orders, name='filter_orders'),
+     path('admin-panel/transactions/', views.transactions_view, name='transactions'),
+     path('admin-panel/transaction-details/<int:transaction_id>/', views.transaction_details, name='transaction_details'),
+     path('admin-panel/filter-transactions/', views.filter_transactions, name='filter_transactions'),
 
      # Authentication Routes
      path('login/', views.custom_login, name='login'),
@@ -62,5 +71,6 @@ urlpatterns = [
      #Kitchen Routes
      path('kitchen_login/', views.kitchen_login, name='kitchen_login'),
      path('kitchen_dashboard/', views.kitchen_dashboard, name='kitchen_dashboard'),
+     path('update_order_status/<int:order_id>/', views.update_order_status, name='kitchen_update_order_status'),
 
 ]

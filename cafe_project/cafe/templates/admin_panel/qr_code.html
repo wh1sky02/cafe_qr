@@ -1,8 +1,11 @@
 {% extends "admin_panel/base_admin.html" %}
 {% load static tailwind_tags %}
+{% block container_class %}
+container mx-auto px-4 py-6
+{% endblock %}
 {% block content %}
 <div class="qr-page-container">
-  <h2 class="text-2xl font-bold">QR Code Management</h2>
+  <h2 class="text-2xl font-bold mb-5">QR Code Management</h2>
   <!-- Generate QR Code Button -->
   <button id="openModal" class="qr-btn">+ Generate QR Code</button>
 
@@ -29,35 +32,6 @@
   </div>
 
   <!-- Grid of QR Code Cards -->
-
-<style>
-.qr-actions {
-  display: flex;
-  gap: 5px;
-  position: absolute;
-  top: 10px;
-  right: 10px;
-}
-
-.qr-regenerate {
-  background: #4CAF50;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  padding: 8px 15px;
-  cursor: pointer;
-  font-size: 14px;
-  margin: 10px 0;
-  display: block;
-  width: 100%;
-  text-align: center;
-}
-
-.qr-regenerate:hover {
-  background: #45a049;
-}
-</style>
-
   <div class="qr-grid" id="gridContainer">
     {% for table in tables %}
       <div class="qr-card" id="table-{{ table.number }}">
@@ -89,6 +63,11 @@
 </div>
 
 <style>
+  .qr-page-container {
+    min-height: calc(100vh - 2rem);
+    padding: 1rem;
+  }
+
   /* Generate QR Code Button */
   .qr-btn {
     background-color: #008080;
@@ -99,6 +78,7 @@
     cursor: pointer;
     font-size: 14px;
     font-weight: bold;
+    margin-bottom: 2rem;
   }
   .qr-btn:hover {
     background-color: #006666;
@@ -119,7 +99,7 @@
   }
   .qr-modal-content {
     background: white;
-    padding: 20px;
+    padding: 2rem;
     border-radius: 10px;
     text-align: center;
     width: 300px;
@@ -139,73 +119,73 @@
 
   /* Grid for QR Code Cards */
   .qr-grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-    justify-content: flex-start;
-    margin-top: 20px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1.5rem;
   }
 
   /* QR Code Card */
   .qr-card {
     background: white;
-    width: 368px;
-    height: 300px;
-    padding: 15px;
+    padding: 1.5rem;
     border-radius: 10px;
-    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     position: relative;
     display: flex;
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
-    cursor: pointer;
+    min-height: 200px;
   }
   .qr-card:hover {
     transform: translateY(-4px);
-    box-shadow: 2px 6px 12px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
   }
 
   /* Remove Button on Card */
   .qr-remove {
-    background-color: red;
+    background-color: #dc3545;
     color: white;
     padding: 6px 9px;
     font-size: 14px;
     border-radius: 50%;
     position: absolute;
-    top: 5px;
-    right: 5px;
+    top: 10px;
+    right: 10px;
     cursor: pointer;
     border: none;
+    transition: background-color 0.2s;
   }
   .qr-remove:hover {
-    background-color: darkred;
+    background-color: #c82333;
   }
 
   /* Left side: Table Info */
   .qr-info {
+    flex: 1;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
     justify-content: center;
-    gap: 5px;
-    max-width: 50%;
+    gap: 0.5rem;
+    padding-right: 1rem;
   }
   .qr-info h3 {
     margin: 0;
-    font-size: 16px;
+    font-size: 1.25rem;
+    font-weight: bold;
   }
   .qr-status {
-    font-weight: bold;
+    font-weight: 500;
     margin: 0;
   }
   .active {
-    color: green;
+    color: #28a745;
   }
   .inactive {
-    color: red;
+    color: #dc3545;
   }
 
   /* Right side: QR Code & Download */
@@ -213,25 +193,78 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+    gap: 0.75rem;
   }
   .qr-img-container img {
     width: 120px;
     height: 120px;
-    object-fit: cover;
+    object-fit: contain;
   }
   .qr-download {
     display: inline-block;
     background-color: #008080;
-    padding: 5px 10px;
-    margin-top: 10px;
+    padding: 8px 16px;
     border-radius: 5px;
     text-decoration: none;
     font-size: 14px;
     color: white;
+    transition: background-color 0.2s;
   }
   .qr-download:hover {
     background-color: #006666;
+  }
+
+  /* Placeholder for cards without QR code */
+  .qr-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #6c757d;
+    text-align: center;
+    padding: 2rem;
+  }
+
+  /* Form elements in modal */
+  #tableNumber {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+  }
+
+  /* Regenerate button */
+  .qr-regenerate {
+    background: #28a745;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 16px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.2s;
+  }
+  .qr-regenerate:hover {
+    background: #218838;
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .qr-grid {
+      grid-template-columns: 1fr;
+    }
+    .qr-card {
+      flex-direction: column;
+      text-align: center;
+      padding: 2rem 1rem;
+    }
+    .qr-info {
+      align-items: center;
+      padding-right: 0;
+      margin-bottom: 1rem;
+    }
   }
 </style>
 
@@ -290,74 +323,75 @@ document.addEventListener("DOMContentLoaded", function() {
       console.error(error);
     }
   });
-
-  // Remove QR Code
-  window.removeQRCode = async function(tableNumber) {
-    if (!confirm(`Are you sure you want to remove the QR code for Table ${tableNumber}?`)) return;
-    try {
-      const response = await fetch("/admin-panel/remove-qr-code/", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-CSRFToken": document.querySelector("[name=csrfmiddlewaretoken]").value
-        },
-        body: JSON.stringify({ table_number: tableNumber })
-      });
-
-      const data = await response.json();
-      if (data.success) {
-        location.reload(); // Reload to update the UI
-      } else {
-        throw new Error(data.error || 'Failed to remove QR code');
-      }
-    } catch (error) {
-      alert("Error: " + error.message);
-      console.error(error);
-    }
-  };
-
-  window.regenerateQRCode = async function(tableNumber) {
-    if (!confirm(`Are you sure you want to regenerate the QR code for Table ${tableNumber}?`)) return;
-    try {
-      const csrfToken = document.querySelector("[name=csrfmiddlewaretoken]").value;
-
-      // First remove the existing QR code
-      const removeResponse = await fetch("/admin-panel/remove-qr-code/", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-CSRFToken": csrfToken
-        },
-        body: JSON.stringify({ table_number: tableNumber })
-      });
-
-      if (!removeResponse.ok) {
-        throw new Error('Failed to remove old QR code');
-      }
-
-      await new Promise(resolve => setTimeout(resolve, 100)); // Small delay
-
-      // Then generate a new one
-      const generateResponse = await fetch("/admin-panel/generate-qr-code/", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-CSRFToken": csrfToken
-        },
-        body: JSON.stringify({ table_number: tableNumber })
-      });
-
-      const data = await generateResponse.json();
-      if (data.success) {
-        location.reload(); // Reload the page to show new QR code
-      } else {
-        throw new Error(data.error || 'Failed to generate new QR code');
-      }
-    } catch (error) {
-      alert("Error: " + error.message);
-      console.error(error);
-    }
-  };
 });
+
+// Remove QR Code
+window.removeQRCode = async function(tableNumber) {
+  if (!confirm(`Are you sure you want to remove the QR code for Table ${tableNumber}?`)) return;
+  try {
+    const response = await fetch("/admin-panel/remove-qr-code/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": document.querySelector("[name=csrfmiddlewaretoken]").value
+      },
+      body: JSON.stringify({ table_number: tableNumber })
+    });
+
+    const data = await response.json();
+    if (data.success) {
+      location.reload(); // Reload to update the UI
+    } else {
+      throw new Error(data.error || 'Failed to remove QR code');
+    }
+  } catch (error) {
+    alert("Error: " + error.message);
+    console.error(error);
+  }
+};
+
+// Regenerate QR Code
+window.regenerateQRCode = async function(tableNumber) {
+  if (!confirm(`Are you sure you want to regenerate the QR code for Table ${tableNumber}?`)) return;
+  try {
+    const csrfToken = document.querySelector("[name=csrfmiddlewaretoken]").value;
+
+    // First remove the existing QR code
+    const removeResponse = await fetch("/admin-panel/remove-qr-code/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": csrfToken
+      },
+      body: JSON.stringify({ table_number: tableNumber })
+    });
+
+    if (!removeResponse.ok) {
+      throw new Error('Failed to remove old QR code');
+    }
+
+    await new Promise(resolve => setTimeout(resolve, 100)); // Small delay
+
+    // Then generate a new one
+    const generateResponse = await fetch("/admin-panel/generate-qr-code/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": csrfToken
+      },
+      body: JSON.stringify({ table_number: tableNumber })
+    });
+
+    const data = await generateResponse.json();
+    if (data.success) {
+      location.reload(); // Reload the page to show new QR code
+    } else {
+      throw new Error(data.error || 'Failed to generate new QR code');
+    }
+  } catch (error) {
+    alert("Error: " + error.message);
+    console.error(error);
+  }
+};
 </script>
 {% endblock %}

@@ -1,3 +1,4 @@
+
 #!/usr/bin/env python
 import os
 import django
@@ -9,21 +10,23 @@ django.setup()
 
 from django.contrib.auth.models import User
 
-def set_password(username, password):
+def create_admin(username, password):
     try:
-        user = User.objects.get(username=username)
-        user.set_password(password)
-        user.save()
-        print(f"Password for user '{username}' updated successfully.")
-    except User.DoesNotExist:
-        print(f"User '{username}' not found.")
+        if User.objects.filter(username=username).exists():
+            print(f"User '{username}' already exists.")
+            return
+            
+        User.objects.create_superuser(username=username, email='admin@example.com', password=password)
+        print(f"Admin user '{username}' created successfully.")
+    except Exception as e:
+        print(f"Error creating admin user: {e}")
 
 if __name__ == "__main__":
     if len(sys.argv) != 3:
-        print("Usage: python set_admin_password.py <username> <password>")
+        print("Usage: python create_admin.py <username> <password>")
         sys.exit(1)
 
     username = sys.argv[1]
     password = sys.argv[2]
 
-    set_password(username, password)
+    create_admin(username, password)
